@@ -7,13 +7,13 @@ The Development Kit based on ESP8266, integates GPIO, PWM, IIC, 1-Wire and ADC a
 
 * [Node MCU version 1.0](http://nodemcu.com/)
 * [Arduino IDE 1.6.5 or higher](https://www.arduino.cc/en/Main/Software)
-* [UbidotsMicroESP8266 library](https://github.com/ubidots/ubidots-arduino-ethernet/archive/master.zip)
+* [UbidotsMicroESP8266 library](https://github.com/ubidots/ubidots-nodemcu/archive/master.zip)
 
 ## Setup
 
 1. Go to the Arduino IDE, click on **Files -> Preferences** and enter http://arduino.esp8266.com/stable/package_esp8266com_index.json into Additional Board Manager URLs field. You can add multiple URLs, separating them with commas
 2. Open Boards Manager from **Tools -> Board menu** and install esp8266 platform (and don't forget to select your ESP8266 board from Tools > Board menu after installation)
-3. Download the UbidotsMicroESP8266 library [here](https://github.com/ubidots/ubidots-arduino-ethernet/archive/master.zip)
+3. Download the UbidotsMicroESP8266 library [here](https://github.com/ubidots/ubidots-nodemcu/archive/master.zip)
 4. Now, click on **Sketch -> Include Library -> Add .ZIP Library**
 5. Select the .ZIP file of UbidotsMicroESP8266 and then "Accept" or "Choose"
 6. Close the Arduino IDE and open it again.
