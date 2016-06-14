@@ -52,7 +52,6 @@ class Ubidots {
     float getValue(char* id);
     void add(char *variable_id, float value, char *ctext = NULL);
     bool wifiConnection(char *ssid, char *pass);
-
     void setDataSourceName(char* dataSoruceName);
     void setDataSourceLabel(char* dataSoruceLabel);
 
