@@ -1,7 +1,7 @@
 #include "UbidotsMicroESP8266.h"
-#define ID  "Your_variable_ID_here"  // Put here your Ubidots variable ID
 #define TOKEN  "Your_token_here"  // Put here your Ubidots TOKEN
-
+#define WIFISSID "Your_WiFi_SSID"
+#define PASSWORD "Your_WiFi_Password"
 
 Ubidots client(TOKEN);
 
@@ -12,6 +12,6 @@ void setup(){
 }
 void loop(){
     float value = analogRead(A0);
-    client.add(ID, value);
-    client.sendAll();
+    client.add("Temperature", value);
+    client.sendAll(true);
 }

@@ -17,18 +17,19 @@ The Development Kit based on ESP8266, integates GPIO, PWM, IIC, 1-Wire and ADC a
 4. Now, click on **Sketch -> Include Library -> Add .ZIP Library**
 5. Select the .ZIP file of UbidotsMicroESP8266 and then "Accept" or "Choose"
 6. Close the Arduino IDE and open it again.
+
+Note: The library will create a new Ubidots data source named "ESP8266", there the library will save the variables that you will send.
     
 ## Send one value to Ubidots
 
 To send a value to Ubidots, go to **Sketch -> Examples -> UbidotsArduino library** and select the "saveValue" example. 
-Put your Ubidots token and variable ID where indicated, as well as the WiFi settings.
-Upload the code, open the Serial monitor to check the results. If no response is seen, try unplugging your Arduino and then plugging it again. Make sure the baud rate of the Serial monitor is set to the same one specified in your code.
+Put your Ubidots TOKEN where indicated, as well as the WiFi settings.
 
 ```c++
 #include "UbidotsMicroESP8266.h"
-#define ID  "Your_variable_ID_here"  // Put here your Ubidots variable ID
 #define TOKEN  "Your_token_here"  // Put here your Ubidots TOKEN
-
+#define WIFISSID "Your_WiFi_SSID"
+#define PASSWORD "Your_WiFi_Password"
 
 Ubidots client(TOKEN);
 
@@ -39,8 +40,8 @@ void setup(){
 }
 void loop(){
     float value = analogRead(A0);
-    client.add(ID, value);
-    client.sendAll();
+    client.add("Temperature", value);
+    client.sendAll(true);
 }
 ```
 
@@ -48,14 +49,13 @@ void loop(){
 ## Get one value from Ubidots
 
 To get the last value of a variable from Ubidots, go to **Sketch -> Examples -> UbidotsArduino library** and select the "getValue" example. 
-Put your Ubidots token and variable ID where indicated, as well as the WiFi settings.
-Upload the code, open the Serial monitor to check the results. If no response is seen, try unplugging your Arduino and then plugging it again. Make sure the baud rate of the Serial monitor is set to the same one specified in your code.
+Put your Ubidots TOKEN where indicated, as well as the WiFi settings.
 
 ```c++
 #include "UbidotsMicroESP8266.h"
-#define ID  "Your_variable_ID_here"  // Put here your Ubidots variable ID
 #define TOKEN  "Your_token_here"  // Put here your Ubidots TOKEN
-
+#define WIFISSID "Your_WiFi_SSID"
+#define PASSWORD "Your_WiFi_Password"
 
 Ubidots client(TOKEN);
 
@@ -73,17 +73,13 @@ void loop() {
 
 ## Send multiple values to Ubidots 
 
-To send multiple values to Ubidots, go to **Sketch -> Examples -> UbidotsArduino library** and select the "saveValues" example. 
-Put your Ubidots token and variable ID's where indicated,  as well as the APN settings
-Upload the code, open the Serial monitor to check the results. If no response is seen, try unplugging your Arduino and then plugging it again. Make sure the baud rate of the Serial monitor is set to the same one specified in your code.
+To send multiple values to Ubidots, go to **Sketch -> Examples -> UbidotsArduino library** and select the "saveValues" example. Put your Ubidots TOKEN where indicated, as well as the WiFi settings.
 
 ```c++
 #include "UbidotsMicroESP8266.h"
-#define ID  "Your_variable_ID_here"  // Put here your Ubidots variable ID
-#define ID2 "Your_variable_ID2_here"
-#define ID3 "Your_variable_ID3_here"
 #define TOKEN  "Your_token_here"  // Put here your Ubidots TOKEN
-
+#define WIFISSID "Your_WiFi_SSID"
+#define PASSWORD "Your_WiFi_Password"
 
 Ubidots client(TOKEN);
 
@@ -96,10 +92,10 @@ void loop(){
     float value = analogRead(A0);
     float value2 = analogRead(A1);
     float value3 = analogRead(A2);
-    client.add(ID, value);
-    client.add(ID2, value2);
-    client.add(ID3, value3);
-    client.sendAll();
+    client.add("Temperature", value);
+    client.add("Humidity", value2);
+    client.add("Heat Index", value3);
+    client.sendAll(true);
 }
 
 ```
