@@ -241,7 +241,7 @@ bool Ubidots::wifiConnection(char* ssid, char* pass) {
  * memory segment, and the received packet is read one byte at a time.
  * The Unix time is returned, that is, seconds from 1970-01-01T00:00.
  */
-unsigned long inline Ubidots::ntpUnixTime (UDP &udp) {
+unsigned long Ubidots::ntpUnixTime () {
     static int udpInited = udp.begin(123); // open socket on arbitrary port
 
     // Only the first four bytes of an outgoing NTP packet need to be set
