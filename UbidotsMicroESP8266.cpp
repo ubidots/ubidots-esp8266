@@ -59,7 +59,7 @@ float Ubidots::getValue(char* id) {
         _client.print(id);
         _client.println(F("/values?page_size=1 HTTP/1.1"));
         _client.println(F("Host: things.ubidots.com"));
-        _client.println(F("User-Agent: ESP8266/1.0"));
+        _client.println(F("User-Agent: Arduino-Ethernet/1.0"));
         _client.print(F("X-Auth-Token: "));
         _client.println(_token);
         _client.println(F("Connection: close"));
@@ -91,10 +91,21 @@ float Ubidots::getValue(char* id) {
  * @arg variable_id variable id to save in a struct
  * @arg value variable value to save in a struct
  */
+
+void Ubidots::add(char *variable_id, float value) {
+    return add(variable_id, value, NULL, NULL);
+}
 void Ubidots::add(char *variable_id, float value, char *ctext) {
+    return add(variable_id, value, ctext, NULL);   
+}
+void Ubidots::add(char *variable_id, float value, long timestamp) {
+    return add(variable_id, value, NULL, timestamp);
+}
+void Ubidots::add(char *variable_id, float value, char *ctext, long timestamp) {
     (val+currentValue)->id = variable_id;
     (val+currentValue)->value_id = value;
     (val+currentValue)->context = ctext;
+    (val+currentValue)->timestamp = timestamp;
     currentValue++;
     if (currentValue>maxValues) {
         Serial.println(F("You are sending more than 5 consecutives variables, you just could send 5 variables. Then other variables will be deleted!"));
@@ -120,7 +131,10 @@ bool Ubidots::sendTLATE() {
     for (i = 0; i < currentValue; i++) {
         str = String(((val+i)->value_id), 5);
         sprintf(data, "%s%s:%s", data, (val+i)->id, str.c_str());
-        if ((val+currentValue)->context) {
+        if ((val+currentValue)->timestamp != NULL) {
+            sprintf(data, "%s@%s", data, (val+currentValue)->timestamp);
+        }
+        if ((val+currentValue)->context != NULL) {
             sprintf(data, "%s$%s", data, (val+i)->context);
         }
         sprintf(data, "%s,", data);
@@ -179,7 +193,7 @@ bool Ubidots::sendHTTP() {
         Serial.println(F("Posting your variables"));
         _client.println(F("POST /api/v1.6/collections/values/?force=true HTTP/1.1"));
         _client.println(F("Host: things.ubidots.com"));
-        _client.println(F("User-Agent: ESP8266/1.0"));
+        _client.println(F("User-Agent: Arduino-Ethernet/1.0"));
         _client.print(F("X-Auth-Token: "));
         _client.println(_token);
         _client.println(F("Connection: close"));
