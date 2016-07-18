@@ -28,6 +28,10 @@ Made by Mateo Velez - Metavix for Ubidots Inc
 #define _UbidotsMicroESP8266_H_
 
 #include <ESP8266WiFi.h>
+#include "WiFiUdp.h"
+
+
+#define TIME_SERVER "pool.ntp.org"
 
 #define SERVER "translate.ubidots.com"
 #define PORT 9010
@@ -56,9 +60,9 @@ class Ubidots {
     void add(char *variable_id, float value, long timestamp);
     void add(char *variable_id, float value, char *ctext, long timestamp);
     bool wifiConnection(char *ssid, char *pass);
-
     void setDataSourceName(char* dataSoruceName);
     void setDataSourceLabel(char* dataSoruceLabel);
+    unsigned long inline ntpUnixTime (UDP &udp);
 
  private:
     char* _token;
@@ -70,6 +74,7 @@ class Ubidots {
     Value * val;
     float parseValue(String body);
     WiFiClient _client;
+    WiFiUDP udp;
 };
 
 #endif
