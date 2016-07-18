@@ -45,7 +45,7 @@ typedef struct Value {
   char  *id;
   char *context;
   float value_id;
-  long timestamp;
+  unsigned long timestamp;
 } Value;
 
 class Ubidots {
@@ -57,8 +57,8 @@ class Ubidots {
     float getValue(char* id);
     void add(char *variable_id, float value);
     void add(char *variable_id, float value, char *ctext);
-    void add(char *variable_id, float value, long timestamp);
-    void add(char *variable_id, float value, char *ctext, long timestamp);
+    void add(char *variable_id, float value, unsigned long timestamp);
+    void add(char *variable_id, float value, char *ctext, unsigned long timestamp);
     bool wifiConnection(char *ssid, char *pass);
     void setDataSourceName(char* dataSoruceName);
     void setDataSourceLabel(char* dataSoruceLabel);
