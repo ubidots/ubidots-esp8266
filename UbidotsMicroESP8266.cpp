@@ -91,10 +91,21 @@ float Ubidots::getValue(char* id) {
  * @arg variable_id variable id to save in a struct
  * @arg value variable value to save in a struct
  */
+
+void Ubidots::add(char *variable_id, float value) {
+    return add(variable_id, value, NULL, NULL);
+}
 void Ubidots::add(char *variable_id, float value, char *ctext) {
+    return add(variable_id, value, ctext, NULL);   
+}
+void Ubidots::add(char *variable_id, float value, unsigned long timestamp) {
+    return add(variable_id, value, NULL, timestamp);
+}
+void Ubidots::add(char *variable_id, float value, char *ctext, unsigned long timestamp) {
     (val+currentValue)->id = variable_id;
     (val+currentValue)->value_id = value;
     (val+currentValue)->context = ctext;
+    (val+currentValue)->timestamp = timestamp;
     currentValue++;
     if (currentValue>maxValues) {
         Serial.println(F("You are sending more than 5 consecutives variables, you just could send 5 variables. Then other variables will be deleted!"));
@@ -120,7 +131,10 @@ bool Ubidots::sendTLATE() {
     for (i = 0; i < currentValue; i++) {
         str = String(((val+i)->value_id), 5);
         sprintf(data, "%s%s:%s", data, (val+i)->id, str.c_str());
-        if ((val+currentValue)->context) {
+        if ((val+currentValue)->timestamp != NULL) {
+            sprintf(data, "%s@%s", data, (val+currentValue)->timestamp);
+        }
+        if ((val+currentValue)->context != NULL) {
             sprintf(data, "%s$%s", data, (val+i)->context);
         }
         sprintf(data, "%s,", data);
@@ -179,7 +193,7 @@ bool Ubidots::sendHTTP() {
         Serial.println(F("Posting your variables"));
         _client.println(F("POST /api/v1.6/collections/values/?force=true HTTP/1.1"));
         _client.println(F("Host: things.ubidots.com"));
-        _client.println(F("User-Agent: ESP8266/1.0"));
+        _client.println(F("User-Agent: Arduino-Ethernet/1.0"));
         _client.print(F("X-Auth-Token: "));
         _client.println(_token);
         _client.println(F("Connection: close"));
@@ -213,4 +227,71 @@ bool Ubidots::wifiConnection(char* ssid, char* pass) {
     Serial.println(F("WiFi connected"));
     Serial.println(F("IP address: "));
     Serial.println(WiFi.localIP());
+}
+
+
+/*
+ * © Francesco Potortì 2013 - GPLv3 - Revision: 1.13
+ *
+ * Send an NTP packet and wait for the response, return the Unix time
+ *
+ * To lower the memory footprint, no buffers are allocated for sending
+ * and receiving the NTP packets.  Four bytes of memory are allocated
+ * for transmision, the rest is random garbage collected from the data
+ * memory segment, and the received packet is read one byte at a time.
+ * The Unix time is returned, that is, seconds from 1970-01-01T00:00.
+ */
+unsigned long Ubidots::ntpUnixTime () {
+    static int udpInited = udp.begin(123); // open socket on arbitrary port
+
+    // Only the first four bytes of an outgoing NTP packet need to be set
+    // appropriately, the rest can be whatever.
+    const long ntpFirstFourBytes = 0xEC0600E3; // NTP request header
+
+    // Fail if WiFiUdp.begin() could not init a socket
+    if (! udpInited)
+        return 0;
+
+    // Clear received data from possible stray received packets
+    udp.flush();
+
+    // Send an NTP request
+    if (! (udp.beginPacket(TIME_SERVER, 123) // 123 is the NTP port
+        && udp.write((byte *)&ntpFirstFourBytes, 48) == 48
+        && udp.endPacket()))
+            return 0;               // sending request failed
+
+    // Wait for response; check every pollIntv ms up to maxPoll times
+    const int pollIntv = 150;     // poll every this many ms
+    const byte maxPoll = 15;      // poll up to this many times
+    int pktLen;               // received packet length
+    for (byte i = 0; i < maxPoll; i++) {
+        if ((pktLen = udp.parsePacket()) == 48)
+            break;
+        delay(pollIntv);
+    }
+    if (pktLen != 48)
+        return 0;               // no correct packet received
+
+    // Read and discard the first useless bytes
+    // Set useless to 32 for speed; set to 40 for accuracy.
+    const byte useless = 40;
+    for (byte i = 0; i < useless; ++i)
+        udp.read();
+
+    // Read the integer part of sending time
+    unsigned long time = udp.read();  // NTP time
+    for (byte i = 1; i < 4; i++)
+        time = time << 8 | udp.read();
+
+    // Round to the nearest second if we want accuracy
+    // The fractionary part is the next byte divided by 256: if it is
+    // greater than 500ms we round to the next second; we also account
+    // for an assumed network delay of 50ms, and (0.5-0.05)*256=115;
+    // additionally, we account for how much we delayed reading the packet
+    // since its arrival, which we assume on average to be pollIntv/2.
+    time += (udp.read() > 115 - pollIntv/8);
+    // Discard the rest of the packet
+    udp.flush();
+    return time - 2208988800ul;       // convert NTP time to Unix time
 }
