@@ -21,6 +21,7 @@ OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 Made by Mateo Velez - Metavix for Ubidots Inc
+Modified by: Maria Carlina Hernandez
 
 */
 
@@ -54,7 +55,7 @@ float Ubidots::getValue(char* id) {
   uint8_t bodyPosinit;
   uint8_t bodyPosend;
   if (_client.connect(HTTPSERVER, HTTPPORT)) {
-        Serial.println(F("Geting your variable"));
+        Serial.println(F("Getting your variable"));
         _client.print(F("GET /api/v1.6/variables/"));
         _client.print(id);
         _client.println(F("/values?page_size=1 HTTP/1.1"));
@@ -85,6 +86,107 @@ float Ubidots::getValue(char* id) {
     _client.flush();
     _client.stop();
     return num;
+}
+/** 
+ * This function is to get variable timestamp from the Ubidots API
+ * @arg id is the ID of the variable where you will get the timestamp
+ * @return VarTimestamp is the timestamp of the variable that you get from the Ubidots API
+ */
+long Ubidots::getVarTimestamp(char* id) {
+  String response;
+  String str_seconds;
+  char *seconds;
+  char *milis;
+  long VarTimestamp;
+  int bodyPosinit;
+  int bodyPosend;
+  if (_client.connect(HTTPSERVER, HTTPPORT)) {
+        Serial.println(F("Getting your variable timestamp"));
+        _client.print(F("GET /api/v1.6/variables/"));
+        _client.print(id);
+        _client.println(F("/values?page_size=1 HTTP/1.1"));
+        _client.println(F("Host: things.ubidots.com"));
+        _client.println(F("User-Agent: ESP8266/1.0"));
+        _client.print(F("X-Auth-Token: "));
+        _client.println(_token);
+        _client.println(F("Connection: close"));
+        _client.println();
+  } else {
+        return NULL;
+  }
+    int timeout = 0;
+    while(!_client.available() && timeout < 5000) {
+        timeout++;
+        delay(1);
+    }
+    while (_client.available()) {
+        response = _client.readString();
+    }
+    Serial.println(response);
+    bodyPosinit = 4 + response.indexOf("\r\n\r\n");
+    Serial.print(response);
+    response = response.substring(bodyPosinit);
+    Serial.println(response);
+    bodyPosinit =13+response.indexOf("\"timestamp\":");
+    bodyPosend = response.indexOf(", \"context\":");
+    bodyPosend -= 3;
+    str_seconds = response.substring(bodyPosinit,bodyPosend); 
+    seconds = new char[str_seconds.length() + 1];
+    strcpy(seconds, str_seconds.c_str());
+    VarTimestamp = atoi(seconds);
+    delete [] seconds;
+    delay(1000);
+    _client.flush();
+    _client.stop();
+    return VarTimestamp;
+}
+/** 
+ * This function is to get variable context from the Ubidots API
+ * @arg id is the ID of the variable where you will get the context
+ * @return VarContext is the context of the variable that you get from the Ubidots API
+ */
+char* Ubidots::getVarContext(char* id) {
+  String response;
+  String str_context;
+  char* VarContext;
+  int bodyPosinit;
+  int bodyPosend;
+  if (_client.connect(HTTPSERVER, HTTPPORT)) {
+        Serial.println(F("Getting your variable context"));
+        _client.print(F("GET /api/v1.6/variables/"));
+        _client.print(id);
+        _client.println(F("/values?page_size=1 HTTP/1.1"));
+        _client.println(F("Host: things.ubidots.com"));
+        _client.println(F("User-Agent: ESP8266/1.0"));
+        _client.print(F("X-Auth-Token: "));
+        _client.println(_token);
+        _client.println(F("Connection: close"));
+        _client.println();
+  } else {
+        return NULL;
+  }
+    int timeout = 0;
+    while(!_client.available() && timeout < 5000) {
+        timeout++;
+        delay(1);
+    }
+    while (_client.available()) {
+        response = _client.readString();
+    }
+    Serial.println(response);
+    bodyPosinit = 4 + response.indexOf("\r\n\r\n");
+    Serial.print(response);
+    response = response.substring(bodyPosinit);
+    Serial.println(response);
+    bodyPosinit =13+response.indexOf("\"context\":");
+    bodyPosend = response.indexOf(", \"created_at\":");
+    bodyPosend -= 1;
+    str_context = response.substring(bodyPosinit,bodyPosend); 
+    VarContext = new char [str_context.length() + 1];
+    strcpy(VarContext, str_context.c_str());
+    _client.flush();
+    _client.stop();
+    return VarContext;
 }
 /**
  * Add a value of variable to save
