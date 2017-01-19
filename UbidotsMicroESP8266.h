@@ -21,6 +21,7 @@ OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 Made by Mateo Velez - Metavix for Ubidots Inc
+Modified by: Maria Carlina Hernandez
 
 */
 
@@ -34,7 +35,7 @@ Made by Mateo Velez - Metavix for Ubidots Inc
 #define TIME_SERVER "pool.ntp.org"
 
 #define SERVER "translate.ubidots.com"
-#define PORT 9010
+#define PORT 9012
 
 #define HTTPSERVER "things.ubidots.com"
 #define HTTPPORT 80
@@ -55,6 +56,8 @@ class Ubidots {
     bool sendHTTP();
     bool sendTLATE();
     float getValue(char* id);
+    long getVarTimestamp(char* id);
+    char* getVarContext(char* id);
     void add(char *variable_id, float value);
     void add(char *variable_id, float value, char *ctext);
     void add(char *variable_id, float value, unsigned long timestamp);
