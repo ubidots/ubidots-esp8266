@@ -189,21 +189,22 @@ bool Ubidots::sendHTTP() {
     }
     all += "]";
     i = all.length();
-    if (_client.connect(HTTPSERVER, HTTPPORT)) {
+	String toPost = "POST /api/v1.6/collections/values/?force=true HTTP/1.1\r\n"
+					"Host: things.ubidots.com\r\n"
+					"User-Agent: ESP8266/1.0\r\n"
+					"X-Auth-Token: " + String(_token)	 + "\r\n"
+					"Connection: close\r\n"
+					"Content-Type: application/json\r\n"
+					"Content-Length: " + String(i) + "\r\n"
+					"\r\n"
+					+ all +
+					"\r\n";
+	if (_client.connect(HTTPSERVER, HTTPPORT)) {
         Serial.println(F("Posting your variables"));
-        _client.println(F("POST /api/v1.6/collections/values/?force=true HTTP/1.1"));
-        _client.println(F("Host: things.ubidots.com"));
-        _client.println(F("User-Agent: Arduino-Ethernet/1.0"));
-        _client.print(F("X-Auth-Token: "));
-        _client.println(_token);
-        _client.println(F("Connection: close"));
-        _client.println(F("Content-Type: application/json"));
-        _client.print(F("Content-Length: "));
-        _client.println(String(i));
-        _client.println();
-        _client.println(all);
-        _client.println();
+		Serial.println(toPost);
+        _client.print(toPost);
     }
+	
     int timeout = 0;
     while(!_client.available() && timeout < 5000) {
         timeout++;
