@@ -12,4 +12,7 @@ void setup() {
 }
 void loop() {
     char* context = client.getVarContext(ID);
+    Serial.print("context: ");
+    Serial.println(context);    
+    delay(10000);
 }

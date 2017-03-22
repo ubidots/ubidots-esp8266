@@ -12,4 +12,7 @@ void setup() {
 }
 void loop() {
     long timestamp = client.getVarTimestamp(ID);
+    Serial.print("timestamp: ");
+    Serial.println(timestamp);
+    delay(10000);
 }
