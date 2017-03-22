@@ -21,7 +21,7 @@ OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 Made by Mateo Velez - Metavix for Ubidots Inc
-Modified by: Maria Carlina Hernandez
+Modified by: Maria Carlina Hernandez - 
 
 */
 
@@ -37,7 +37,19 @@ Ubidots::Ubidots(char* token, char* server) {
     maxValues = 5;
     currentValue = 0;
     val = (Value *)malloc(maxValues*sizeof(Value));
+    WiFi.macAddress(mac);
+    espID += macToStr(mac);
+} 
+
+String Ubidots::macToStr(const uint8_t* mac){
+        String result;
+        for (int i = 0; i < 6; ++i) {
+            result += String(mac[i], 16);
+            if (i < 5)result += ':';
+        }
+        return result;    
 }
+
 void Ubidots::setDataSourceName(char *dataSourceName) {
     _dsName = dataSourceName;
 }
@@ -50,21 +62,21 @@ void Ubidots::setDataSourceLabel(char *dataSourceLabel) {
  * @return num the data that you get from the Ubidots API
  */
 float Ubidots::getValue(char* id) {
+  
   float num;
   String response;
   uint8_t bodyPosinit;
   uint8_t bodyPosend;
+
+  char* data = (char *) malloc(sizeof(char) * 700);
+  sprintf(data, "GET /api/v1.6/variables/%s", id);
+  sprintf(data, "%s/values?page_size=1 HTTP/1.1\r\n", data);
+  sprintf(data, "%sHost: things.ubidots.com\r\nUser-Agent: ESP8266/1.0\r\n", data);
+  sprintf(data, "%sX-Auth-Token: %s\r\nConnection: close\r\n\r\n", data, _token);
+
   if (_client.connect(HTTPSERVER, HTTPPORT)) {
         Serial.println(F("Getting your variable"));
-        _client.print(F("GET /api/v1.6/variables/"));
-        _client.print(id);
-        _client.println(F("/values?page_size=1 HTTP/1.1"));
-        _client.println(F("Host: things.ubidots.com"));
-        _client.println(F("User-Agent: ESP8266/1.0"));
-        _client.print(F("X-Auth-Token: "));
-        _client.println(_token);
-        _client.println(F("Connection: close"));
-        _client.println();
+        _client.println(data);
   } else {
         return NULL;
   }
@@ -76,16 +88,27 @@ float Ubidots::getValue(char* id) {
     while (_client.available()) {
         response = _client.readString();
     }
-    Serial.println(response);
+
+    if (DEBUG){
+        Serial.println(response);
+    }
+
     bodyPosinit = 4 + response.indexOf("\r\n\r\n");
     response = response.substring(bodyPosinit);
-    Serial.println(response);
+
+    if (DEBUG){
+        Serial.println(response);
+    }
+
     bodyPosinit = 9 + response.indexOf("\"value\":");
     bodyPosend = response.indexOf(", \"timestamp\"");
-    num = response.substring(bodyPosinit,bodyPosend).toFloat();
+    response = response.substring(bodyPosinit,bodyPosend);    
+    num = response.toFloat();
     _client.flush();
     _client.stop();
+    
     return num;
+    
 }
 /** 
  * This function is to get variable timestamp from the Ubidots API
@@ -100,17 +123,16 @@ long Ubidots::getVarTimestamp(char* id) {
   long VarTimestamp;
   int bodyPosinit;
   int bodyPosend;
+
+  char* data = (char *) malloc(sizeof(char) * 700);
+  sprintf(data, "GET /api/v1.6/variables/%s", id);
+  sprintf(data, "%s/values?page_size=1 HTTP/1.1\r\n", data);
+  sprintf(data, "%sHost: things.ubidots.com\r\nUser-Agent: ESP8266/1.0\r\n", data);
+  sprintf(data, "%sX-Auth-Token: %s\r\nConnection: close\r\n\r\n", data, _token);
+
   if (_client.connect(HTTPSERVER, HTTPPORT)) {
         Serial.println(F("Getting your variable timestamp"));
-        _client.print(F("GET /api/v1.6/variables/"));
-        _client.print(id);
-        _client.println(F("/values?page_size=1 HTTP/1.1"));
-        _client.println(F("Host: things.ubidots.com"));
-        _client.println(F("User-Agent: ESP8266/1.0"));
-        _client.print(F("X-Auth-Token: "));
-        _client.println(_token);
-        _client.println(F("Connection: close"));
-        _client.println();
+        _client.println(data);
   } else {
         return NULL;
   }
@@ -122,11 +144,18 @@ long Ubidots::getVarTimestamp(char* id) {
     while (_client.available()) {
         response = _client.readString();
     }
-    Serial.println(response);
+    
+    if (DEBUG){
+        Serial.println(response);
+    }
+
     bodyPosinit = 4 + response.indexOf("\r\n\r\n");
-    Serial.print(response);
     response = response.substring(bodyPosinit);
-    Serial.println(response);
+    
+    if (DEBUG){
+        Serial.println(response);
+    }
+
     bodyPosinit =13+response.indexOf("\"timestamp\":");
     bodyPosend = response.indexOf(", \"context\":");
     bodyPosend -= 3;
@@ -151,17 +180,16 @@ char* Ubidots::getVarContext(char* id) {
   char* VarContext;
   int bodyPosinit;
   int bodyPosend;
+ 
+  char* data = (char *) malloc(sizeof(char) * 700);
+  sprintf(data, "GET /api/v1.6/variables/%s", id);
+  sprintf(data, "%s/values?page_size=1 HTTP/1.1\r\n", data);
+  sprintf(data, "%sHost: things.ubidots.com\r\nUser-Agent: ESP8266/1.0\r\n", data);
+  sprintf(data, "%sX-Auth-Token: %s\r\nConnection: close\r\n\r\n", data, _token);
+
   if (_client.connect(HTTPSERVER, HTTPPORT)) {
         Serial.println(F("Getting your variable context"));
-        _client.print(F("GET /api/v1.6/variables/"));
-        _client.print(id);
-        _client.println(F("/values?page_size=1 HTTP/1.1"));
-        _client.println(F("Host: things.ubidots.com"));
-        _client.println(F("User-Agent: ESP8266/1.0"));
-        _client.print(F("X-Auth-Token: "));
-        _client.println(_token);
-        _client.println(F("Connection: close"));
-        _client.println();
+        _client.println(data);
   } else {
         return NULL;
   }
@@ -173,11 +201,18 @@ char* Ubidots::getVarContext(char* id) {
     while (_client.available()) {
         response = _client.readString();
     }
-    Serial.println(response);
+
+    if (DEBUG){
+        Serial.println(response);
+    }
+
     bodyPosinit = 4 + response.indexOf("\r\n\r\n");
-    Serial.print(response);
     response = response.substring(bodyPosinit);
-    Serial.println(response);
+
+    if (DEBUG){
+        Serial.println(response);
+    }
+
     bodyPosinit =13+response.indexOf("\"context\":");
     bodyPosend = response.indexOf(", \"created_at\":");
     bodyPosend -= 1;
@@ -186,7 +221,92 @@ char* Ubidots::getVarContext(char* id) {
     strcpy(VarContext, str_context.c_str());
     _client.flush();
     _client.stop();
+
     return VarContext;
+}
+
+/** 
+ * This function is to get value from the Ubidots API
+ * @arg id the id where you will get the data
+ * @return num the data that you get from the Ubidots API
+ */
+
+float Ubidots::getValueUDP(char* id){
+
+    String response;
+    uint8_t bodyPosinit;
+    float num;
+    int i = 0;
+    char* data = (char *) malloc(sizeof(char) * 700);
+    sprintf(data, "%s/%s|GET|%s|%s", USER_AGENT, VERSION, _token, id);
+    sprintf(data, "%s|end", data);
+    //Serial.println(data);
+    if (_client.connect(SERVER, PORT)) {
+        Serial.println(F("Getting your variable"));
+        _client.print(data);
+    }
+    
+    int timeout = 0;
+    while(!_client.available() && timeout < 5000) {
+        timeout++;
+        delay(1);
+    }
+    
+    while (_client.available()) {
+        char c = _client.read();
+        response += c;
+    }
+
+    bodyPosinit = 3 + response.indexOf("OK|");
+    response = response.substring(bodyPosinit);
+    num = response.toFloat();
+    currentValue = 0;
+    _client.stop();
+    free(data);
+    _client.stop();
+    return num;
+}
+
+/** 
+ * This function is to get value from the Ubidots API with the device tag
+ * and variable tag
+ * @arg dsTag is the Tag of Device
+ * @arg idName is the Tag of the variable
+ * @return num the data that you get from the Ubidots API
+ */
+
+float Ubidots::getValueWithDevice(char* dsTag, char* idName){
+ 
+    String response;
+    uint8_t bodyPosinit;   
+    float num;
+    int i = 0;
+    char* data = (char *) malloc(sizeof(char) * 700);
+    sprintf(data, "%s/%s|LV|%s|%s:%s", USER_AGENT, VERSION, _token, dsTag, idName);
+    sprintf(data, "%s|end", data);
+    //Serial.println(data);
+    if (_client.connect(SERVER, PORT)) {
+        Serial.println(F("Getting your variable"));
+        _client.print(data);
+    }
+    int timeout = 0;
+    while(!_client.available() && timeout < 5000) {
+        timeout++;
+        delay(1);
+    }
+     while (_client.available()) {
+        char c = _client.read();
+        response += c;
+    }
+
+    bodyPosinit = 3 + response.indexOf("OK|");
+    response = response.substring(bodyPosinit);
+    num = response.toFloat();
+    currentValue = 0;
+    _client.stop();
+    free(data);
+    _client.stop();
+    return num;
 }
 /**
  * Add a value of variable to save
@@ -228,37 +348,35 @@ bool Ubidots::sendAll(bool type) {
 bool Ubidots::sendTLATE() {
     uint8_t i;
     String str;
-    char data[256];
-    sprintf(data, "=>");
-    for (i = 0; i < currentValue; i++) {
-        str = String(((val+i)->value_id), 5);
-        sprintf(data, "%s%s:%s", data, (val+i)->id, str.c_str());
-        if ((val+currentValue)->timestamp != NULL) {
-            sprintf(data, "%s@%s", data, (val+currentValue)->timestamp);
+    char* data = (char *) malloc(sizeof(char) * 700);
+
+    sprintf(data, "%s/%s|POST|%s|%s:%s=>", USER_AGENT, VERSION, _token, espID.c_str(), _dsName);
+    
+    for (i = 0; i < currentValue;) {
+         str = String(((val+i)->value_id), 5);
+    
+        sprintf(data, "%s%s:%s", data, (val + i)->id, str.c_str());
+
+        if ((val + i)->timestamp != NULL) {
+            sprintf(data, "%s@%lu%s", data, (val + i)->timestamp, "000");
         }
-        if ((val+currentValue)->context != NULL) {
-            sprintf(data, "%s$%s", data, (val+i)->context);
+        if ((val + i)->context != NULL) {
+            sprintf(data, "%s$%s", data, (val + i)->context);
         }
-        sprintf(data, "%s,", data);
+        
+        i++;
+
+        if (i < currentValue) {
+            sprintf(data, "%s,", data);
+        } else {
+            sprintf(data, "%s|end", data);
+            currentValue = 0;
+        }
     }
+
     Serial.println(data);
     if (_client.connect(SERVER, PORT)) {
-        Serial.println(F("POSTING YOUR VARIABLES"));
-        _client.print(USER_AGENT);
-        _client.print(F("/"));
-        _client.print(VERSION);
-        _client.print(F("|POST|"));
-        _client.print(_token);
-        _client.print(F("|"));
-        _client.print(_dsTag);
-        _client.print(F(":"));
-        _client.print(_dsName);
         _client.print(data);
-        _client.println(F("|end"));
-    } else {
-        Serial.println(F("Connection to server failed"));
-        currentValue = 0;
-        return false;
     }
     int timeout = 0;
     while(!_client.available() && timeout < 5000) {
@@ -269,15 +387,15 @@ bool Ubidots::sendTLATE() {
         char c = _client.read();
         Serial.write(c);
     }
-    currentValue = 0;
-    return true;
+    free(data);
 }
+
 bool Ubidots::sendHTTP() {
     uint16_t i;
     String all;
     String str;
     all = "[";
-    for (i = 0; i < currentValue; ) {
+for (i = 0; i < currentValue; ) {
         str = String(((val+i)->value_id), 4);
         all += "{\"variable\": \"";
         all += String((val + i)->id);
@@ -289,12 +407,13 @@ bool Ubidots::sendHTTP() {
             all += ", "; 
         }
     }
+
     all += "]";
     i = all.length();
 	String toPost = "POST /api/v1.6/collections/values/?force=true HTTP/1.1\r\n"
-					"Host: things.ubidots.com\r\n"
+    				"Host: things.ubidots.com\r\n"
 					"User-Agent: ESP8266/1.0\r\n"
-					"X-Auth-Token: " + String(_token)	 + "\r\n"
+					"X-Auth-Token: " + String(_token) + "\r\n"
 					"Connection: close\r\n"
 					"Content-Type: application/json\r\n"
 					"Content-Length: " + String(i) + "\r\n"
@@ -303,7 +422,7 @@ bool Ubidots::sendHTTP() {
 					"\r\n";
 	if (_client.connect(HTTPSERVER, HTTPPORT)) {
         Serial.println(F("Posting your variables"));
-		Serial.println(toPost);
+        Serial.println(toPost);
         _client.print(toPost);
     }
 	
@@ -331,6 +450,7 @@ bool Ubidots::wifiConnection(char* ssid, char* pass) {
     Serial.println(F("IP address: "));
     Serial.println(WiFi.localIP());
 }
+
 
 
 /*
