@@ -39,8 +39,10 @@ Modified by: Maria Carlina Hernandez
 
 #define HTTPSERVER "things.ubidots.com"
 #define HTTPPORT 80
-#define USER_AGENT "ESP8266"
-#define VERSION "1.0"
+#define USER_AGENT "UbidotsMicroESP8266"
+#define VERSION "1.1"
+#define DEBUG false
+
 
 typedef struct Value {
   char  *id;
@@ -56,6 +58,8 @@ class Ubidots {
     bool sendHTTP();
     bool sendTLATE();
     float getValue(char* id);
+    float getValueUDP(char *id);
+    float getValueWithDevice(char* dsTag, char* idName); 
     long getVarTimestamp(char* id);
     char* getVarContext(char* id);
     void add(char *variable_id, float value);
@@ -66,12 +70,16 @@ class Ubidots {
     void setDataSourceName(char* dataSoruceName);
     void setDataSourceLabel(char* dataSoruceLabel);
     unsigned long ntpUnixTime ();
+    String macToStr(const uint8_t* mac);
 
  private:
     char* _token;
     char* _server;
     char* _dsName;
     char* _dsTag;
+    char* _idName;
+    String espID = "";
+    unsigned char mac[6];
     uint8_t maxValues;
     uint8_t currentValue;
     Value * val;
