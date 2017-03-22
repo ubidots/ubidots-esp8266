@@ -13,5 +13,6 @@ void setup(){
 void loop(){
     float value = analogRead(A0);
     client.add("Temperature", value);
-    client.sendAll(true);
+    client.sendAll(true); //  HTTP  
+    //client.sendAll(false); // UPD 
 }

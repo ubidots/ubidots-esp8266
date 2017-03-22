@@ -15,5 +15,7 @@ void setup() {
 
 void loop() {
     float value = client.getValue(ID);
-  
+    Serial.print("Value: ");
+    Serial.println(value);
+    delay(10000);
 }
