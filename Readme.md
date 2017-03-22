@@ -20,13 +20,15 @@ The Development Kit based on ESP8266, integates GPIO, PWM, IIC, 1-Wire and ADC a
 
 Note: The library will create a new Ubidots data source named "ESP8266", there the library will save the variables that you will send.
     
-## Send one value to Ubidots
+## Send multiple values to Ubidots 
 
-To send a value to Ubidots, go to **Sketch -> Examples -> ubidots-nodemcu-master library** and select the "UbidotsSaveValue" example. 
-Add your Ubidots TOKEN where indicated, as well as the WI-FI settings.
+To send multiple values to Ubidots, go to **Sketch -> Examples ->  ubidots-nodemcu-master library** and select the "UbidotsSaveMultiValues" example. Add your Ubidots TOKEN where indicated, as well as the WI-FI settings.
+
+With code below you'll be able to send data to Ubidots using the variables' label:  
 
 ```c++
 #include "UbidotsMicroESP8266.h"
+
 #define TOKEN  "Your_token_here"  // Put here your Ubidots TOKEN
 #define WIFISSID "Your_WiFi_SSID"
 #define PASSWORD "Your_WiFi_Password"
@@ -39,17 +41,56 @@ void setup(){
 }
 void loop(){
     float value = analogRead(A0);
+    float value2 = digitalRead(D1);
+    float value3 = digitalRead(D2);
     client.add("Temperature", value);
+    client.add("Humidity", value2);
+    client.add("Heat Index", value3);
     client.sendAll(true);
+    delay(10000);
 }
+
 ```
 
+With code below you'll be able to send data to Ubidots using the variables' ID: 
+
+```c++
+#include "UbidotsMicroESP8266.h"
+
+#define TOKEN  "Your_token_here"  // Put here your Ubidots TOKEN
+#define ID_1 "Your_variable_ID_here" // Put your variable ID 
+#define ID_2 "Your_variable_ID_here" // Put your variable ID 
+#define ID_3 "Your_variable_ID_here" // Put your variable ID 
+#define WIFISSID "Your_WiFi_SSID"
+#define PASSWORD "Your_WiFi_Password"
+
+Ubidots client(TOKEN);
+
+void setup(){
+    Serial.begin(115200);
+    client.wifiConnection(WIFISSID, PASSWORD);
+}
+
+void loop(){
+    float value = analogRead(A0);
+    float value2 = digitalRead(D1);
+    float value3 = digitalRead(D2);
+    client.add(ID_1, value1);
+    client.add(ID_2, value2);
+    client.add(ID_3, value3);
+    client.sendAll(false);
+    delay(10000);
+    }
+```
 ## Get one value from Ubidots
 
 To get the last value of a variable from Ubidots, go to **Sketch -> Examples ->  ubidots-nodemcu-master library** and select the "UbidotsGetValue" example. Add your Ubidots TOKEN and variable ID where indicated, as well as the WI-FI settings.
 
+With code below you'll be able to get data from Ubidots using the variable ID 
+
 ```c++
 #include "UbidotsMicroESP8266.h"
+
 #define ID  "Your_VariableID_here"  // Put here your Ubidots variable ID
 #define TOKEN  "Your_token_here"  // Put here your Ubidots TOKEN
 #define WIFISSID "Your_WiFi_SSID"
@@ -63,35 +104,37 @@ void setup() {
 }
 void loop() {
     float value = client.getValue(ID);
+    Serial.print("Value: ");
+    Serial.println(value);
+    delay(10000); 
 }
 ```
 
-## Send multiple values to Ubidots 
-
-To send multiple values to Ubidots, go to **Sketch -> Examples ->  ubidots-nodemcu-master library** and select the "UbidotsSaveMultiValues" example. Add your Ubidots TOKEN where indicated, as well as the WI-FI settings.
-
+With code below you'll be able to get data from Ubidots using the variable Label: 
 ```c++
 #include "UbidotsMicroESP8266.h"
-#define TOKEN  "Your_token_here"  // Put here your Ubidots TOKEN
-#define WIFISSID "Your_WiFi_SSID"
-#define PASSWORD "Your_WiFi_Password"
+
+#define DEVICE_LABEL "..." // Put here your Device Label
+#define VARIABLE_LABEL "..." // Put here your Variable Label
+#define TOKEN  "..."  // Put here your Ubidots TOKEN
+#define WIFISSID "..." // Your SSID
+#define PASSWORD "..." // Your Wi-Fi password
 
 Ubidots client(TOKEN);
 
-void setup(){
-    Serial.begin(115200);
-    client.wifiConnection(WIFISSID, PASSWORD);
-}
-void loop(){
-    float value = analogRead(A0);
-    float value2 = analogRead(A1);
-    float value3 = analogRead(A2);
-    client.add("Temperature", value);
-    client.add("Humidity", value2);
-    client.add("Heat Index", value3);
-    client.sendAll(true);
+void setup() {
+  Serial.begin(115200);
+  delay(10);
+  client.wifiConnection(WIFISSID, PASSWORD);
 }
 
+void loop() {
+
+  float value = client.getValueWithDevice(DEVICE_LABEL, VARIABLE_LABEL);
+  Serial.print("Value: ");
+  Serial.println(value);
+  delay(10000);
+}
 ```
 
 ## Get variable's timestamp
@@ -99,6 +142,7 @@ To get the variable's timestamp, go to **Sketch -> Examples ->  ubidots-nodemcu-
 
 ```c++
 #include "UbidotsMicroESP8266.h"
+
 #define ID  "Your_VariableID_here"  // Put here your Ubidots variable ID
 #define TOKEN  "Your_token_here"  // Put here your Ubidots TOKEN
 #define WIFISSID "Your_WiFi_SSID"
@@ -111,7 +155,10 @@ void setup() {
     client.wifiConnection(WIFISSID, PASSWORD);
 }
 void loop() {
-    long timestamp = client.getVarTimestamp(ID);
+    long timestamp = client.getVarTimestamp(ID); 
+    Serial.print("Timestamp: ");
+    Serial.println(timestamp);
+    delay(10000);
 }
 
 ```
@@ -121,6 +168,7 @@ To get the variable's context, go to **Sketch -> Examples ->  ubidots-nodemcu-ma
 
 ```c++
 #include "UbidotsMicroESP8266.h"
+
 #define ID  "Your_VariableID_here"  // Put here your Ubidots variable ID
 #define TOKEN  "Your_token_here"  // Put here your Ubidots TOKEN
 #define WIFISSID "Your_WiFi_SSID"
@@ -134,6 +182,9 @@ void setup() {
 }
 void loop() {
     char* context = client.getVarContext(ID);
+    Serial.print("Context: ");
+    Serial.println(context);
+    delay(10000);
 }
 
 ```
