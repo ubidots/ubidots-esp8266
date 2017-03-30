@@ -25,7 +25,7 @@ Modified by: Maria Carlina Hernandez for Ubidots
 
 */
 
-#include "UbidotsMicroESP8266.h"
+#include "UbidotssMicroESP8266.h"
 /**
  * Constructor.
  */
@@ -33,11 +33,11 @@ Ubidots::Ubidots(char* token, char* server) {
 
     _token = token;
     _server = server;
-    _dsTag = "ESP8266";
     _dsName = "ESP8266";
     maxValues = 5;
     currentValue = 0;
     val = (Value *)malloc(maxValues*sizeof(Value));
+    unsigned char mac[6];
     WiFi.macAddress(mac);
     espID += macToStr(mac);
 } 
@@ -47,18 +47,21 @@ String Ubidots::macToStr(const uint8_t* mac){
         String result;
         for (int i = 0; i < 6; ++i) {
             result += String(mac[i], 16);
-            if (i < 5)result += '-';
         }
         return result;    
 }
 
-void Ubidots::setDataSourceName(char *dataSourceName) {
+
+
+bool Ubidots::setDataSourceName(char *dataSourceName) {
 
     _dsName = dataSourceName;
+    return true;
 }
-void Ubidots::setDataSourceLabel(char *dataSourceLabel) {
+bool Ubidots::setDataSourceLabel(char *dataSourceLabel) {
 
-    _dsTag = dataSourceLabel;
+    espID = dataSourceLabel;
+    return true;
 }
 /** 
  * This function is to get value from the Ubidots API

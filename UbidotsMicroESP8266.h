@@ -39,9 +39,9 @@ Modified by: Maria Carlina Hernandez
 
 #define HTTPSERVER "things.ubidots.com"
 #define HTTPPORT 80
-#define USER_AGENT "UbidotsMicroESP8266"
+#define USER_AGENT "UbidotsESP8266"
 #define VERSION "1.1"
-#define DEBUG false
+#define DEBUG true
 
 
 typedef struct Value {
@@ -67,8 +67,8 @@ class Ubidots {
     void add(char *variable_id, float value, unsigned long timestamp);
     void add(char *variable_id, float value, char *ctext, unsigned long timestamp);
     bool wifiConnection(char *ssid, char *pass);
-    void setDataSourceName(char* dataSoruceName);
-    void setDataSourceLabel(char* dataSoruceLabel);
+    bool setDataSourceName(char* dataSoruceName);
+    bool setDataSourceLabel(char* dataSoruceLabel);
     unsigned long ntpUnixTime ();
     String macToStr(const uint8_t* mac);
 
@@ -79,7 +79,6 @@ class Ubidots {
     char* _dsTag;
     char* _idName;
     String espID = "";
-    unsigned char mac[6];
     uint8_t maxValues;
     uint8_t currentValue;
     Value * val;
