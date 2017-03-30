@@ -12,9 +12,10 @@ void setup(){
     client.wifiConnection(WIFISSID, PASSWORD);
 }
 void loop(){
-    float value1 = analogRead(A0);
-    //float value2 = digitalRead(D1)
+    float value1 = analogRead(0);
+    //float value2 = analogRead(2)
     client.add("temperature", value1);
     //client.add("switch", value2);
     client.sendAll(true);
+    delay(5000);
 }
