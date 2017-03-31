@@ -25,7 +25,7 @@ Modified by: Maria Carlina Hernandez for Ubidots
 
 */
 
-#include "UbidotssMicroESP8266.h"
+#include "UbidotsMicroESP8266.h"
 /**
  * Constructor.
  */
@@ -53,15 +53,13 @@ String Ubidots::macToStr(const uint8_t* mac){
 
 
 
-bool Ubidots::setDataSourceName(char *dataSourceName) {
+void Ubidots::setDataSourceName(char *dataSourceName) {
 
     _dsName = dataSourceName;
-    return true;
 }
-bool Ubidots::setDataSourceLabel(char *dataSourceLabel) {
+void Ubidots::setDataSourceLabel(char *dataSourceLabel) {
 
     espID = dataSourceLabel;
-    return true;
 }
 /** 
  * This function is to get value from the Ubidots API
@@ -287,19 +285,19 @@ float Ubidots::getValueUDP(char* id){
 
 /** 
  * This function is to get value from the Ubidots API using the device and variable label
- * @arg dsTag is the label of Device
+ * @arg dsLabel is the label of Device
  * @arg idName is the label of the variable
  * @return num the the last value of the variable from the Ubidots API
  */
 
-float Ubidots::getValueWithDevice(char* dsTag, char* idName){
+float Ubidots::getValueWithDevice(char* dsLabel, char* idName){
  
     String response;
     uint8_t bodyPosinit;   
     float num;
     int i = 0;
     char* data = (char *) malloc(sizeof(char) * 700);
-    sprintf(data, "%s/%s|LV|%s|%s:%s", USER_AGENT, VERSION, _token, dsTag, idName);
+    sprintf(data, "%s/%s|LV|%s|%s:%s", USER_AGENT, VERSION, _token, dsLabel, idName);
     sprintf(data, "%s|end", data);
     
     if (DEBUG){
@@ -423,7 +421,7 @@ bool Ubidots::sendHTTP() {
     String all;
     String str;
     all = "[";
-for (i = 0; i < currentValue; ) {
+    for (i = 0; i < currentValue; ) {
         str = String(((val+i)->value_id), 4);
         all += "{\"variable\": \"";
         all += String((val + i)->id);

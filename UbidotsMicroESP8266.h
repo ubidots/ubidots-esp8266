@@ -67,16 +67,14 @@ class Ubidots {
     void add(char *variable_id, float value, unsigned long timestamp);
     void add(char *variable_id, float value, char *ctext, unsigned long timestamp);
     bool wifiConnection(char *ssid, char *pass);
-    bool setDataSourceName(char* dataSoruceName);
+    void setDataSourceName(char* dataSoruceName);
     bool setDataSourceLabel(char* dataSoruceLabel);
     unsigned long ntpUnixTime ();
-    String macToStr(const uint8_t* mac);
 
  private:
     char* _token;
     char* _server;
     char* _dsName;
-    char* _dsTag;
     char* _idName;
     String espID = "";
     uint8_t maxValues;
