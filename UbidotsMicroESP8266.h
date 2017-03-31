@@ -21,7 +21,7 @@ OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 Made by Mateo Velez - Metavix for Ubidots Inc
-Modified by: Maria Carlina Hernandez
+Modified by: Maria Carlina Hernandez 
 
 */
 
@@ -39,8 +39,10 @@ Modified by: Maria Carlina Hernandez
 
 #define HTTPSERVER "things.ubidots.com"
 #define HTTPPORT 80
-#define USER_AGENT "ESP8266"
-#define VERSION "1.0"
+#define USER_AGENT "UbidotsESP8266"
+#define VERSION "1.1"
+#define DEBUG false 
+
 
 typedef struct Value {
   char  *id;
@@ -56,6 +58,8 @@ class Ubidots {
     bool sendHTTP();
     bool sendTLATE();
     float getValue(char* id);
+    float getValueUDP(char *id);
+    float getValueWithDevice(char* dsLabel, char* varLabel); 
     long getVarTimestamp(char* id);
     char* getVarContext(char* id);
     void add(char *variable_id, float value);
@@ -71,7 +75,8 @@ class Ubidots {
     char* _token;
     char* _server;
     char* _dsName;
-    char* _dsTag;
+    char* _idName;
+    String espID = "";
     uint8_t maxValues;
     uint8_t currentValue;
     Value * val;
