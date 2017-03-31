@@ -59,7 +59,7 @@ class Ubidots {
     bool sendTLATE();
     float getValue(char* id);
     float getValueUDP(char *id);
-    float getValueWithDevice(char* dsTag, char* idName); 
+    float getValueWithDevice(char* dsLabel, char* varLabel); 
     long getVarTimestamp(char* id);
     char* getVarContext(char* id);
     void add(char *variable_id, float value);

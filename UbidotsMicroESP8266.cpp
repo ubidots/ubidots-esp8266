@@ -286,18 +286,18 @@ float Ubidots::getValueUDP(char* id){
 /** 
  * This function is to get value from the Ubidots API using the device and variable label
  * @arg dsLabel is the label of Device
- * @arg idName is the label of the variable
+ * @arg varLabel is the label of the variable
  * @return num the the last value of the variable from the Ubidots API
  */
 
-float Ubidots::getValueWithDevice(char* dsLabel, char* idName){
+float Ubidots::getValueWithDevice(char* dsLabel, char* varLabel){
  
     String response;
     uint8_t bodyPosinit;   
     float num;
     int i = 0;
     char* data = (char *) malloc(sizeof(char) * 700);
-    sprintf(data, "%s/%s|LV|%s|%s:%s", USER_AGENT, VERSION, _token, dsLabel, idName);
+    sprintf(data, "%s/%s|LV|%s|%s:%s", USER_AGENT, VERSION, _token, dsLabel, varLabel);
     sprintf(data, "%s|end", data);
     
     if (DEBUG){
