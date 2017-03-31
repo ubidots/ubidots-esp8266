@@ -68,7 +68,7 @@ class Ubidots {
     void add(char *variable_id, float value, char *ctext, unsigned long timestamp);
     bool wifiConnection(char *ssid, char *pass);
     void setDataSourceName(char* dataSoruceName);
-    bool setDataSourceLabel(char* dataSoruceLabel);
+    void setDataSourceLabel(char* dataSoruceLabel);
     unsigned long ntpUnixTime ();
 
  private:
