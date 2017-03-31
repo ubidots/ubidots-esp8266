@@ -41,7 +41,7 @@ Modified by: Maria Carlina Hernandez
 #define HTTPPORT 80
 #define USER_AGENT "UbidotsESP8266"
 #define VERSION "1.1"
-#define DEBUG true
+#define DEBUG false
 
 
 typedef struct Value {
