@@ -19,5 +19,5 @@ void loop(){
     client.add(ID_1, value1);
     //client.add(ID_2, value2);
     client.sendAll(false);
-    delay(5000)
+    delay(5000);
 }
