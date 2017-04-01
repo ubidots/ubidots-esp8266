@@ -70,6 +70,7 @@ class Ubidots {
     void setDataSourceName(char* dataSoruceName);
     void setDataSourceLabel(char* dataSoruceLabel);
     unsigned long ntpUnixTime ();
+    String macToStr(const uint8_t* mac);
 
  private:
     char* _token;
