@@ -301,7 +301,7 @@ void loop() {
 
 This function let you get the variable's timestamp using the variable ID.
 
-On the example folder you'll find the example code. Go to **Sketch -> Examples ->  ubidots-nodemcu-master library** and select the "**UbidotsGetVarTimestamp**" example. 
+On the example folder you'll find the example code. Go to **Sketch -> Examples ->  ubidots-esp8266-master library** and select the "**UbidotsGetVarTimestamp**" example. 
 
 Add your Ubidots TOKEN and variable ID where indicated, as well as the WI-FI settings
 
@@ -331,7 +331,7 @@ void loop() {
 
 This function let you get the variable's context using the variable ID.
 
-On the example folder you'll find the example code. Go to **Sketch -> Examples ->  ubidots-nodemcu-master library** and select the "**UbidotsGetVarContext**" example. 
+On the example folder you'll find the example code. Go to **Sketch -> Examples ->  ubidots-esp8266-master library** and select the "**UbidotsGetVarContext**" example. 
 
 Add your Ubidots TOKEN and variable ID where indicated, as well as the WI-FI settings
 
