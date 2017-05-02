@@ -77,7 +77,7 @@ float Ubidots::getValue(char* id) {
   char* data = (char *) malloc(sizeof(char) * 700);
   sprintf(data, "GET /api/v1.6/variables/%s", id);
   sprintf(data, "%s/values?page_size=1 HTTP/1.1\r\n", data);
-  sprintf(data, "%sHost: things.ubidots.com\r\nUser-Agent: ESP8266/1.0\r\n", data);
+  sprintf(data, "%sHost: things.ubidots.com\r\nUser-Agent:%s/%s\r\n", data, USER_AGENT, VERSION);
   sprintf(data, "%sX-Auth-Token: %s\r\nConnection: close\r\n\r\n", data, _token);
 
   if (_client.connect(HTTPSERVER, HTTPPORT)) {
@@ -95,14 +95,14 @@ float Ubidots::getValue(char* id) {
         response = _client.readString();
     }
 
-    if (DEBUG){
+    if (_debug){
         Serial.println(response);
     }
 
     bodyPosinit = 4 + response.indexOf("\r\n\r\n");
     response = response.substring(bodyPosinit);
 
-    if (DEBUG){
+    if (_debug){
         Serial.println(response);
     }
 
@@ -133,7 +133,7 @@ long Ubidots::getVarTimestamp(char* id) {
   char* data = (char *) malloc(sizeof(char) * 700);
   sprintf(data, "GET /api/v1.6/variables/%s", id);
   sprintf(data, "%s/values?page_size=1 HTTP/1.1\r\n", data);
-  sprintf(data, "%sHost: things.ubidots.com\r\nUser-Agent: ESP8266/1.0\r\n", data);
+  sprintf(data, "%sHost: things.ubidots.com\r\nUser-Agent: %s/%s\r\n", data, USER_AGENT, VERSION);
   sprintf(data, "%sX-Auth-Token: %s\r\nConnection: close\r\n\r\n", data, _token);
 
   if (_client.connect(HTTPSERVER, HTTPPORT)) {
@@ -153,14 +153,14 @@ long Ubidots::getVarTimestamp(char* id) {
         response = _client.readString();
     }
     
-    if (DEBUG){
+    if (_debug){
         Serial.println(response);
     }
 
     bodyPosinit = 4 + response.indexOf("\r\n\r\n");
     response = response.substring(bodyPosinit);
     
-    if (DEBUG){
+    if (_debug){
         Serial.println(response);
     }
 
@@ -193,7 +193,7 @@ char* Ubidots::getVarContext(char* id) {
   char* data = (char *) malloc(sizeof(char) * 700);
   sprintf(data, "GET /api/v1.6/variables/%s", id);
   sprintf(data, "%s/values?page_size=1 HTTP/1.1\r\n", data);
-  sprintf(data, "%sHost: things.ubidots.com\r\nUser-Agent: ESP8266/1.0\r\n", data);
+  sprintf(data, "%sHost: things.ubidots.com\r\nUser-Agent:%s/%s\r\n", data, USER_AGENT, VERSION);
   sprintf(data, "%sX-Auth-Token: %s\r\nConnection: close\r\n\r\n", data, _token);
 
   if (_client.connect(HTTPSERVER, HTTPPORT)) {
@@ -213,14 +213,14 @@ char* Ubidots::getVarContext(char* id) {
         response = _client.readString();
     }
 
-    if (DEBUG){
+    if (_debug){
         Serial.println(response);
     }
 
     bodyPosinit = 4 + response.indexOf("\r\n\r\n");
     response = response.substring(bodyPosinit);
 
-    if (DEBUG){
+    if (_debug){
         Serial.println(response);
     }
 
@@ -252,7 +252,7 @@ float Ubidots::getValueUDP(char* id){
     sprintf(data, "%s/%s|GET|%s|%s", USER_AGENT, VERSION, _token, id);
     sprintf(data, "%s|end", data);
     
-    if (DEBUG){
+    if (_debug){
         Serial.println(data);
     }
     
@@ -300,7 +300,7 @@ float Ubidots::getValueWithDevice(char* dsLabel, char* varLabel){
     sprintf(data, "%s/%s|LV|%s|%s:%s", USER_AGENT, VERSION, _token, dsLabel, varLabel);
     sprintf(data, "%s|end", data);
     
-    if (DEBUG){
+    if (_debug){
         Serial.println(data);
     }
     
@@ -397,7 +397,7 @@ bool Ubidots::sendTLATE() {
 
     Serial.println("");
 
-    if (DEBUG){
+    if (_debug){
      Serial.println(data);   
     }
         
@@ -438,7 +438,7 @@ bool Ubidots::sendHTTP() {
     i = all.length();
     String toPost = "POST /api/v1.6/collections/values/?force=true HTTP/1.1\r\n"
                     "Host: things.ubidots.com\r\n"
-                    "User-Agent: ESP8266/1.0\r\n"
+                    "User-Agent:UbidotsESP8266/1.1\r\n"
                     "X-Auth-Token: " + String(_token) + "\r\n"
                     "Connection: close\r\n"
                     "Content-Type: application/json\r\n"
@@ -465,6 +465,12 @@ bool Ubidots::sendHTTP() {
     _client.stop();
     return true;
 }
+
+void Ubidots::setDebug(bool debug){
+     _debug = debug;
+}
+
+
 bool Ubidots::wifiConnection(char* ssid, char* pass) {
     WiFi.begin(ssid, pass);
     while (WiFi.status() != WL_CONNECTED) {
