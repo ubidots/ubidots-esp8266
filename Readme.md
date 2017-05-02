@@ -82,9 +82,10 @@ Ubidots client(TOKEN);
 
 void setup(){
     Serial.begin(115200);
-    delay(10);
     client.wifiConnection(WIFISSID, PASSWORD);
+    //client.setDebug(true); // Uncomment this line to set DEBUG on
 }
+
 void loop(){
     float value1 = analogRead(0);
     //float value2 = analogRead(2)
@@ -117,9 +118,10 @@ Ubidots client(TOKEN);
 
 void setup(){
     Serial.begin(115200);
-    delay(10);
     client.wifiConnection(WIFISSID, PASSWORD);
+    //client.setDebug(true); // Uncomment this line to set DEBUG on
 }
+
 void loop(){
     float value1 = analogRead(0);
     //float value2 = analogRead(2)
@@ -147,9 +149,10 @@ Ubidots client(TOKEN);
 
 void setup(){
     Serial.begin(115200);
-    delay(10);
     client.wifiConnection(WIFISSID, PASSWORD);
+    //client.setDebug(true); // Uncomment this line to set DEBUG on
 }
+
 void loop(){
     float value = analogRead(0);
     unsigned long t = client.ntpUnixTime(); // calculates your actual timestamp in SECONDS
@@ -178,9 +181,10 @@ Ubidots client(TOKEN);
 
 void setup(){
     Serial.begin(115200);
-    delay(10);
     client.wifiConnection(WIFISSID, PASSWORD);
+    //client.setDebug(true); // Uncomment this line to set DEBUG on
 }
+
 void loop(){
     float value = analogRead(0);
     char context[25];
@@ -221,8 +225,8 @@ Ubidots client(TOKEN);
 
 void setup() {
     Serial.begin(115200);
-    delay(10);
     client.wifiConnection(WIFISSID, PASSWORD);
+    //client.setDebug(true); // Uncomment this line to set DEBUG on
 }
 
 void loop() {
@@ -252,8 +256,8 @@ Ubidots client(TOKEN);
 
 void setup() {
   Serial.begin(115200);
-  delay(10);
   client.wifiConnection(WIFISSID, PASSWORD);
+  //client.setDebug(true); // Uncomment this line to set DEBUG on
 }
 
 void loop() {
@@ -284,8 +288,8 @@ Ubidots client(TOKEN);
 
 void setup() {
   Serial.begin(115200);
-  delay(10);
   client.wifiConnection(WIFISSID, PASSWORD);
+  //client.setDebug(true); // Uncomment this line to set DEBUG on
 }
 
 void loop() {
