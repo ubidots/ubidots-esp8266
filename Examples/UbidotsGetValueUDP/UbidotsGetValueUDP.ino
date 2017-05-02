@@ -10,8 +10,9 @@ Ubidots client(TOKEN);
 
 void setup() {
   Serial.begin(115200);
-  delay(10);
   client.wifiConnection(WIFISSID, PASSWORD);
+  //client.setDebug(true); // Uncomment this line to set DEBUG on
+
 }
 
 void loop() {
