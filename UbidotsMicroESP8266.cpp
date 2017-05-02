@@ -436,9 +436,10 @@ bool Ubidots::sendHTTP() {
 
     all += "]";
     i = all.length();
-    String toPost = "POST /api/v1.6/collections/values/?force=true HTTP/1.1\r\n"
+
+   String toPost = "POST /api/v1.6/collections/values/?force=true HTTP/1.1\r\n"
                     "Host: things.ubidots.com\r\n"
-                    "User-Agent:UbidotsESP8266/1.1\r\n"
+                    "User-Agent:" + String(USER_AGENT) + "/" + String(VERSION) + "\r\n"
                     "X-Auth-Token: " + String(_token) + "\r\n"
                     "Connection: close\r\n"
                     "Content-Type: application/json\r\n"
@@ -446,6 +447,7 @@ bool Ubidots::sendHTTP() {
                     "\r\n"
                     + all +
                     "\r\n";
+
     if (_client.connect(HTTPSERVER, HTTPPORT)) {
         Serial.println(F("Posting your variables: "));
         Serial.println(toPost);

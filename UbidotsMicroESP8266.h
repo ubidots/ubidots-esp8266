@@ -39,8 +39,10 @@ Modified by: Maria Carlina Hernandez
 
 #define HTTPSERVER "things.ubidots.com"
 #define HTTPPORT 80
+
 #define USER_AGENT "UbidotsESP8266"
 #define VERSION "1.1"
+
 
 typedef struct Value {
   char  *id;
