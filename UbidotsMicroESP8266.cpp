@@ -33,22 +33,23 @@ Ubidots::Ubidots(char* token, char* server) {
 
     _token = token;
     _server = server;
-    _dsName = "ESP8266";
+    _dsName = DEFAULT_DEVICE_NAME;
     maxValues = 5;
     currentValue = 0;
     val = (Value *)malloc(maxValues*sizeof(Value));
+    idAsMac();
+}
+
+void Ubidots::idAsMac(){
     unsigned char mac[6];
     WiFi.macAddress(mac);
-    espID += macToStr(mac);
-} 
-
-String Ubidots::macToStr(const uint8_t* mac){
-
-        String result;
-        for (int i = 0; i < 6; ++i) {
-            result += String(mac[i], 16);
+    for (int i = 0; i < 6; i++){
+        if ((int)mac[i] < 10){
+            sprintf(_espID, "%s0%X", _espID, mac[i]);
+        } else {
+            sprintf(_espID, "%s%2X", _espID, mac[i]);
         }
-        return result;    
+    }
 }
 
 
@@ -57,18 +58,18 @@ void Ubidots::setDataSourceName(char *dataSourceName) {
 
     _dsName = dataSourceName;
 }
-void Ubidots::setDataSourceLabel(char *dataSourceLabel) {
+void Ubidots::setDataSourceLabel(char* dataSourceLabel) {
 
-    espID = dataSourceLabel;
+    _espID = dataSourceLabel;
 }
-/** 
+/**
  * This function is to get value from the Ubidots API
  * @arg id the id where you will get the data
  * @return num the the last value of the variable from the Ubidots API
  */
 
 float Ubidots::getValue(char* id) {
-  
+
   float num;
   String response;
   uint8_t bodyPosinit;
@@ -108,14 +109,14 @@ float Ubidots::getValue(char* id) {
 
     bodyPosinit = 9 + response.indexOf("\"value\":");
     bodyPosend = response.indexOf(", \"timestamp\"");
-    response = response.substring(bodyPosinit,bodyPosend);    
+    response = response.substring(bodyPosinit,bodyPosend);
     num = response.toFloat();
     _client.flush();
     _client.stop();
-    
+
     return num;
 }
-/** 
+/**
  * This function is to get variable timestamp from the Ubidots API
  * @arg id is the ID of the variable where you will get the timestamp
  * @return VarTimestamp is the timestamp of the variable that you get from the Ubidots API
@@ -152,14 +153,14 @@ long Ubidots::getVarTimestamp(char* id) {
     while (_client.available()) {
         response = _client.readString();
     }
-    
+
     if (_debug){
         Serial.println(response);
     }
 
     bodyPosinit = 4 + response.indexOf("\r\n\r\n");
     response = response.substring(bodyPosinit);
-    
+
     if (_debug){
         Serial.println(response);
     }
@@ -167,7 +168,7 @@ long Ubidots::getVarTimestamp(char* id) {
     bodyPosinit =13+response.indexOf("\"timestamp\":");
     bodyPosend = response.indexOf(", \"context\":");
     bodyPosend -= 3;
-    str_seconds = response.substring(bodyPosinit,bodyPosend); 
+    str_seconds = response.substring(bodyPosinit,bodyPosend);
     seconds = new char[str_seconds.length() + 1];
     strcpy(seconds, str_seconds.c_str());
     VarTimestamp = atoi(seconds);
@@ -177,7 +178,7 @@ long Ubidots::getVarTimestamp(char* id) {
     _client.stop();
     return VarTimestamp;
 }
-/** 
+/**
  * This function is to get variable context from the Ubidots API
  * @arg id is the ID of the variable where you will get the context
  * @return VarContext is the context of the variable that you get from the Ubidots API
@@ -189,7 +190,7 @@ char* Ubidots::getVarContext(char* id) {
   char* VarContext;
   int bodyPosinit;
   int bodyPosend;
- 
+
   char* data = (char *) malloc(sizeof(char) * 700);
   sprintf(data, "GET /api/v1.6/variables/%s", id);
   sprintf(data, "%s/values?page_size=1 HTTP/1.1\r\n", data);
@@ -227,7 +228,7 @@ char* Ubidots::getVarContext(char* id) {
     bodyPosinit =13+response.indexOf("\"context\":");
     bodyPosend = response.indexOf(", \"created_at\":");
     bodyPosend -= 1;
-    str_context = response.substring(bodyPosinit,bodyPosend); 
+    str_context = response.substring(bodyPosinit,bodyPosend);
     VarContext = new char [str_context.length() + 1];
     strcpy(VarContext, str_context.c_str());
     _client.flush();
@@ -236,8 +237,8 @@ char* Ubidots::getVarContext(char* id) {
     return VarContext;
 }
 
-/** 
- * This function is to get value using UPD from the Ubidots API 
+/**
+ * This function is to get value using UPD from the Ubidots API
  * @arg id the id where you will get the data
  * @return num the the last value of the variable from the Ubidots API
  */
@@ -251,23 +252,23 @@ float Ubidots::getValueUDP(char* id){
     char* data = (char *) malloc(sizeof(char) * 700);
     sprintf(data, "%s/%s|GET|%s|%s", USER_AGENT, VERSION, _token, id);
     sprintf(data, "%s|end", data);
-    
+
     if (_debug){
         Serial.println(data);
     }
-    
+
     if (_client.connect(SERVER, PORT)) {
         Serial.println(F("Getting your variable: "));
         _client.print(data);
     }
-    
+
     int timeout = 0;
 
     while(!_client.available() && timeout < 5000) {
         timeout++;
         delay(1);
     }
-    
+
     while (_client.available()) {
         char c = _client.read();
         response += c;
@@ -283,7 +284,7 @@ float Ubidots::getValueUDP(char* id){
     return num;
 }
 
-/** 
+/**
  * This function is to get value from the Ubidots API using the device and variable label
  * @arg dsLabel is the label of Device
  * @arg varLabel is the label of the variable
@@ -291,19 +292,19 @@ float Ubidots::getValueUDP(char* id){
  */
 
 float Ubidots::getValueWithDevice(char* dsLabel, char* varLabel){
- 
+
     String response;
-    uint8_t bodyPosinit;   
+    uint8_t bodyPosinit;
     float num;
     int i = 0;
     char* data = (char *) malloc(sizeof(char) * 700);
     sprintf(data, "%s/%s|LV|%s|%s:%s", USER_AGENT, VERSION, _token, dsLabel, varLabel);
     sprintf(data, "%s|end", data);
-    
+
     if (_debug){
         Serial.println(data);
     }
-    
+
     if (_client.connect(SERVER, PORT)) {
         Serial.println(F("Getting your variable: "));
         _client.print(data);
@@ -339,7 +340,7 @@ void Ubidots::add(char *variable_id, float value) {
     return add(variable_id, value, NULL, NULL);
 }
 void Ubidots::add(char *variable_id, float value, char *ctext) {
-    return add(variable_id, value, ctext, NULL);   
+    return add(variable_id, value, ctext, NULL);
 }
 void Ubidots::add(char *variable_id, float value, unsigned long timestamp) {
     return add(variable_id, value, NULL, timestamp);
@@ -371,11 +372,11 @@ bool Ubidots::sendTLATE() {
     String str;
     char* data = (char *) malloc(sizeof(char) * 700);
 
-    sprintf(data, "%s/%s|POST|%s|%s:%s=>", USER_AGENT, VERSION, _token, espID.c_str(), _dsName);
-    
+    sprintf(data, "%s/%s|POST|%s|%s:%s=>", USER_AGENT, VERSION, _token, _espID, _dsName);
+
     for (i = 0; i < currentValue;) {
          str = String(((val+i)->value_id), 5);
-    
+
         sprintf(data, "%s%s:%s", data, (val + i)->id, str.c_str());
 
         if ((val + i)->timestamp != NULL) {
@@ -384,7 +385,7 @@ bool Ubidots::sendTLATE() {
         if ((val + i)->context != NULL) {
             sprintf(data, "%s$%s", data, (val + i)->context);
         }
-        
+
         i++;
 
         if (i < currentValue) {
@@ -398,9 +399,9 @@ bool Ubidots::sendTLATE() {
     Serial.println("");
 
     if (_debug){
-     Serial.println(data);   
+     Serial.println(data);
     }
-        
+
     if (_client.connect(SERVER, PORT)) {
         _client.print(data);
     }
@@ -430,7 +431,7 @@ bool Ubidots::sendHTTP() {
         all += "}";
         i++;
         if (i < currentValue) {
-            all += ", "; 
+            all += ", ";
         }
     }
 
@@ -453,7 +454,7 @@ bool Ubidots::sendHTTP() {
         Serial.println(toPost);
         _client.print(toPost);
     }
-    
+
     int timeout = 0;
     while(!_client.available() && timeout < 5000) {
         timeout++;
