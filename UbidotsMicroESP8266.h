@@ -54,7 +54,7 @@ Modified by: Maria Carlina Hernandez
 #define USER_AGENT "UbidotsESP8266"
 #endif
 #ifndef VERSION
-#define VERSION "1.1"
+#define VERSION "1.2"
 #endif
 #ifndef DEFAULT_DEVICE_NAME
 #define DEFAULT_DEVICE_NAME "ESP8266"
