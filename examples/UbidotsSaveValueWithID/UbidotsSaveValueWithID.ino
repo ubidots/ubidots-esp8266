@@ -1,5 +1,14 @@
+// This example is to save multiple variables to the Ubidots API with TCP method
+
+/****************************************
+ * Include Libraries
+ ****************************************/
+
 #include "UbidotsMicroESP8266.h"
 
+/****************************************
+ * Define Constants
+ ****************************************/
 #define TOKEN  "Your_token_here"  // Put here your Ubidots TOKEN
 #define ID_1 "Your_variable_ID_here" // Put your variable ID here
 //#define ID_2 "Your_variable_ID_here" // Put your variable ID here
@@ -8,6 +17,15 @@
 
 Ubidots client(TOKEN);
 
+/****************************************
+ * Auxiliar Functions
+ ****************************************/
+
+//Put here your auxiliar functions
+
+/****************************************
+ * Main Functions
+ ****************************************/
 void setup(){
     Serial.begin(115200);
     client.wifiConnection(WIFISSID, PASSWORD);
@@ -16,7 +34,7 @@ void setup(){
 
 void loop(){
     float value1 = analogRead(0);
-    //float value2 = analogRead(2)
+    //float value2 = analogRead(2);
     client.add(ID_1, value1);
     //client.add(ID_2, value2);
     client.sendAll(false);

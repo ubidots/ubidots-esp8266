@@ -26,14 +26,20 @@ Modified by: Maria Carlina Hernandez for Ubidots
 */
 
 #include "UbidotsMicroESP8266.h"
+
+/***************************************************************************
+CONSTRUCTOR
+***************************************************************************/
+
 /**
  * Constructor.
+ * Default deviceName is ESP8266
  */
-Ubidots::Ubidots(char* token, char* server) {
+Ubidots::Ubidots(char* token, const char* server) {
 
     _token = token;
     _server = server;
-    _dsName = DEFAULT_DEVICE_NAME;
+    _deviceName = DEFAULT_DEVICE_NAME;
     maxValues = 5;
     currentValue = 0;
     val = (Value *)malloc(maxValues*sizeof(Value));
@@ -43,7 +49,7 @@ Ubidots::Ubidots(char* token, char* server) {
 void Ubidots::idAsMac(){
     unsigned char mac[6];
     WiFi.macAddress(mac);
-    for (int i = 0; i < 6; i++){
+    for (int i = 0; i < 6; i++) {
         if ((int)mac[i] < 10){
             sprintf(_espID, "%s0%X", _espID, mac[i]);
         } else {
@@ -52,16 +58,10 @@ void Ubidots::idAsMac(){
     }
 }
 
+/***************************************************************************
+FUNCTIONS TO RETRIEVE DATA
+***************************************************************************/
 
-
-void Ubidots::setDataSourceName(char *dataSourceName) {
-
-    _dsName = dataSourceName;
-}
-void Ubidots::setDataSourceLabel(char* dataSourceLabel) {
-
-    _espID = dataSourceLabel;
-}
 /**
  * This function is to get value from the Ubidots API
  * @arg id the id where you will get the data
@@ -70,28 +70,41 @@ void Ubidots::setDataSourceLabel(char* dataSourceLabel) {
 
 float Ubidots::getValue(char* id) {
 
-  float num;
-  String response;
-  uint8_t bodyPosinit;
-  uint8_t bodyPosend;
-
-  char* data = (char *) malloc(sizeof(char) * 700);
-  sprintf(data, "GET /api/v1.6/variables/%s", id);
-  sprintf(data, "%s/values?page_size=1 HTTP/1.1\r\n", data);
-  sprintf(data, "%sHost: things.ubidots.com\r\nUser-Agent:%s/%s\r\n", data, USER_AGENT, VERSION);
-  sprintf(data, "%sX-Auth-Token: %s\r\nConnection: close\r\n\r\n", data, _token);
-
-  if (_client.connect(HTTPSERVER, HTTPPORT)) {
-        Serial.println(F("Getting your variable: "));
-        _client.println(data);
-  } else {
-        return NULL;
-  }
+    float num;
+    String response;
+    uint8_t bodyPosinit;
+    uint8_t bodyPosend;
     int timeout = 0;
-    while(!_client.available() && timeout < 5000) {
+
+    char* data = (char *) malloc(sizeof(char) * 700);
+    sprintf(data, "GET /api/v1.6/variables/%s", id);
+    sprintf(data, "%s/values?page_size=1 HTTP/1.1\r\n", data);
+    sprintf(data, "%sHost: things.ubidots.com\r\nUser-Agent:%s/%s\r\n", data, USER_AGENT, VERSION);
+    sprintf(data, "%sX-Auth-Token: %s\r\nConnection: close\r\n\r\n", data, _token);
+
+    if (_client.connect(HTTPSERVER, HTTPPORT)) {
+        if (_debug) {
+            Serial.println(F("Getting your variable: "));
+        }
+        _client.println(data);
+    } else {
+        return ERROR_VALUE;
+    }
+    
+    while (!_client.available() && timeout < 2000) {
         timeout++;
         delay(1);
+        if (timeout >= 2000) {
+            if (_debug) {
+                Serial.println(F("Error, max timeout reached"));
+            }
+            _client.stop();
+            delay(5);
+            free(data);
+            return ERROR_VALUE;
+        }
     }
+
     while (_client.available()) {
         response = _client.readString();
     }
@@ -103,7 +116,7 @@ float Ubidots::getValue(char* id) {
     bodyPosinit = 4 + response.indexOf("\r\n\r\n");
     response = response.substring(bodyPosinit);
 
-    if (_debug){
+    if (_debug) {
         Serial.println(response);
     }
 
@@ -116,6 +129,7 @@ float Ubidots::getValue(char* id) {
 
     return num;
 }
+
 /**
  * This function is to get variable timestamp from the Ubidots API
  * @arg id is the ID of the variable where you will get the timestamp
@@ -123,45 +137,56 @@ float Ubidots::getValue(char* id) {
  */
 long Ubidots::getVarTimestamp(char* id) {
 
-  String response;
-  String str_seconds;
-  char *seconds;
-  char *milis;
-  long VarTimestamp;
-  int bodyPosinit;
-  int bodyPosend;
-
-  char* data = (char *) malloc(sizeof(char) * 700);
-  sprintf(data, "GET /api/v1.6/variables/%s", id);
-  sprintf(data, "%s/values?page_size=1 HTTP/1.1\r\n", data);
-  sprintf(data, "%sHost: things.ubidots.com\r\nUser-Agent: %s/%s\r\n", data, USER_AGENT, VERSION);
-  sprintf(data, "%sX-Auth-Token: %s\r\nConnection: close\r\n\r\n", data, _token);
-
-  if (_client.connect(HTTPSERVER, HTTPPORT)) {
-        Serial.println(F("Getting your variable timestamp: "));
-        _client.println(data);
-  } else {
-        return NULL;
-  }
+    String response;
+    String str_seconds;
+    char *seconds;
+    char *milis;
+    long VarTimestamp;
+    int bodyPosinit;
+    int bodyPosend;
     int timeout = 0;
 
-    while(!_client.available() && timeout < 5000) {
+    char* data = (char *) malloc(sizeof(char) * 700);
+    sprintf(data, "GET /api/v1.6/variables/%s", id);
+    sprintf(data, "%s/values?page_size=1 HTTP/1.1\r\n", data);
+    sprintf(data, "%sHost: things.ubidots.com\r\nUser-Agent: %s/%s\r\n", data, USER_AGENT, VERSION);
+    sprintf(data, "%sX-Auth-Token: %s\r\nConnection: close\r\n\r\n", data, _token);
+
+    if (_client.connect(HTTPSERVER, HTTPPORT)) {
+        if (_debug) {
+            Serial.println(F("Getting your variable timestamp: "));
+        }
+        _client.println(data);
+    } else {
+        return ERROR_VALUE;
+    }
+
+    while (!_client.available() && timeout < 2000) {
         timeout++;
         delay(1);
+        if (timeout >= 2000) {
+            if (_debug) {
+                Serial.println(F("Error, max timeout reached"));
+            }
+            _client.stop();
+            delay(5);
+            free(data);
+            return ERROR_VALUE;
+        }
     }
 
     while (_client.available()) {
         response = _client.readString();
     }
 
-    if (_debug){
+    if (_debug) {
         Serial.println(response);
     }
 
     bodyPosinit = 4 + response.indexOf("\r\n\r\n");
     response = response.substring(bodyPosinit);
 
-    if (_debug){
+    if (_debug) {
         Serial.println(response);
     }
 
@@ -178,6 +203,7 @@ long Ubidots::getVarTimestamp(char* id) {
     _client.stop();
     return VarTimestamp;
 }
+
 /**
  * This function is to get variable context from the Ubidots API
  * @arg id is the ID of the variable where you will get the context
@@ -185,43 +211,54 @@ long Ubidots::getVarTimestamp(char* id) {
  */
 char* Ubidots::getVarContext(char* id) {
 
-  String response;
-  String str_context;
-  char* VarContext;
-  int bodyPosinit;
-  int bodyPosend;
-
-  char* data = (char *) malloc(sizeof(char) * 700);
-  sprintf(data, "GET /api/v1.6/variables/%s", id);
-  sprintf(data, "%s/values?page_size=1 HTTP/1.1\r\n", data);
-  sprintf(data, "%sHost: things.ubidots.com\r\nUser-Agent:%s/%s\r\n", data, USER_AGENT, VERSION);
-  sprintf(data, "%sX-Auth-Token: %s\r\nConnection: close\r\n\r\n", data, _token);
-
-  if (_client.connect(HTTPSERVER, HTTPPORT)) {
-        Serial.println(F("Getting your variable context: "));
-        _client.println(data);
-  } else {
-        return NULL;
-  }
+    String response;
+    String str_context;
+    char* VarContext;
+    int bodyPosinit;
+    int bodyPosend;
     int timeout = 0;
 
-    while(!_client.available() && timeout < 5000) {
+    char* data = (char *) malloc(sizeof(char) * 700);
+    sprintf(data, "GET /api/v1.6/variables/%s", id);
+    sprintf(data, "%s/values?page_size=1 HTTP/1.1\r\n", data);
+    sprintf(data, "%sHost: things.ubidots.com\r\nUser-Agent:%s/%s\r\n", data, USER_AGENT, VERSION);
+    sprintf(data, "%sX-Auth-Token: %s\r\nConnection: close\r\n\r\n", data, _token);
+
+    if (_client.connect(HTTPSERVER, HTTPPORT)) {
+        if (_debug) {
+            Serial.println(F("Getting your variable context: "));
+        }
+        _client.println(data);
+    } else {
+        return NULL;
+    }
+
+    while(!_client.available() && timeout < 2000) {
         timeout++;
         delay(1);
+        if (timeout >= 2000) {
+            if (_debug) {
+                Serial.println(F("Error, max timeout reached"));
+            }
+            _client.stop();
+            delay(5);
+            free(data);
+            return NULL;
+        }
     }
 
     while (_client.available()) {
         response = _client.readString();
     }
 
-    if (_debug){
+    if (_debug) {
         Serial.println(response);
     }
 
     bodyPosinit = 4 + response.indexOf("\r\n\r\n");
     response = response.substring(bodyPosinit);
 
-    if (_debug){
+    if (_debug) {
         Serial.println(response);
     }
 
@@ -242,13 +279,13 @@ char* Ubidots::getVarContext(char* id) {
  * @arg id the id where you will get the data
  * @return num the the last value of the variable from the Ubidots API
  */
-
 float Ubidots::getValueUDP(char* id){
 
     String response;
     uint8_t bodyPosinit;
     float num;
     int i = 0;
+    int timeout = 0;
     char* data = (char *) malloc(sizeof(char) * 700);
     sprintf(data, "%s/%s|GET|%s|%s", USER_AGENT, VERSION, _token, id);
     sprintf(data, "%s|end", data);
@@ -258,15 +295,25 @@ float Ubidots::getValueUDP(char* id){
     }
 
     if (_client.connect(SERVER, PORT)) {
-        Serial.println(F("Getting your variable: "));
+        if (_debug) {
+            Serial.println(F("Getting your variable: "));
+        }        
         _client.print(data);
     }
 
-    int timeout = 0;
 
-    while(!_client.available() && timeout < 5000) {
+    while(!_client.available() && timeout < 2000) {
         timeout++;
         delay(1);
+        if (timeout >= 2000) {
+            if (_debug) {
+                Serial.println(F("Error, max timeout reached"));
+            }
+            _client.stop();
+            delay(5);
+            free(data);
+            return ERROR_VALUE;
+        }
     }
 
     while (_client.available()) {
@@ -290,13 +337,13 @@ float Ubidots::getValueUDP(char* id){
  * @arg varLabel is the label of the variable
  * @return num the the last value of the variable from the Ubidots API
  */
-
 float Ubidots::getValueWithDevice(char* dsLabel, char* varLabel){
 
     String response;
     uint8_t bodyPosinit;
     float num;
     int i = 0;
+    int timeout = 0;
     char* data = (char *) malloc(sizeof(char) * 700);
     sprintf(data, "%s/%s|LV|%s|%s:%s", USER_AGENT, VERSION, _token, dsLabel, varLabel);
     sprintf(data, "%s|end", data);
@@ -310,12 +357,20 @@ float Ubidots::getValueWithDevice(char* dsLabel, char* varLabel){
         _client.print(data);
     }
 
-    int timeout = 0;
-
-    while(!_client.available() && timeout < 5000) {
+    while(!_client.available() && timeout < 2000) {
         timeout++;
         delay(1);
+        if (timeout >= 2000) {
+            if (_debug) {
+                Serial.println(F("Error, max timeout reached"));
+            }
+            _client.stop();
+            delay(5);
+            free(data);
+            return ERROR_VALUE;
+        }
     }
+
      while (_client.available()) {
         char c = _client.read();
         response += c;
@@ -330,23 +385,31 @@ float Ubidots::getValueWithDevice(char* dsLabel, char* varLabel){
     _client.stop();
     return num;
 }
+
+/***************************************************************************
+FUNCTIONS TO SEND DATA
+***************************************************************************/
+
 /**
  * Add a value of variable to save
- * @arg variable_id variable id to save in a struct
+ * @arg variable_label variable label or name to save in a struct
  * @arg value variable value to save in a struct
+ * @arg ctext [optional] is the context that you will save, default
+ * @arg timestamp [optional] is the timestamp for the actual value
+ * is NULL
  */
 
-void Ubidots::add(char *variable_id, float value) {
-    return add(variable_id, value, NULL, NULL);
+void Ubidots::add(char *variable_label, float value) {
+    return add(variable_label, value, NULL, NULL);
 }
-void Ubidots::add(char *variable_id, float value, char *ctext) {
-    return add(variable_id, value, ctext, NULL);
+void Ubidots::add(char *variable_label, float value, char *ctext) {
+    return add(variable_label, value, ctext, NULL);
 }
-void Ubidots::add(char *variable_id, float value, unsigned long timestamp) {
-    return add(variable_id, value, NULL, timestamp);
+void Ubidots::add(char *variable_label, float value, unsigned long timestamp) {
+    return add(variable_label, value, NULL, timestamp);
 }
-void Ubidots::add(char *variable_id, float value, char *ctext, unsigned long timestamp) {
-    (val+currentValue)->id = variable_id;
+void Ubidots::add(char *variable_label, float value, char *ctext, unsigned long timestamp) {
+    (val+currentValue)->id = variable_label;
     (val+currentValue)->value_id = value;
     (val+currentValue)->context = ctext;
     (val+currentValue)->timestamp = timestamp;
@@ -356,9 +419,35 @@ void Ubidots::add(char *variable_id, float value, char *ctext, unsigned long tim
         currentValue = maxValues;
     }
 }
+
+/**
+ * This function is to set the name of your device to visualize,
+ * if you don't call this method the name by default will be 'ESP8266'
+ * @arg deviceName is the name to display in Ubidots, avoid to use special
+ * characters or blank spaces
+ * @return true uppon succes
+ */
+void Ubidots::setDataSourceName(char *deviceName) {
+
+    _deviceName = deviceName;
+}
+
+/**
+ * This function is to set your device label, the device
+ * label is the unique device identifier in Ubidots.
+ * if you don't call this method the name by default will be the device MAC Address
+ * @arg deviceLabel is the device label, avoid to use special
+ * characters or blank spaces
+ * @return true uppon succes
+ */
+void Ubidots::setDataSourceLabel(char* deviceLabel) {
+
+    _espID = deviceLabel;
+}
+
 /**
  * Send all data of all variables that you saved
- * @reutrn true upon success, false upon error.
+ * @return true upon success, false upon error.
  */
 bool Ubidots::sendAll(bool type) {
     if (type) {
@@ -367,12 +456,19 @@ bool Ubidots::sendAll(bool type) {
         return sendHTTP();
     }
 }
+
+/**
+ * Send all package via TCP method
+ * @arg true bool flag
+ * @return true upon success, false upon error.
+ */
 bool Ubidots::sendTLATE() {
     uint8_t i;
     String str;
     char* data = (char *) malloc(sizeof(char) * 700);
+    int timeout = 0;
 
-    sprintf(data, "%s/%s|POST|%s|%s:%s=>", USER_AGENT, VERSION, _token, _espID, _dsName);
+    sprintf(data, "%s/%s|POST|%s|%s:%s=>", USER_AGENT, VERSION, _token, _espID, _deviceName);
 
     for (i = 0; i < currentValue;) {
          str = String(((val+i)->value_id), 5);
@@ -398,18 +494,28 @@ bool Ubidots::sendTLATE() {
 
     Serial.println("");
 
-    if (_debug){
+    if (_debug) {
      Serial.println(data);
     }
 
     if (_client.connect(SERVER, PORT)) {
         _client.print(data);
     }
-    int timeout = 0;
-    while(!_client.available() && timeout < 5000) {
+
+    while(!_client.available() && timeout < 2000) {
         timeout++;
         delay(1);
+        if (timeout >= 2000) {
+            if (_debug) {
+                Serial.println(F("Error, max timeout reached"));
+            }
+            _client.stop();
+            delay(5);
+            free(data);
+            return NULL;
+        }
     }
+
     while (_client.available()) {
         char c = _client.read();
         Serial.write(c);
@@ -417,63 +523,91 @@ bool Ubidots::sendTLATE() {
     free(data);
 }
 
+/**
+ * Send all package via HTTP method
+ * @arg false bool flag
+ * @return true upon success, false upon error.
+ */
 bool Ubidots::sendHTTP() {
-    uint16_t i;
-    String all;
+
+    char* data = (char *) malloc(sizeof(char) * 300);
+    char* allData = (char *) malloc(sizeof(char) * 700);
     String str;
-    all = "[";
-    for (i = 0; i < currentValue; ) {
+    String id;
+    uint16_t i;
+    int timeout = 0;
+
+    sprintf(data, "[");
+    for ( i = 0; i < currentValue; ) {
+        id = String((val + i)->id);
         str = String(((val+i)->value_id), 4);
-        all += "{\"variable\": \"";
-        all += String((val + i)->id);
-        all += "\", \"value\":";
-        all += str;
-        all += "}";
+        sprintf(data, "%s{\"variable\": \"%s", data, id.c_str());
+        sprintf(data, "%s\", \"value\":%s", data, str.c_str());
+        sprintf(data, "%s}", data);
         i++;
         if (i < currentValue) {
-            all += ", ";
+            sprintf(data, "%s, ", data);
         }
     }
 
-    all += "]";
-    i = all.length();
+    sprintf(data, "%s]", data);
+    i = strlen(data);
 
-   String toPost = "POST /api/v1.6/collections/values/?force=true HTTP/1.1\r\n"
-                    "Host: things.ubidots.com\r\n"
-                    "User-Agent:" + String(USER_AGENT) + "/" + String(VERSION) + "\r\n"
-                    "X-Auth-Token: " + String(_token) + "\r\n"
-                    "Connection: close\r\n"
-                    "Content-Type: application/json\r\n"
-                    "Content-Length: " + String(i) + "\r\n"
-                    "\r\n"
-                    + all +
-                    "\r\n";
+    sprintf(allData, "POST /api/v1.6/collections/values/?force=true HTTP/1.1\r\n");
+    sprintf(allData, "%sHost: things.ubidots.com\r\n", allData);
+    sprintf(allData, "%sUser-Agent: %s/%s\r\n", allData, USER_AGENT, VERSION);
+    sprintf(allData, "%sX-Auth-Token: %s\r\n", allData, _token);
+    sprintf(allData, "%sConnection: close\r\n", allData);
+    sprintf(allData, "%sContent-Type: application/json\r\n", allData);
+    sprintf(allData, "%sContent-Length: %d\r\n\r\n", allData, i);
+    sprintf(allData, "%s%s\r\n", allData, data);
 
     if (_client.connect(HTTPSERVER, HTTPPORT)) {
         Serial.println(F("Posting your variables: "));
-        Serial.println(toPost);
-        _client.print(toPost);
+        Serial.println(allData);
+        _client.print(allData);
     }
 
-    int timeout = 0;
-    while(!_client.available() && timeout < 5000) {
+    while(!_client.available() && timeout < 2000) {
         timeout++;
         delay(1);
+        if (timeout >= 2000) {
+            if (_debug) {
+                Serial.println(F("Error, max timeout reached"));
+            }
+            _client.stop();
+            delay(5);
+            free(allData);
+            return NULL;
+        }
     }
     while (_client.available()) {
         char c = _client.read();
         Serial.write(c);
     }
     currentValue = 0;
+    free(allData);
     _client.stop();
     return true;
 }
 
-void Ubidots::setDebug(bool debug){
+/***************************************************************************
+AUXILIAR FUNCTIONS
+***************************************************************************/
+
+/**
+ * Turns on or off debug messages
+ * @debug is a bool flag to activate or deactivate messages
+ */
+void Ubidots::setDebug(bool debug) {
      _debug = debug;
 }
 
-
+/**
+ * Initializes the wifi connection
+ * @arg ssid the name of your network
+ * @arg pass the password of your network
+ */
 bool Ubidots::wifiConnection(char* ssid, char* pass) {
     WiFi.begin(ssid, pass);
     while (WiFi.status() != WL_CONNECTED) {

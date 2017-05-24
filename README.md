@@ -61,7 +61,12 @@ client.setDataSourceLabel("New_label");
 
 ## Send values to Ubidots 
 
-You send values using the variable label or the variable ID, also you can send values with timestamp and context. 
+You can send values using the variable label or the variable ID, also you can send values with timestamp and context. 
+
+To manage the data to send you have to call the method ```send.All()``` at the end of the ```void loop()`` function, also you have to set the bool flag as parameter to the method: 
+
+* send.All(true); -> to use TCP and send values using the variable Label.
+* send.All(false); -> to use HTTP and send values using the variable ID.
 
 ### Send values using the variable label 
 
@@ -360,6 +365,12 @@ void loop() {
     delay(10000);
 }
 ```
+
+## Debug function
+
+If you desire visualize the response from the server you have to add this line to your ```void setup()``` function:
+
+ *  ```client.setDebug(true);```
 
 
 
