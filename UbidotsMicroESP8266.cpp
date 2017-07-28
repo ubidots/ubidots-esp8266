@@ -25,7 +25,9 @@ Modified by: Maria Carlina Hernandez for Ubidots
 
 */
 
+
 #include "UbidotsMicroESP8266.h"
+
 /**
  * Constructor.
  */
@@ -52,6 +54,17 @@ void Ubidots::idAsMac(){
     }
 }
 
+/**
+ * This function connects to host
+ * @arg host the host to connect
+ * @arg port the port to connect
+ * @return num the the last value of the variable from the Ubidots API
+ */
+bool Ubidots::_connect(char * host, int port){
+  if (!_client.connect(host, port)) {
+      return false;
+    }
+}
 
 
 void Ubidots::setDataSourceName(char *dataSourceName) {
@@ -81,7 +94,7 @@ float Ubidots::getValue(char* id) {
   sprintf(data, "%sHost: things.ubidots.com\r\nUser-Agent:%s/%s\r\n", data, USER_AGENT, VERSION);
   sprintf(data, "%sX-Auth-Token: %s\r\nConnection: close\r\n\r\n", data, _token);
 
-  if (_client.connect(HTTPSERVER, HTTPPORT)) {
+  if (_connect(HTTPSERVER, HTTPPORT)) {
         Serial.println(F("Getting your variable: "));
         _client.println(data);
   } else {
@@ -137,7 +150,7 @@ long Ubidots::getVarTimestamp(char* id) {
   sprintf(data, "%sHost: things.ubidots.com\r\nUser-Agent: %s/%s\r\n", data, USER_AGENT, VERSION);
   sprintf(data, "%sX-Auth-Token: %s\r\nConnection: close\r\n\r\n", data, _token);
 
-  if (_client.connect(HTTPSERVER, HTTPPORT)) {
+  if (_connect(HTTPSERVER, HTTPPORT)) {
         Serial.println(F("Getting your variable timestamp: "));
         _client.println(data);
   } else {
@@ -197,7 +210,7 @@ char* Ubidots::getVarContext(char* id) {
   sprintf(data, "%sHost: things.ubidots.com\r\nUser-Agent:%s/%s\r\n", data, USER_AGENT, VERSION);
   sprintf(data, "%sX-Auth-Token: %s\r\nConnection: close\r\n\r\n", data, _token);
 
-  if (_client.connect(HTTPSERVER, HTTPPORT)) {
+  if (_connect(HTTPSERVER, HTTPPORT)) {
         Serial.println(F("Getting your variable context: "));
         _client.println(data);
   } else {
@@ -257,10 +270,13 @@ float Ubidots::getValueUDP(char* id){
         Serial.println(data);
     }
 
-    if (_client.connect(SERVER, PORT)) {
+    if (_connect(SERVER, PORT)) {
         Serial.println(F("Getting your variable: "));
         _client.print(data);
-    }
+      } else {
+	        return NULL;
+	  }
+
 
     int timeout = 0;
 
@@ -305,10 +321,13 @@ float Ubidots::getValueWithDevice(char* dsLabel, char* varLabel){
         Serial.println(data);
     }
 
-    if (_client.connect(SERVER, PORT)) {
+    if (_connect(SERVER, PORT)) {
         Serial.println(F("Getting your variable: "));
         _client.print(data);
-    }
+      } else {
+	        return NULL;
+	  }
+
 
     int timeout = 0;
 
@@ -402,9 +421,12 @@ bool Ubidots::sendTLATE() {
      Serial.println(data);
     }
 
-    if (_client.connect(SERVER, PORT)) {
+    if (_connect(SERVER, PORT)) {
         _client.print(data);
-    }
+      } else {
+	        return NULL;
+	  }
+
     int timeout = 0;
     while(!_client.available() && timeout < 5000) {
         timeout++;
@@ -449,11 +471,14 @@ bool Ubidots::sendHTTP() {
                     + all +
                     "\r\n";
 
-    if (_client.connect(HTTPSERVER, HTTPPORT)) {
+    if (_connect(HTTPSERVER, HTTPPORT)) {
         Serial.println(F("Posting your variables: "));
         Serial.println(toPost);
         _client.print(toPost);
-    }
+      } else {
+	        return NULL;
+	  }
+
 
     int timeout = 0;
     while(!_client.available() && timeout < 5000) {
@@ -475,6 +500,7 @@ void Ubidots::setDebug(bool debug){
 
 
 bool Ubidots::wifiConnection(char* ssid, char* pass) {
+	WiFi.mode(WIFI_STA);
     WiFi.begin(ssid, pass);
     while (WiFi.status() != WL_CONNECTED) {
         delay(500);
@@ -487,7 +513,7 @@ bool Ubidots::wifiConnection(char* ssid, char* pass) {
 }
 
 /*
- * Â© Francesco PotortÃ¬ 2013 - GPLv3 - Revision: 1.13
+ * © Francesco Potortì 2013 - GPLv3 - Revision: 1.13
  *
  * Send an NTP packet and wait for the response, return the Unix time
  *

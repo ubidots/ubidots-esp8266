@@ -88,9 +88,13 @@ class Ubidots {
     void setDataSourceLabel(char* dataSoruceLabel);
     unsigned long ntpUnixTime ();
 
+ protected:
+    bool _debug = false;
+    WiFiClient _client;
+    virtual bool _connect(char * host, int port);
+
  private:
     void idAsMac();
-    bool _debug = false;
     char* _token;
     char* _server;
     char* _dsName;
@@ -100,6 +104,5 @@ class Ubidots {
     uint8_t currentValue;
     Value * val;
     float parseValue(String body);
-    WiFiClient _client;
     WiFiUDP udp;
 };
