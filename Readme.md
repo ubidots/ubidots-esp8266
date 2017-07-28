@@ -367,7 +367,6 @@ Ubidots class uses HTTP unencrypted communications.
 To activate HTTPS, just include UbidotsMicroESP8266.h and use UbidotsSecure class instead of Ubidots class
 
 ```c++
-#define UBIDOTS_HTTPS  // Activate HTTPS support
 #include "UbidotsMicroESP8266Secure.h"
 
 #define ID  "Your_VariableID_here"  // Put here your Ubidots variable ID
@@ -392,6 +391,7 @@ void loop() {
 
 Before each HTTPS connection, server identity is checked first using certificate SHA1 fingerprint (faster, but fingerprint changes
 each 90 days) and if fails full certificate chain is checked. 
-**IMPORTANT: If certificate validation fails, no data is read from/wrote to the server**.
+
+**IMPORTANT: If certificate validation fails, functions return NULL and no data is read from/wrote to the server**
 
 
