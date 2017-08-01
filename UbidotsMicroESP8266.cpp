@@ -25,12 +25,16 @@ Modified by: Maria Carlina Hernandez for Ubidots
 
 */
 
+
 #include "UbidotsMicroESP8266.h"
+#include "UbidotsRootCA.h"
+#include <time.h>
+
+
 /**
  * Constructor.
  */
 Ubidots::Ubidots(char* token, char* server) {
-
     _token = token;
     _server = server;
     _dsName = DEFAULT_DEVICE_NAME;
@@ -38,6 +42,29 @@ Ubidots::Ubidots(char* token, char* server) {
     currentValue = 0;
     val = (Value *)malloc(maxValues*sizeof(Value));
     idAsMac();
+    SNTPinitialized = false;
+    _client = (WiFiClientSecure *)new WiFiClient();
+}
+
+/**
+ * This function activates/deactivates SSL
+ * @arg use_ssl: true to activate SSL
+ * @arg httsport: port of connection, optional defaults to 443
+ */
+void Ubidots::setSSL(bool use_ssl, int https_port) {
+	_ssl = use_ssl;
+	_https_port = https_port;
+    if (_ssl){
+		_client = (WiFiClientSecure *)new WiFiClientSecure();
+		bool success;
+		success = _client->setCACert(caCert, caCertLen);
+		if (_debug){
+		  Serial.printf("setCACert: %d\n", (int) success);
+		}
+	}else{
+		_client = (WiFiClientSecure *)new WiFiClient();
+	}
+
 }
 
 void Ubidots::idAsMac(){
@@ -52,7 +79,71 @@ void Ubidots::idAsMac(){
     }
 }
 
+/**
+ * This function connects to host
+ * @arg host the host to connect
+ * @arg port the port to connect
+ * @return num the the last value of the variable from the Ubidots API
+ */
+bool Ubidots::_connect(char * host, int port){
+	if (_ssl){
+		port = _https_port;
+	}
+  if (!_client->connect(host, port)) {
+      return false;
+    }
+  if (!_ssl){
+	  return true;
+	}else{
+	    if (!_client->connected()){
+	  	  Serial.println("Unable to connect");
+	  	  return false;
+	    }
+	    if (_client->verify(UBIDOTS_FINGERPRINT, host)) {
+	      if (_debug){
+	        Serial.println("Server certificate matches stored fingerprint");
+	      }
+	      return true;
+	    } else {
+	      if (_debug){
+	        Serial.println("Server certificate doesn't match stored fingerprint");
+	      }
+	    }
+	    // If fingerprint verification fails, verify validity of server's certificate
+	    // As dates are checked, sntp data has to be initialized by calling
+	    // initSNTP()
+	    if (!SNTPinitialized){
+	  	  initSNTP();
+	    }
+	    if (_client->verifyCertChain(host)) {
+	      if (_debug){
+	        Serial.println("Server certificate verified");
+	      }
+	      return true;
+	    } else {
+	      if (_debug){
+	        Serial.println("ERROR: certificate chain verification failed!");
+	      }
+	      return false;
+	    }
 
+  }
+}
+
+/**
+ * This function initializes SNTP to check certificate expiry dates
+ * To be called just after wifi connection is stablished or before
+ * checking certificate validity
+ */
+void Ubidots::initSNTP(){
+  configTime(3 * 3600, 0, "pool.ntp.org", "time.nist.gov");
+  Serial.println("\nWaiting for time");
+  while (!time(nullptr)) {
+	Serial.print(".");
+	delay(1000);
+  }
+  SNTPinitialized = true;
+}
 
 void Ubidots::setDataSourceName(char *dataSourceName) {
 
@@ -81,19 +172,19 @@ float Ubidots::getValue(char* id) {
   sprintf(data, "%sHost: things.ubidots.com\r\nUser-Agent:%s/%s\r\n", data, USER_AGENT, VERSION);
   sprintf(data, "%sX-Auth-Token: %s\r\nConnection: close\r\n\r\n", data, _token);
 
-  if (_client.connect(HTTPSERVER, HTTPPORT)) {
+  if (_connect(HTTPSERVER, HTTPPORT)) {
         Serial.println(F("Getting your variable: "));
-        _client.println(data);
+        _client->println(data);
   } else {
         return NULL;
   }
     int timeout = 0;
-    while(!_client.available() && timeout < 5000) {
+    while(!_client->available() && timeout < 5000) {
         timeout++;
         delay(1);
     }
-    while (_client.available()) {
-        response = _client.readString();
+    while (_client->available()) {
+        response = _client->readString();
     }
 
     if (_debug){
@@ -111,8 +202,8 @@ float Ubidots::getValue(char* id) {
     bodyPosend = response.indexOf(", \"timestamp\"");
     response = response.substring(bodyPosinit,bodyPosend);
     num = response.toFloat();
-    _client.flush();
-    _client.stop();
+    _client->flush();
+    _client->stop();
 
     return num;
 }
@@ -137,21 +228,21 @@ long Ubidots::getVarTimestamp(char* id) {
   sprintf(data, "%sHost: things.ubidots.com\r\nUser-Agent: %s/%s\r\n", data, USER_AGENT, VERSION);
   sprintf(data, "%sX-Auth-Token: %s\r\nConnection: close\r\n\r\n", data, _token);
 
-  if (_client.connect(HTTPSERVER, HTTPPORT)) {
+  if (_connect(HTTPSERVER, HTTPPORT)) {
         Serial.println(F("Getting your variable timestamp: "));
-        _client.println(data);
+        _client->println(data);
   } else {
         return NULL;
   }
     int timeout = 0;
 
-    while(!_client.available() && timeout < 5000) {
+    while(!_client->available() && timeout < 5000) {
         timeout++;
         delay(1);
     }
 
-    while (_client.available()) {
-        response = _client.readString();
+    while (_client->available()) {
+        response = _client->readString();
     }
 
     if (_debug){
@@ -174,8 +265,8 @@ long Ubidots::getVarTimestamp(char* id) {
     VarTimestamp = atoi(seconds);
     delete [] seconds;
     delay(1000);
-    _client.flush();
-    _client.stop();
+    _client->flush();
+    _client->stop();
     return VarTimestamp;
 }
 /**
@@ -197,21 +288,21 @@ char* Ubidots::getVarContext(char* id) {
   sprintf(data, "%sHost: things.ubidots.com\r\nUser-Agent:%s/%s\r\n", data, USER_AGENT, VERSION);
   sprintf(data, "%sX-Auth-Token: %s\r\nConnection: close\r\n\r\n", data, _token);
 
-  if (_client.connect(HTTPSERVER, HTTPPORT)) {
+  if (_connect(HTTPSERVER, HTTPPORT)) {
         Serial.println(F("Getting your variable context: "));
-        _client.println(data);
+        _client->println(data);
   } else {
         return NULL;
   }
     int timeout = 0;
 
-    while(!_client.available() && timeout < 5000) {
+    while(!_client->available() && timeout < 5000) {
         timeout++;
         delay(1);
     }
 
-    while (_client.available()) {
-        response = _client.readString();
+    while (_client->available()) {
+        response = _client->readString();
     }
 
     if (_debug){
@@ -231,8 +322,8 @@ char* Ubidots::getVarContext(char* id) {
     str_context = response.substring(bodyPosinit,bodyPosend);
     VarContext = new char [str_context.length() + 1];
     strcpy(VarContext, str_context.c_str());
-    _client.flush();
-    _client.stop();
+    _client->flush();
+    _client->stop();
 
     return VarContext;
 }
@@ -257,20 +348,23 @@ float Ubidots::getValueUDP(char* id){
         Serial.println(data);
     }
 
-    if (_client.connect(SERVER, PORT)) {
+    if (_connect(SERVER, PORT)) {
         Serial.println(F("Getting your variable: "));
-        _client.print(data);
-    }
+        _client->print(data);
+      } else {
+	        return NULL;
+	  }
+
 
     int timeout = 0;
 
-    while(!_client.available() && timeout < 5000) {
+    while(!_client->available() && timeout < 5000) {
         timeout++;
         delay(1);
     }
 
-    while (_client.available()) {
-        char c = _client.read();
+    while (_client->available()) {
+        char c = _client->read();
         response += c;
     }
 
@@ -278,9 +372,9 @@ float Ubidots::getValueUDP(char* id){
     response = response.substring(bodyPosinit);
     num = response.toFloat();
     currentValue = 0;
-    _client.stop();
+    _client->stop();
     free(data);
-    _client.stop();
+    _client->stop();
     return num;
 }
 
@@ -305,19 +399,22 @@ float Ubidots::getValueWithDevice(char* dsLabel, char* varLabel){
         Serial.println(data);
     }
 
-    if (_client.connect(SERVER, PORT)) {
+    if (_connect(SERVER, PORT)) {
         Serial.println(F("Getting your variable: "));
-        _client.print(data);
-    }
+        _client->print(data);
+      } else {
+	        return NULL;
+	  }
+
 
     int timeout = 0;
 
-    while(!_client.available() && timeout < 5000) {
+    while(!_client->available() && timeout < 5000) {
         timeout++;
         delay(1);
     }
-     while (_client.available()) {
-        char c = _client.read();
+     while (_client->available()) {
+        char c = _client->read();
         response += c;
     }
 
@@ -325,9 +422,9 @@ float Ubidots::getValueWithDevice(char* dsLabel, char* varLabel){
     response = response.substring(bodyPosinit);
     num = response.toFloat();
     currentValue = 0;
-    _client.stop();
+    _client->stop();
     free(data);
-    _client.stop();
+    _client->stop();
     return num;
 }
 /**
@@ -402,16 +499,19 @@ bool Ubidots::sendTLATE() {
      Serial.println(data);
     }
 
-    if (_client.connect(SERVER, PORT)) {
-        _client.print(data);
-    }
+    if (_connect(SERVER, PORT)) {
+        _client->print(data);
+      } else {
+	        return NULL;
+	  }
+
     int timeout = 0;
-    while(!_client.available() && timeout < 5000) {
+    while(!_client->available() && timeout < 5000) {
         timeout++;
         delay(1);
     }
-    while (_client.available()) {
-        char c = _client.read();
+    while (_client->available()) {
+        char c = _client->read();
         Serial.write(c);
     }
     free(data);
@@ -449,23 +549,26 @@ bool Ubidots::sendHTTP() {
                     + all +
                     "\r\n";
 
-    if (_client.connect(HTTPSERVER, HTTPPORT)) {
+    if (_connect(HTTPSERVER, HTTPPORT)) {
         Serial.println(F("Posting your variables: "));
         Serial.println(toPost);
-        _client.print(toPost);
-    }
+        _client->print(toPost);
+      } else {
+	        return NULL;
+	  }
+
 
     int timeout = 0;
-    while(!_client.available() && timeout < 5000) {
+    while(!_client->available() && timeout < 5000) {
         timeout++;
         delay(1);
     }
-    while (_client.available()) {
-        char c = _client.read();
+    while (_client->available()) {
+        char c = _client->read();
         Serial.write(c);
     }
     currentValue = 0;
-    _client.stop();
+    _client->stop();
     return true;
 }
 
@@ -475,6 +578,7 @@ void Ubidots::setDebug(bool debug){
 
 
 bool Ubidots::wifiConnection(char* ssid, char* pass) {
+	WiFi.mode(WIFI_STA);
     WiFi.begin(ssid, pass);
     while (WiFi.status() != WL_CONNECTED) {
         delay(500);
@@ -487,7 +591,7 @@ bool Ubidots::wifiConnection(char* ssid, char* pass) {
 }
 
 /*
- * Â© Francesco PotortÃ¬ 2013 - GPLv3 - Revision: 1.13
+ * © Francesco Potortì 2013 - GPLv3 - Revision: 1.13
  *
  * Send an NTP packet and wait for the response, return the Unix time
  *

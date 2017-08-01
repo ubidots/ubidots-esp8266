@@ -361,8 +361,38 @@ void loop() {
 }
 ```
 
+## HTTPS Support
+
+Ubidots class uses HTTP unencrypted communications.
+To activate HTTPS, just call setSSL(true) before starting communications
+
+```c++
+#include "UbidotsMicroESP8266.h"
+
+#define ID  "Your_VariableID_here"  // Put here your Ubidots variable ID
+#define TOKEN  "Your_token_here"  // Put here your Ubidots TOKEN
+#define WIFISSID "Your_WiFi_SSID" // Put here your Wi-Fi SSID
+#define PASSWORD "Your_WiFi_Password" // Put here your Wi-Fi password
+
+Ubidots client(TOKEN);
+
+void setup() {
+    Serial.begin(115200);
+    client.wifiConnection(WIFISSID, PASSWORD);
+    client.setSSL(true);   // Activate SSL
+}
+void loop() {
+    char* context = client.getVarContext(ID);	// Now using HTTPS
+    Serial.print("context: ");
+    Serial.println(context);    
+    delay(10000);
+}
+```
 
 
+Before each HTTPS connection, server identity is checked first using certificate SHA1 fingerprint (faster, but fingerprint changes
+each 90 days) and if fails full certificate chain is checked. 
 
+**IMPORTANT: If certificate validation fails, functions return NULL and no data is read from/wrote to the server**
 
 

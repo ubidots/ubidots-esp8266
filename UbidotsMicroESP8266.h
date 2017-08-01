@@ -49,6 +49,8 @@ Modified by: Maria Carlina Hernandez
 #ifndef HTTPPORT
 #define HTTPPORT 80
 #endif
+#define HTTPSPORT 443
+
 
 #ifndef USER_AGENT
 #define USER_AGENT "UbidotsESP8266"
@@ -87,10 +89,19 @@ class Ubidots {
     void setDataSourceName(char* dataSoruceName);
     void setDataSourceLabel(char* dataSoruceLabel);
     unsigned long ntpUnixTime ();
+	void setSSL(bool use_ssl, int https_port = HTTPSPORT);
+
+ protected:
+    bool _debug = false;
+    WiFiClientSecure *_client;
+    bool _connect(char * host, int port);
 
  private:
+ 	int _https_port;
+ 	bool _ssl = false;
+  	bool SNTPinitialized;
+	void initSNTP();
     void idAsMac();
-    bool _debug = false;
     char* _token;
     char* _server;
     char* _dsName;
@@ -100,6 +111,6 @@ class Ubidots {
     uint8_t currentValue;
     Value * val;
     float parseValue(String body);
-    WiFiClient _client;
     WiFiUDP udp;
 };
+
