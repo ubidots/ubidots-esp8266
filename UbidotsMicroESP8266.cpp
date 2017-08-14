@@ -111,6 +111,7 @@ float Ubidots::getValue(char* id) {
     bodyPosend = response.indexOf(", \"timestamp\"");
     response = response.substring(bodyPosinit,bodyPosend);
     num = response.toFloat();
+    free(data);
     _client.flush();
     _client.stop();
 
