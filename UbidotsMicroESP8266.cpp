@@ -99,17 +99,7 @@ bool Ubidots::_connect(char * host, int port){
 	  	  Serial.println("Unable to connect");
 	  	  return false;
 	    }
-	    if (_client->verify(UBIDOTS_FINGERPRINT, host)) {
-	      if (_debug){
-	        Serial.println("Server certificate matches stored fingerprint");
-	      }
-	      return true;
-	    } else {
-	      if (_debug){
-	        Serial.println("Server certificate doesn't match stored fingerprint");
-	      }
-	    }
-	    // If fingerprint verification fails, verify validity of server's certificate
+	    // Verify validity of server's certificate
 	    // As dates are checked, sntp data has to be initialized by calling
 	    // initSNTP()
 	    if (!SNTPinitialized){

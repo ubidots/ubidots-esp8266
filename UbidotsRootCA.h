@@ -75,7 +75,4 @@ const unsigned char caCert[] = {
   0xee, 0x9d, 0x82, 0x35, 0x35, 0x10
 };
 const unsigned int caCertLen = 846;
-
-//Current SHA1 fingerprint of things.ubidots.com certificate asof July 24th 2017
-const char* UBIDOTS_FINGERPRINT = "0F:10:CF:AD:C0:46:66:FE:EF:F8:DD:A1:3D:AE:DC:66:A0:3C:F3:2B";
 #endif
