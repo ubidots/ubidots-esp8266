@@ -1,4 +1,5 @@
 /*
+
 Copyright (c) 2013-2016 Ubidots.
 
 Permission is hereby granted, free of charge, to any person obtaining
@@ -54,11 +55,13 @@ Modified by: Maria Carlina Hernandez
 #define USER_AGENT "UbidotsESP8266"
 #endif
 #ifndef VERSION
-#define VERSION "1.2"
+#define VERSION "1.3"
 #endif
 #ifndef DEFAULT_DEVICE_NAME
 #define DEFAULT_DEVICE_NAME "ESP8266"
 #endif
+
+const float ERROR_VALUE = -3.4028235E+8;
 
 typedef struct Value {
   char  *id;
@@ -103,3 +106,4 @@ class Ubidots {
     WiFiClient _client;
     WiFiUDP udp;
 };
+
