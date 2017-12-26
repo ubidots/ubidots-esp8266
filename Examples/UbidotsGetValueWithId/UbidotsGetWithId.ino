@@ -1,7 +1,6 @@
 #include "UbidotsMicroESP8266.h"
 
-#define DEVICE  "..."  // Put here your Ubidots device label
-#define VARIABLE  "..."  // Put here your Ubidots variable label
+#define ID  "..."  // Put here your Ubidots variable ID
 #define TOKEN  "..."  // Put here your Ubidots TOKEN
 #define WIFISSID "..." // Put here your Wi-Fi SSID
 #define PASSWORD "..." // Put here your Wi-Fi password
@@ -17,7 +16,7 @@ void setup() {
 }
 
 void loop() {
-    float value = client.getValueWithDevice(DEVICE, VARIABLE);
+    float value = client.getValueWithId(ID);
     if (value != ERROR_VALUE){
       Serial.print(F("value obtained: "));
       Serial.println(value);
@@ -26,3 +25,4 @@ void loop() {
     }
     delay(1000);
 }
+

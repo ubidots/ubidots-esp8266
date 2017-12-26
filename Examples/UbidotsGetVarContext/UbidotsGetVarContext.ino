@@ -1,9 +1,9 @@
 #include "UbidotsMicroESP8266.h"
 
-#define ID  "Your_VariableID_here"  // Put here your Ubidots variable ID
-#define TOKEN  "Your_token_here"  // Put here your Ubidots TOKEN
-#define WIFISSID "Your_WiFi_SSID" // Put here your Wi-Fi SSID
-#define PASSWORD "Your_WiFi_Password" // Put here your Wi-Fi password
+#define ID  "..."  // Put here your Ubidots variable ID
+#define TOKEN  "..."  // Put here your Ubidots TOKEN
+#define WIFISSID "..." // Put here your Wi-Fi SSID
+#define PASSWORD "..." // Put here your Wi-Fi password
 
 Ubidots client(TOKEN);
 
@@ -15,7 +15,11 @@ void setup() {
 
 void loop() {
     char* context = client.getVarContext(ID);
-    Serial.print("context: ");
-    Serial.println(context);    
-    delay(10000);
+    if (strcmp ("e", context) != 0){
+      Serial.print(F("context: "));
+      Serial.println(context);
+    }else{
+      Serial.println(F("Error getting context"));
+    }
+    delay(1000);
 }

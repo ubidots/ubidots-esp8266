@@ -201,25 +201,24 @@ void loop(){
 
 To get the last value of a variable from Ubidots you can use three different functions:
 
-+ client.getValue(ID)
-+ client.getValueUDP(ID)
++ client.getValueWithId(ID)
 + client.getValueWithDevice(DEVICE_LABEL, VARIABLE_LABEL)
 
-On the example folder you'll find all the examples codes. Go to **Sketch -> Examples ->  ubidots-esp8266-master library** and select the one that you need "**UbidotsGetValue**";"**UbidotsGetValueUDP**";"**UbidotsGetValueWithDevice**".
+On the example folder you'll find all the examples codes. Go to **Sketch -> Examples ->  ubidots-esp8266-master library** and select the one that you need "**UbidotsGetValueWithId**";"**UbidotsGetValueWithDevice**".
 
-### client.getValue(ID)
+### client.getValueWithId(ID)
 
-This function let you get de last value of a variable using the variable ID.
+This function let you get de last value of a variable using the variable ID. Returns constant ERROR_VALUE if an error is handled.
 
 Add your Ubidots TOKEN and variable ID where indicated, as well as the WI-FI settings.
 
 ```c++
 #include "UbidotsMicroESP8266.h"
 
-#define ID  "Your_variable_ID_here"  // Put here your Ubidots variable ID
-#define TOKEN  "Your_token_here"  // Put here your Ubidots TOKEN
-#define WIFISSID "Your_WiFi_SSID" // Put here your Wi-Fi SSID
-#define PASSWORD "Your_WiFi_Password" // Put here your Wi-Fi password
+#define ID  "..."  // Put here your Ubidots variable ID
+#define TOKEN  "..."  // Put here your Ubidots TOKEN
+#define WIFISSID "..." // Put here your Wi-Fi SSID
+#define PASSWORD "..." // Put here your Wi-Fi password
 
 Ubidots client(TOKEN);
 
@@ -230,80 +229,55 @@ void setup() {
 }
 
 void loop() {
-    float value = client.getValue(ID);
-    Serial.print("Value: ");
-    Serial.println(value);
-    delay(10000);
-}
-```
-
-### client.getValueUDP(ID);
-
-This function let you get de last value of a variable using the variable ID.
-
-Add your Ubidots TOKEN and variable ID where indicated, as well as the WI-FI 
-settings.
-
-```c++
-#include "UbidotsMicroESP8266.h"
-
-#define ID  "..."  // Put here your Ubidots variable ID
-#define TOKEN  "..."  // Put here your Ubidots TOKEN
-#define WIFISSID "..." // Your SSID
-#define PASSWORD "..." // Your Wi-Fi password
-
-Ubidots client(TOKEN);
-
-void setup() {
-  Serial.begin(115200);
-  client.wifiConnection(WIFISSID, PASSWORD);
-  //client.setDebug(true); // Uncomment this line to set DEBUG on
-}
-
-void loop() {
-
-  float value = client.getValueUDP(ID);
-  Serial.print("Value: ");
-  Serial.println(value);
-  delay(10000);
+    float value = client.getValueWithId(ID);
+    if (value != ERROR_VALUE){
+      Serial.print(F("value obtained: "));
+      Serial.println(value);
+    }else{
+      Serial.println(F("Error getting value"));
+    }
+    delay(1000);
 }
 ```
 
 ### client.getValueWithDevice(DEVICE_LABEL, VARIABLE_LABEL)
 
-This function let you get de last value of a variable using the device and varriable labels.
+This function let you get de last value of a variable using the device and varriable labels. Returns constant ERROR_VALUE if an error is handled.
 
 Add your Ubidots TOKEN, device label, and variable label where indicated, as well as the WI-FI settings.
 
 ```c++
 #include "UbidotsMicroESP8266.h"
 
-#define DEVICE_LABEL "..." // Put here your Device Label
-#define VARIABLE_LABEL "..." // Put here your Variable Label
+#define DEVICE  "..."  // Put here your Ubidots device label
+#define VARIABLE  "..."  // Put here your Ubidots variable label
 #define TOKEN  "..."  // Put here your Ubidots TOKEN
-#define WIFISSID "..." // Your SSID
-#define PASSWORD "..." // Your Wi-Fi password
+#define WIFISSID "..." // Put here your Wi-Fi SSID
+#define PASSWORD "..." // Put here your Wi-Fi password
 
 Ubidots client(TOKEN);
 
 void setup() {
-  Serial.begin(115200);
-  client.wifiConnection(WIFISSID, PASSWORD);
-  //client.setDebug(true); // Uncomment this line to set DEBUG on
+    Serial.begin(115200);
+    client.wifiConnection(WIFISSID, PASSWORD);
+    //client.setDebug(true); // Uncomment this line to set DEBUG on
 }
 
 void loop() {
-
-  float value = client.getValueWithDevice(DEVICE_LABEL, VARIABLE_LABEL);
-  Serial.print("Value: ");
-  Serial.println(value);
-  delay(10000);
+    float value = client.getValueWithDevice(DEVICE, VARIABLE);
+    if (value != ERROR_VALUE){
+      Serial.print(F("value obtained: "));
+      Serial.println(value);
+    }else{
+      Serial.println(F("Error getting value"));
+    }
+    delay(1000);
 }
 ```
 
 ## Get variable's timestamp
 
-This function let you get the variable's timestamp using the variable ID.
+This function let you get the variable's timestamp using the variable ID. Returns constant ERROR_VALUE if an error is handled.
 
 On the example folder you'll find the example code. Go to **Sketch -> Examples ->  ubidots-esp8266-master library** and select the "**UbidotsGetVarTimestamp**" example. 
 
@@ -312,28 +286,34 @@ Add your Ubidots TOKEN and variable ID where indicated, as well as the WI-FI set
 ```c++
 #include "UbidotsMicroESP8266.h"
 
-#define ID  "Your_VariableID_here"  // Put here your Ubidots variable ID
-#define TOKEN  "Your_token_here"  // Put here your Ubidots TOKEN
-#define WIFISSID "Your_WiFi_SSID" // Put here your Wi-Fi SSID
-#define PASSWORD "Your_WiFi_Password" // Put here your Wi-Fi password
+#define ID  "..."  // Put here your Ubidots variable ID
+#define TOKEN  "..."  // Put here your Ubidots TOKEN
+#define WIFISSID "..." // Put here your Wi-Fi SSID
+#define PASSWORD "..." // Put here your Wi-Fi password
 
 Ubidots client(TOKEN);
 
 void setup() {
     Serial.begin(115200);
     client.wifiConnection(WIFISSID, PASSWORD);
+    //client.setDebug(true); // Uncomment this line to set DEBUG on
 }
+
 void loop() {
     long timestamp = client.getVarTimestamp(ID);
-    Serial.print("timestamp: ");
-    Serial.println(timestamp);
-    delay(10000);
+    if (timestamp != ERROR_VALUE){
+      Serial.print(F("timestamp: "));
+      Serial.println(timestamp);
+    }else{
+      Serial.println(F("Error getting timestamp"));
+    }
+    delay(1000);
 }
 ```
 
 ## Get variable's context
 
-This function let you get the variable's context using the variable ID.
+This function let you get the variable's context using the variable ID. Returns constant character 'e' if an error is handled.
 
 On the example folder you'll find the example code. Go to **Sketch -> Examples ->  ubidots-esp8266-master library** and select the "**UbidotsGetVarContext**" example. 
 
@@ -342,22 +322,28 @@ Add your Ubidots TOKEN and variable ID where indicated, as well as the WI-FI set
 ```c++
 #include "UbidotsMicroESP8266.h"
 
-#define ID  "Your_VariableID_here"  // Put here your Ubidots variable ID
-#define TOKEN  "Your_token_here"  // Put here your Ubidots TOKEN
-#define WIFISSID "Your_WiFi_SSID" // Put here your Wi-Fi SSID
-#define PASSWORD "Your_WiFi_Password" // Put here your Wi-Fi password
+#define ID  "..."  // Put here your Ubidots variable ID
+#define TOKEN  "..."  // Put here your Ubidots TOKEN
+#define WIFISSID "..." // Put here your Wi-Fi SSID
+#define PASSWORD "..." // Put here your Wi-Fi password
 
 Ubidots client(TOKEN);
 
 void setup() {
     Serial.begin(115200);
     client.wifiConnection(WIFISSID, PASSWORD);
+    //client.setDebug(true); // Uncomment this line to set DEBUG on
 }
+
 void loop() {
     char* context = client.getVarContext(ID);
-    Serial.print("context: ");
-    Serial.println(context);    
-    delay(10000);
+    if (strcmp ("e", context) != 0){
+      Serial.print(F("context: "));
+      Serial.println(context);
+    }else{
+      Serial.println(F("Error getting context"));
+    }
+    delay(1000);
 }
 ```
 

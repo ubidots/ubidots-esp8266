@@ -1,5 +1,4 @@
 /*
-
 Copyright (c) 2013-2016 Ubidots.
 
 Permission is hereby granted, free of charge, to any person obtaining
@@ -23,6 +22,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 Made by Mateo Velez - Metavix for Ubidots Inc
 Modified by: Maria Carlina Hernandez
+Modified by: Jose Garcia -- Hardware and software developer
 
 */
 
@@ -76,8 +76,7 @@ class Ubidots {
     bool sendAll(bool type = false);
     bool sendHTTP();
     bool sendTLATE();
-    float getValue(char* id);
-    float getValueUDP(char *id);
+    float getValueWithId(char *id);
     float getValueWithDevice(char* dsLabel, char* varLabel);
     long getVarTimestamp(char* id);
     char* getVarContext(char* id);
@@ -99,6 +98,7 @@ class Ubidots {
     char* _dsName;
     char* _idName;
     char* _espID = (char *) malloc(sizeof(char) * 100);
+    char* _context = (char *) malloc(sizeof(char) * 100);
     uint8_t maxValues;
     uint8_t currentValue;
     Value * val;
@@ -106,4 +106,3 @@ class Ubidots {
     WiFiClient _client;
     WiFiUDP udp;
 };
-

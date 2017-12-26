@@ -1,5 +1,4 @@
 /*
-
 Copyright (c) 2013-2016 Ubidots.
 
 Permission is hereby granted, free of charge, to any person obtaining
@@ -67,63 +66,8 @@ void Ubidots::setDataSourceLabel(char* dataSourceLabel) {
 
   _espID = dataSourceLabel;
 }
-/**
- * This function is to get value from the Ubidots API
- * @arg id the id where you will get the data
- * @return num the the last value of the variable from the Ubidots API
- */
 
-float Ubidots::getValue(char* id) {
 
-  float num;
-  String response;
-  uint8_t bodyPosinit;
-  uint8_t bodyPosend;
-
-  char* data = (char *) malloc(sizeof(char) * 700);
-  sprintf(data, "GET /api/v1.6/variables/%s", id);
-  sprintf(data, "%s/values?page_size=1 HTTP/1.1\r\n", data);
-  sprintf(data, "%sHost: things.ubidots.com\r\nUser-Agent:%s/%s\r\n", data, USER_AGENT, VERSION);
-  sprintf(data, "%sX-Auth-Token: %s\r\nConnection: close\r\n\r\n", data, _token);
-
-  if (_client.connect(HTTPSERVER, HTTPPORT)) {
-    if (_debug){
-      Serial.println(F("Getting your variable: "));
-    }
-    _client.println(data);
-  } else {
-    return ERROR_VALUE;
-  }
-  int timeout = 0;
-  while(!_client.available() && timeout < 5000) {
-    timeout++;
-    delay(1);
-  }
-  while (_client.available()) {
-    response = _client.readString();
-  }
-
-  if (_debug){
-    Serial.println(response);
-  }
-
-  bodyPosinit = 4 + response.indexOf("\r\n\r\n");
-  response = response.substring(bodyPosinit);
-
-  if (_debug){
-    Serial.println(response);
-  }
-
-  bodyPosinit = 9 + response.indexOf("\"value\":");
-  bodyPosend = response.indexOf(", \"timestamp\"");
-  response = response.substring(bodyPosinit,bodyPosend);
-  num = response.toFloat();
-  free(data);
-  _client.flush();
-  _client.stop();
-
-  return num;
-}
 /**
  * This function is to get variable timestamp from the Ubidots API
  * @arg id is the ID of the variable where you will get the timestamp
@@ -132,12 +76,12 @@ float Ubidots::getValue(char* id) {
 long Ubidots::getVarTimestamp(char* id) {
 
   char* data = (char *) malloc(sizeof(char) * 700);
+  char* response = (char *) malloc(sizeof(char) * 400);
   char* final = (char *) malloc(sizeof(char) * 16);
   sprintf(data, "GET /api/v1.6/variables/%s", id);
   sprintf(data, "%s/values?page_size=1 HTTP/1.1\r\n", data);
   sprintf(data, "%sHost: things.ubidots.com\r\nUser-Agent: %s/%s\r\n", data, USER_AGENT, VERSION);
   sprintf(data, "%sX-Auth-Token: %s\r\nConnection: close\r\n\r\n", data, _token);
-
 
   if (_client.connect(HTTPSERVER, HTTPPORT)) {
     if (_debug){
@@ -147,8 +91,8 @@ long Ubidots::getVarTimestamp(char* id) {
   } else {
     ERROR_VALUE;
   }
-  int timeout = 0;
 
+  int timeout = 0;
   free(data);
   while(!_client.available() && timeout <= 5000) {
     timeout++;
@@ -161,8 +105,8 @@ long Ubidots::getVarTimestamp(char* id) {
     delay(1);
   }
 
-  char* response = new char[400];
   int i = 0;
+
   while (_client.available()) {
     response[i++] = (char)_client.read();
     if (i >= 399){
@@ -176,16 +120,27 @@ long Ubidots::getVarTimestamp(char* id) {
 
   _client.flush();
   _client.stop();
+
+  // parses the answer
   char *pch = strchr(response, '[');
-  char *pch2 = strchr(pch, ':');
-  int index = (int)(pch2 - pch - 1);
-  memcpy(final, pch2, index);
-  final[0] = '0';
-  final[1] = '0';
-  delay(1000);
-  long result = atol(final);
+  if (pch != NULL){
+    char *pch2 = strchr(pch, ':');
+    if (pch2 != NULL){
+      int index = (int)(pch2 - pch - 1);
+      memcpy(final, pch2, index);
+      final[0] = '0';  //Replaces ':' by zero
+      final[1] = '0';  //Replaces ' ' by zero
+      delay(1000);
+      long result = atol(final);
+      free(response);
+      free(final);
+      return result;
+    }
+  }
+
+  free(response);
   free(final);
-  return result;
+  return ERROR_VALUE;
 }
 
 /**
@@ -195,13 +150,9 @@ long Ubidots::getVarTimestamp(char* id) {
  */
 char* Ubidots::getVarContext(char* id) {
 
-  String response;
-  String str_context;
-  char* VarContext;
-  int bodyPosinit;
-  int bodyPosend;
-
   char* data = (char *) malloc(sizeof(char) * 700);
+  char* response = (char *) malloc(sizeof(char) * 400);
+
   sprintf(data, "GET /api/v1.6/variables/%s", id);
   sprintf(data, "%s/values?page_size=1 HTTP/1.1\r\n", data);
   sprintf(data, "%sHost: things.ubidots.com\r\nUser-Agent:%s/%s\r\n", data, USER_AGENT, VERSION);
@@ -213,40 +164,52 @@ char* Ubidots::getVarContext(char* id) {
     }
     _client.println(data);
   } else {
-    ERROR_VALUE;
+    return "e";
   }
+
+  free(data);
   int timeout = 0;
 
   while(!_client.available() && timeout < 5000) {
     timeout++;
+    if (timeout >= 4999){
+        return "e";
+    }
     delay(1);
   }
 
+  int i = 0;
   while (_client.available()) {
-    response = _client.readString();
+    response[i++] = (char)_client.read();
+    if (i >= 399){
+      break;
+    }
   }
 
   if (_debug){
     Serial.println(response);
   }
 
-  bodyPosinit = 4 + response.indexOf("\r\n\r\n");
-  response = response.substring(bodyPosinit);
-
   if (_debug){
     Serial.println(response);
   }
 
-  bodyPosinit =13+response.indexOf("\"context\":");
-  bodyPosend = response.indexOf(", \"created_at\":");
-  bodyPosend -= 1;
-  str_context = response.substring(bodyPosinit,bodyPosend);
-  VarContext = new char [str_context.length() + 1];
-  strcpy(VarContext, str_context.c_str());
-  _client.flush();
-  _client.stop();
+  // Parses the answer
+  char * pch = strchr(response, '[');
+  if (pch != NULL){
+    char * pch2 = strchr(pch + 2, '{');
+    pch = strchr(pch2, '}');
+    int index = (int)(pch - pch2 + 1);
+    memcpy(_context, pch2, index);
+    free(response);
+    _context[100] = '\0';
+    _client.flush();
+    _client.stop();
+    return _context;
+  }
 
-  return VarContext;
+  free(response);
+  return "e";
 }
 
 /**
@@ -255,12 +218,9 @@ char* Ubidots::getVarContext(char* id) {
  * @return num the the last value of the variable from the Ubidots API
  */
 
-float Ubidots::getValueUDP(char* id){
+float Ubidots::getValueWithId(char* id){
 
-  String response;
-  uint8_t bodyPosinit;
-  float num;
-  int i = 0;
+  char* response = (char *) malloc(sizeof(char) * 40);
   char* data = (char *) malloc(sizeof(char) * 700);
   sprintf(data, "%s/%s|GET|%s|%s", USER_AGENT, VERSION, _token, id);
   sprintf(data, "%s|end", data);
@@ -277,25 +237,39 @@ float Ubidots::getValueUDP(char* id){
   }
 
   int timeout = 0;
+  free(data);
 
-  while(!_client.available() && timeout < 5000) {
+  while(!_client.available() && timeout < 50000) {
     timeout++;
+    if (timeout >= 49999){
+        Serial.println("timeout");
+        return ERROR_VALUE;
+    }
     delay(1);
   }
 
-  while (_client.available()) {
-    char c = _client.read();
-    response += c;
+  int i = 0;
+  for (int i = 0; i <= 40; i++){
+    response[i] = '\0';
   }
 
-  bodyPosinit = 3 + response.indexOf("OK|");
-  response = response.substring(bodyPosinit);
-  num = response.toFloat();
-  currentValue = 0;
-  _client.stop();
-  free(data);
-  _client.stop();
-  return num;
+   while (_client.available()) {
+    response[i++] = (char)_client.read();
+  }
+
+  // Parses the answer, Expected "OK|{value}"
+  char * pch = strchr(response, '|');
+  if (pch != NULL){
+    float num;
+    pch[0] = '0';
+    num = atof(pch);
+    free(response);
+    _client.stop();
+    return num;
+  }
+
+  free(response);
+  return ERROR_VALUE;
 }
 
 /**
@@ -307,11 +281,8 @@ float Ubidots::getValueUDP(char* id){
 
 float Ubidots::getValueWithDevice(char* dsLabel, char* varLabel){
 
-  String response;
-  uint8_t bodyPosinit;
-  float num;
-  int i = 0;
   char* data = (char *) malloc(sizeof(char) * 700);
+  char* response = (char *) malloc(sizeof(char) * 40);
   sprintf(data, "%s/%s|LV|%s|%s:%s", USER_AGENT, VERSION, _token, dsLabel, varLabel);
   sprintf(data, "%s|end", data);
 
@@ -327,25 +298,42 @@ float Ubidots::getValueWithDevice(char* dsLabel, char* varLabel){
   }
 
   int timeout = 0;
+  free(data);
 
-  while(!_client.available() && timeout < 5000) {
+  while(!_client.available() && timeout < 50000) {
     timeout++;
+    if (timeout >= 49999){
+        Serial.println("timeout");
+        return ERROR_VALUE;
+    }
     delay(1);
   }
-   while (_client.available()) {
-    char c = _client.read();
-    response += c;
+
+  int i = 0;
+  for (int i = 0; i <= 40; i++){
+    response[i] = '\0';
   }
 
-  bodyPosinit = 3 + response.indexOf("OK|");
-  response = response.substring(bodyPosinit);
-  num = response.toFloat();
-  currentValue = 0;
-  _client.stop();
-  free(data);
-  _client.stop();
-  return num;
+   while (_client.available()) {
+    response[i++] = (char)_client.read();
+  }
+
+  // Parses the answer, Expected "OK|{value}"
+  char * pch = strchr(response, '|');
+  if (pch != NULL){
+    float num;
+    pch[0] = '0';
+    num = atof(pch);
+    free(response);
+    _client.stop();
+    return num;
+  }
+
+  free(response);
+  return ERROR_VALUE;
 }
+
+
 /**
  * Add a value of variable to save
  * @arg variable_id variable id to save in a struct
@@ -372,6 +360,8 @@ void Ubidots::add(char *variable_id, float value, char *ctext, unsigned long tim
     currentValue = maxValues;
   }
 }
+
+
 /**
  * Send all data of all variables that you saved
  * @reutrn true upon success, false upon error.
