@@ -16,7 +16,7 @@ void setup() {
 }
 
 void loop() {
-    float value = client.getValueWithId(ID);
+    float value = client.getValue(ID);
     if (value != ERROR_VALUE){
       Serial.print(F("value obtained: "));
       Serial.println(value);

@@ -22,7 +22,6 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 Made by Mateo Velez - Metavix for Ubidots Inc
 Modified by: Maria Carlina Hernandez
-Modified by: Jose Garcia -- Hardware and software developer
 
 */
 
@@ -76,7 +75,8 @@ class Ubidots {
     bool sendAll(bool type = false);
     bool sendHTTP();
     bool sendTLATE();
-    float getValueWithId(char *id);
+    float getValue(char *id);
+    float getValueUDP(char *id);
     float getValueWithDevice(char* dsLabel, char* varLabel);
     long getVarTimestamp(char* id);
     char* getVarContext(char* id);

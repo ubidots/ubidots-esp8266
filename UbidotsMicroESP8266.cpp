@@ -213,12 +213,12 @@ char* Ubidots::getVarContext(char* id) {
 }
 
 /**
- * This function is to get value using UPD from the Ubidots API
+ * This function is to get value using TCP
  * @arg id the id where you will get the data
  * @return num the the last value of the variable from the Ubidots API
  */
 
-float Ubidots::getValueWithId(char* id){
+float Ubidots::getValue(char* id){
 
   char* response = (char *) malloc(sizeof(char) * 40);
   char* data = (char *) malloc(sizeof(char) * 700);
@@ -503,6 +503,7 @@ bool Ubidots::wifiConnection(char* ssid, char* pass) {
  * memory segment, and the received packet is read one byte at a time.
  * The Unix time is returned, that is, seconds from 1970-01-01T00:00.
  */
+
 unsigned long Ubidots::ntpUnixTime () {
   static int udpInited = udp.begin(123); // open socket on arbitrary port
 
@@ -556,4 +557,13 @@ unsigned long Ubidots::ntpUnixTime () {
   // Discard the rest of the packet
   udp.flush();
   return time - 2208988800ul;     // convert NTP time to Unix time
+}
+
+/*******************************************
+Deprecated functions
+*******************************************/
+
+float Ubidots::getValueUDP(char *id){
+  Serial.println("This function is Deprecated, please use the getValue() method");
+  return getValue(id);
 }
