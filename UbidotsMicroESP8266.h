@@ -54,11 +54,13 @@ Modified by: Maria Carlina Hernandez
 #define USER_AGENT "UbidotsESP8266"
 #endif
 #ifndef VERSION
-#define VERSION "1.2"
+#define VERSION "1.3"
 #endif
 #ifndef DEFAULT_DEVICE_NAME
 #define DEFAULT_DEVICE_NAME "ESP8266"
 #endif
+
+const float ERROR_VALUE = -3.4028235E+8;
 
 typedef struct Value {
   char  *id;
@@ -73,7 +75,7 @@ class Ubidots {
     bool sendAll(bool type = false);
     bool sendHTTP();
     bool sendTLATE();
-    float getValue(char* id);
+    float getValue(char *id);
     float getValueUDP(char *id);
     float getValueWithDevice(char* dsLabel, char* varLabel);
     long getVarTimestamp(char* id);
@@ -96,6 +98,7 @@ class Ubidots {
     char* _dsName;
     char* _idName;
     char* _espID = (char *) malloc(sizeof(char) * 100);
+    char* _context = (char *) malloc(sizeof(char) * 100);
     uint8_t maxValues;
     uint8_t currentValue;
     Value * val;

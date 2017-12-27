@@ -1,9 +1,9 @@
 #include "UbidotsMicroESP8266.h"
 
-#define ID  "Your_VariableID_here"  // Put here your Ubidots variable ID
-#define TOKEN  "Your_token_here"  // Put here your Ubidots TOKEN
-#define WIFISSID "Your_WiFi_SSID" // Put here your Wi-Fi SSID
-#define PASSWORD "Your_WiFi_Password" // Put here your Wi-Fi password
+#define ID  "..."  // Put here your Ubidots variable ID
+#define TOKEN  "..."  // Put here your Ubidots TOKEN
+#define WIFISSID "..." // Put here your Wi-Fi SSID
+#define PASSWORD "..." // Put here your Wi-Fi password
 
 Ubidots client(TOKEN);
 
@@ -15,7 +15,11 @@ void setup() {
 
 void loop() {
     long timestamp = client.getVarTimestamp(ID);
-    Serial.print("timestamp: ");
-    Serial.println(timestamp);
-    delay(10000);
+    if (timestamp != ERROR_VALUE){
+      Serial.print(F("timestamp: "));
+      Serial.println(timestamp);
+    }else{
+      Serial.println(F("Error getting timestamp"));
+    }
+    delay(1000);
 }

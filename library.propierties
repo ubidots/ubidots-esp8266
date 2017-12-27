@@ -1,0 +1,9 @@
+name=Ubidots Arduino Ethernet
+version=2.0.1
+author=María Carlina Hernandez <maria@ubidots.com>, Mateo Velez
+maintainer=María Carlina Hernandez <maria@ubidots.com>, Jose Garcia <jose.reyes@ubidots.com>
+sentence=Ubidots library for ESP8266
+paragraph=Ubidots library for ESP8266
+category=Other
+url = https://github.com/ubidots/ubidots-esp8266
+architectures=*
