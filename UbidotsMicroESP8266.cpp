@@ -364,7 +364,7 @@ void Ubidots::add(char *variable_id, float value, char *ctext, unsigned long tim
 
 /**
  * Send all data of all variables that you saved
- * @reutrn true upon success, false upon error.
+ * @return true (always)
  */
 bool Ubidots::sendAll(bool type) {
   if (type) {
@@ -421,6 +421,8 @@ bool Ubidots::sendTLATE() {
     Serial.write(c);
   }
   free(data);
+
+  return true;
 }
 
 bool Ubidots::sendHTTP() {
