@@ -228,7 +228,7 @@ float Ubidots::getValue(char* id){
 
   if (_client.connect(UBIDOTS_TCP_SERVER, UBIDOTS_TCP_PORT)) {
     if (_debug){
-      Serial.println(F("Getting your variable: "));
+      Serial.println(F("Getting your variable value:"));
     }
     _client.print(data);
   }
@@ -289,7 +289,7 @@ float Ubidots::getValueWithDevice(char* dsLabel, char* varLabel){
 
   if (_client.connect(UBIDOTS_TCP_SERVER, UBIDOTS_TCP_PORT)) {
     if (_debug){
-      Serial.println(F("Getting your variable: "));
+      Serial.println(F("Getting your variable value:"));
     }
     _client.print(data);
   }
@@ -544,6 +544,8 @@ bool Ubidots::sendHTTP() {
     }
   } else {
     Serial.println("Connection Failed ubidots - Try Again");
+    free(payload);
+    return false;
   }
 
   free(payload);
