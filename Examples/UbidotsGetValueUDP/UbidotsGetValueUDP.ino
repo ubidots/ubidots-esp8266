@@ -1,23 +1,24 @@
 #include "UbidotsMicroESP8266.h"
 
-#define DEVICE_LABEL "..." // Put here your Device Label
-#define VARIABLE_LABEL "..." // Put here your Variable Label
+#define ID  "..."  // Put here your Ubidots variable ID
 #define TOKEN  "..."  // Put here your Ubidots TOKEN
 #define WIFISSID "..." // Your SSID
 #define PASSWORD "..." // Your Wi-Fi password
 
 Ubidots client(TOKEN);
 
+
 void setup() {
   Serial.begin(115200);
   client.wifiConnection(WIFISSID, PASSWORD);
   //client.setServerEndpoint("translate.ubidots.com");  // Uncomment this line if you are an educational user
   //client.setDebug(true); // Uncomment this line to set DEBUG on
+
 }
 
 void loop() {
 
-  float value = client.getValueWithDevice(DEVICE_LABEL, VARIABLE_LABEL);
+  float value = client.getValueUDP(ID);
   Serial.print("Value: ");
   Serial.println(value);
   delay(10000);
