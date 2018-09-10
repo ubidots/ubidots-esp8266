@@ -57,6 +57,7 @@ class Ubidots {
     bool sendAll(bool type = false);
     bool sendHTTP();
     bool sendTLATE();
+    bool sendTCP();
     float getValue(char *id);
     float getValueUDP(char *id);
     float getValueWithDevice(char* dsLabel, char* varLabel);
@@ -87,6 +88,7 @@ class Ubidots {
     Value * val;
     float parseValue(String body);
     void createHttpPayload(char* payload);
+    void createTcpPayload(char* payload);
     void readServerResponse();
     WiFiClient _client;
     WiFiUDP _udp;

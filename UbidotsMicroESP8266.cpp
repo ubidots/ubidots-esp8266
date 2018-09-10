@@ -56,14 +56,11 @@ void Ubidots::idAsMac(){
   }
 }
 
-
-
 void Ubidots::setDataSourceName(char *dataSourceName) {
-
   _dsName = dataSourceName;
 }
-void Ubidots::setDataSourceLabel(char* dataSourceLabel) {
 
+void Ubidots::setDataSourceLabel(char* dataSourceLabel) {
   _espID = dataSourceLabel;
 }
 
@@ -74,7 +71,6 @@ void Ubidots::setDataSourceLabel(char* dataSourceLabel) {
  * @return VarTimestamp is the timestamp of the variable that you get from the Ubidots API
  */
 long Ubidots::getVarTimestamp(char* id) {
-
   char* data = (char *) malloc(sizeof(char) * 700);
   char* response = (char *) malloc(sizeof(char) * 400);
   char* final = (char *) malloc(sizeof(char) * 16);
@@ -94,13 +90,14 @@ long Ubidots::getVarTimestamp(char* id) {
 
   int timeout = 0;
   free(data);
-  while(!_client.available() && timeout <= 5000) {
+
+  while(!_client.available() && timeout < 10000) {
     timeout++;
-    if (timeout == 4999){
+    if (timeout >= 9999){
+      if (_debug) {
+        Serial.println("timeout, could not read any response from the server");
+      }
       return ERROR_VALUE;
-    }
-    if (_client.available()){
-      break;
     }
     delay(1);
   }
@@ -149,7 +146,6 @@ long Ubidots::getVarTimestamp(char* id) {
  * @return VarContext is the context of the variable that you get from the Ubidots API
  */
 char* Ubidots::getVarContext(char* id) {
-
   char* data = (char *) malloc(sizeof(char) * 700);
   char* response = (char *) malloc(sizeof(char) * 400);
 
@@ -170,10 +166,13 @@ char* Ubidots::getVarContext(char* id) {
   free(data);
   int timeout = 0;
 
-  while(!_client.available() && timeout < 5000) {
+  while(!_client.available() && timeout < 10000) {
     timeout++;
-    if (timeout >= 4999){
-        return "e";
+    if (timeout >= 9999){
+      if (_debug) {
+        Serial.println("timeout, could not read any response from the server");
+      }
+      return "e";
     }
     delay(1);
   }
@@ -217,9 +216,7 @@ char* Ubidots::getVarContext(char* id) {
  * @arg id the id where you will get the data
  * @return num the the last value of the variable from the Ubidots API
  */
-
 float Ubidots::getValue(char* id){
-
   char* response = (char *) malloc(sizeof(char) * 40);
   char* data = (char *) malloc(sizeof(char) * 700);
   sprintf(data, "%s/%s|GET|%s|%s", USER_AGENT, VERSION, _token, id);
@@ -239,11 +236,13 @@ float Ubidots::getValue(char* id){
   int timeout = 0;
   free(data);
 
-  while(!_client.available() && timeout < 50000) {
+  while(!_client.available() && timeout < 10000) {
     timeout++;
-    if (timeout >= 49999){
-        Serial.println("timeout");
-        return ERROR_VALUE;
+    if (timeout >= 9999){
+      if (_debug) {
+        Serial.println("timeout, could not read any response from the server");
+      }
+      return ERROR_VALUE;
     }
     delay(1);
   }
@@ -278,9 +277,7 @@ float Ubidots::getValue(char* id){
  * @arg varLabel is the label of the variable
  * @return num the the last value of the variable from the Ubidots API
  */
-
 float Ubidots::getValueWithDevice(char* dsLabel, char* varLabel){
-
   char* data = (char *) malloc(sizeof(char) * 700);
   char* response = (char *) malloc(sizeof(char) * 40);
   sprintf(data, "%s/%s|LV|%s|%s:%s", USER_AGENT, VERSION, _token, dsLabel, varLabel);
@@ -300,11 +297,13 @@ float Ubidots::getValueWithDevice(char* dsLabel, char* varLabel){
   int timeout = 0;
   free(data);
 
-  while(!_client.available() && timeout < 50000) {
+  while(!_client.available() && timeout < 10000) {
     timeout++;
-    if (timeout >= 49999){
-        Serial.println("timeout");
-        return ERROR_VALUE;
+    if (timeout >= 9999){
+      if (_debug) {
+        Serial.println("timeout, could not read any response from the server");
+      }
+      return ERROR_VALUE;
     }
     delay(1);
   }
@@ -339,7 +338,6 @@ float Ubidots::getValueWithDevice(char* dsLabel, char* varLabel){
  * @arg variable_id variable id to save in a struct
  * @arg value variable value to save in a struct
  */
-
 void Ubidots::add(char *variable_id, float value) {
   return add(variable_id, value, NULL, NULL);
 }
@@ -368,59 +366,95 @@ void Ubidots::add(char *variable_id, float value, char *ctext, unsigned long tim
  */
 bool Ubidots::sendAll(bool type) {
   if (type) {
-    return sendTLATE();
+    return sendTCP();
   } else {
     return sendHTTP();
   }
 }
-bool Ubidots::sendTLATE() {
+
+bool Ubidots::sendTCP() {
   uint8_t i;
   String str;
-  char* data = (char *) malloc(sizeof(char) * 700);
+  char* payload = (char *) malloc(sizeof(char) * 700);
+  createTcpPayload(payload);
 
-  sprintf(data, "%s/%s|POST|%s|%s:%s=>", USER_AGENT, VERSION, _token, _espID, _dsName);
+  if (_debug){
+    Serial.println("Sending payload:");
+    Serial.println(payload);
+  }
 
-  for (i = 0; i < _currentValue;) {
-     str = String(((val+i)->value_id), 5);
+  if (_client.connect(UBIDOTS_TCP_SERVER, UBIDOTS_TCP_PORT)) {
+    _client.print(payload);
+  }
 
-    sprintf(data, "%s%s:%s", data, (val + i)->id, str.c_str());
+  free(payload);
+  int timeout = 0;
+
+  while(!_client.available() && timeout < 10000) {
+    timeout++;
+    delay(1);
+    if (timeout > 9999) {
+      if (_debug) {
+        Serial.println("timeout, could not read any response from the server");
+      }
+      return false;
+    }
+  }
+
+  if (_debug){
+    Serial.println("Server's response:");
+  }
+
+  char* response = (char *) malloc(sizeof(char) * 100);
+  int j = 0;
+
+  while (_client.available()) {
+    char c = _client.read();
+    if (_debug) {
+      Serial.write(c);
+    }
+    response[j] = c;
+    j++;
+  }
+
+  response[j] = '\0';
+
+  char *pch = strstr(response, "OK");
+
+  if (pch != NULL) {
+    return true;
+  } else {
+    return false;
+  }
+
+}
+
+void Ubidots::createTcpPayload(char* payload) {
+  sprintf(payload, "%s/%s|POST|%s|%s:%s=>", USER_AGENT, VERSION, _token, _espID, _dsName);
+
+  for (uint8_t i = 0; i < _currentValue;) {
+    char str_val[20];
+    sprintf(str_val, "");
+    dtostrf((val+i)->value_id, 15, 15, str_val);
+
+    sprintf(payload, "%s%s:%s", payload, (val + i)->id, str_val);
 
     if ((val + i)->timestamp != NULL) {
-      sprintf(data, "%s@%lu%s", data, (val + i)->timestamp, "000");
+      sprintf(payload, "%s@%lu%s", payload, (val + i)->timestamp, "000");
     }
     if ((val + i)->context != NULL) {
-      sprintf(data, "%s$%s", data, (val + i)->context);
+      sprintf(payload, "%s$%s", payload, (val + i)->context);
     }
 
     i++;
 
     if (i < _currentValue) {
-      sprintf(data, "%s,", data);
+      sprintf(payload, "%s,", payload);
     } else {
-      sprintf(data, "%s|end", data);
+      sprintf(payload, "%s|end", payload);
       _currentValue = 0;
     }
   }
-
-  Serial.println("");
-
-  if (_debug){
-   Serial.println(data);
-  }
-
-  if (_client.connect(UBIDOTS_TCP_SERVER, UBIDOTS_TCP_PORT)) {
-    _client.print(data);
-  }
-  int timeout = 0;
-  while(!_client.available() && timeout < 5000) {
-    timeout++;
-    delay(1);
-  }
-  while (_client.available()) {
-    char c = _client.read();
-    Serial.write(c);
-  }
-  free(data);
 }
 
 void Ubidots::createHttpPayload(char* payload) {
@@ -638,4 +672,10 @@ Deprecated functions
 float Ubidots::getValueUDP(char *id){
   Serial.println("This function is Deprecated, please use the getValue() method");
   return getValue(id);
+}
+
+bool Ubidots::sendTLATE() {
+  Serial.println("WARNING: This method is outdated and will be replaced in future versions");
+  Serial.println("Please use sendTCP() instead");
+  return sendTCP();
 }
