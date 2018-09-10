@@ -44,7 +44,7 @@ Modified by: Maria Carlina Hernandez
 #endif
 
 #ifndef HTTPSERVER
-#define HTTPSERVER "things.ubidots.com"
+#define HTTPSERVER "industrial.api.ubidots.com"
 #endif
 #ifndef HTTPPORT
 #define HTTPPORT 80
@@ -99,10 +99,12 @@ class Ubidots {
     char* _idName;
     char* _espID = (char *) malloc(sizeof(char) * 100);
     char* _context = (char *) malloc(sizeof(char) * 100);
-    uint8_t maxValues;
-    uint8_t currentValue;
+    uint8_t _maxValues;
+    uint8_t _currentValue;
     Value * val;
     float parseValue(String body);
+    void createHttpPayload(char* payload);
+    void readServerResponse();
     WiFiClient _client;
-    WiFiUDP udp;
+    WiFiUDP _udp;
 };

@@ -38,9 +38,9 @@ Ubidots::Ubidots(char* token, char* server) {
   _token = token;
   _server = server;
   _dsName = DEFAULT_DEVICE_NAME;
-  maxValues = 5;
-  currentValue = 0;
-  val = (Value *)malloc(maxValues*sizeof(Value));
+  _maxValues = 5;
+  _currentValue = 0;
+  val = (Value *)malloc(_maxValues*sizeof(Value));
   idAsMac();
 }
 
@@ -350,14 +350,14 @@ void Ubidots::add(char *variable_id, float value, unsigned long timestamp) {
   return add(variable_id, value, NULL, timestamp);
 }
 void Ubidots::add(char *variable_id, float value, char *ctext, unsigned long timestamp) {
-  (val+currentValue)->id = variable_id;
-  (val+currentValue)->value_id = value;
-  (val+currentValue)->context = ctext;
-  (val+currentValue)->timestamp = timestamp;
-  currentValue++;
-  if (currentValue>maxValues) {
+  (val+_currentValue)->id = variable_id;
+  (val+_currentValue)->value_id = value;
+  (val+_currentValue)->context = ctext;
+  (val+_currentValue)->timestamp = timestamp;
+  _currentValue++;
+  if (_currentValue>_maxValues) {
     Serial.println(F("You are sending more than 5 consecutives variables, you just could send 5 variables. Then other variables will be deleted!"));
-    currentValue = maxValues;
+    _currentValue = _maxValues;
   }
 }
 
@@ -380,7 +380,7 @@ bool Ubidots::sendTLATE() {
 
   sprintf(data, "%s/%s|POST|%s|%s:%s=>", USER_AGENT, VERSION, _token, _espID, _dsName);
 
-  for (i = 0; i < currentValue;) {
+  for (i = 0; i < _currentValue;) {
      str = String(((val+i)->value_id), 5);
 
     sprintf(data, "%s%s:%s", data, (val + i)->id, str.c_str());
@@ -394,11 +394,11 @@ bool Ubidots::sendTLATE() {
 
     i++;
 
-    if (i < currentValue) {
+    if (i < _currentValue) {
       sprintf(data, "%s,", data);
     } else {
       sprintf(data, "%s|end", data);
-      currentValue = 0;
+      _currentValue = 0;
     }
   }
 
@@ -423,56 +423,125 @@ bool Ubidots::sendTLATE() {
   free(data);
 }
 
-bool Ubidots::sendHTTP() {
-  uint16_t i;
-  String all;
-  String str;
-  all = "[";
-  for (i = 0; i < currentValue; ) {
-    str = String(((val+i)->value_id), 4);
-    all += "{\"variable\": \"";
-    all += String((val + i)->id);
-    all += "\", \"value\":";
-    all += str;
-    all += "}";
+void Ubidots::createHttpPayload(char* payload) {
+  /* Builds the payload */
+  sprintf(payload, "{");
+
+  for (uint8_t i = 0; i < _currentValue;) {
+    char str_val[20];
+    sprintf(str_val, "");
+    dtostrf((val+i)->value_id, 15, 15, str_val);
+    sprintf(payload, "%s\"%s\":{\"value\":%s", payload, (val + i)->id, str_val);
+    if ((val + i)->timestamp != NULL) {
+      sprintf(payload, "%s,\"timestamp\":%lu%s,", payload, (val + i)->timestamp, "000");
+    }
+    if ((val + i)->context != NULL) {
+      sprintf(payload, "%s\"context\":%s", payload, (val + i)->context);
+    }
+
+    sprintf(payload, "%s}", payload);
     i++;
-    if (i < currentValue) {
-      all += ", ";
+
+    if (i < _currentValue) {
+      sprintf(payload, "%s,", payload);
+    } else {
+      sprintf(payload, "%s}", payload);
+      _currentValue = 0;
     }
   }
+}
 
-  all += "]";
-  i = all.length();
+bool Ubidots::sendHTTP() {
+  /* Builds the request POST
+  Please reference this link to know all the request's structures at
+  https://ubidots.com/docs/api/
+  */
+  char* payload = (char *) malloc(sizeof(char) * 700);
+  createHttpPayload(payload);
+  _client.connect(HTTPSERVER, HTTPPORT);
 
-  String toPost = "POST /api/v1.6/collections/values/?force=true HTTP/1.1\r\n"
-          "Host: things.ubidots.com\r\n"
-          "User-Agent:" + String(USER_AGENT) + "/" + String(VERSION) + "\r\n"
-          "X-Auth-Token: " + String(_token) + "\r\n"
-          "Connection: close\r\n"
-          "Content-Type: application/json\r\n"
-          "Content-Length: " + String(i) + "\r\n"
-          "\r\n"
-          + all +
-          "\r\n";
+  if (_client.connected()) {
+    int contentLength = strlen(payload);
+    _client.print(F("POST /api/v1.6/devices/"));
+    _client.print(_espID);
+    _client.print(F(" HTTP/1.1\r\n"));
+    _client.print(F("Host: "));
+    _client.print(HTTPSERVER);
+    _client.print(F("\r\n"));
+    _client.print(F("User-Agent: "));
+    _client.print(USER_AGENT);
+    _client.print(F("/"));
+    _client.print(VERSION);
+    _client.print(F("\r\n"));
+    _client.print(F("X-Auth-Token: "));
+    _client.print(_token);
+    _client.print(F("\r\n"));
+    _client.print(F("Connection: close\r\n"));
+    _client.print(F("Content-Type: application/json\r\n"));
+    _client.print(F("Content-Length: "));
+    _client.print(contentLength);
+    _client.print(F("\r\n\r\n"));
+    _client.print(payload);
+    _client.print(F("\r\n"));
 
-  if (_client.connect(HTTPSERVER, HTTPPORT)) {
-    Serial.println(F("Posting your variables: "));
-    Serial.println(toPost);
-    _client.print(toPost);
+    if(_debug) {
+      Serial.println(F("Making request to Ubidots:\n"));
+      Serial.print("POST /api/v1.6/devices/");
+      Serial.print(_espID);
+      Serial.print(" HTTP/1.1\r\n");
+      Serial.print("Host: ");
+      Serial.print(HTTPSERVER);
+      Serial.print("\r\n");
+      Serial.print("User-Agent: ");
+      Serial.print(USER_AGENT);
+      Serial.print("/");
+      Serial.print(VERSION);
+      Serial.print("\r\n");
+      Serial.print("X-Auth-Token: ");
+      Serial.print(_token);
+      Serial.print("\r\n");
+      Serial.print("Connection: close\r\n");
+      Serial.print("Content-Type: application/json\r\n");
+      Serial.print("Content-Length: ");
+      Serial.print(contentLength);
+      Serial.print("\r\n\r\n");
+      Serial.print(payload);
+      Serial.print("\r\n");
+    }
+  } else {
+    Serial.println("Connection Failed ubidots - Try Again");
   }
 
-  int timeout = 0;
-  while(!_client.available() && timeout < 5000) {
-    timeout++;
-    delay(1);
-  }
-  while (_client.available()) {
-    char c = _client.read();
-    Serial.write(c);
-  }
-  currentValue = 0;
+  free(payload);
+
+  readServerResponse();
+
+  _currentValue = 0;
   _client.stop();
   return true;
+}
+
+void Ubidots::readServerResponse() {
+  /*
+  Reads the server's answer with a max timeout of 5 seconds
+  */
+  if (_debug) {
+    int timeout = 0;
+    while(!_client.available() && timeout < 5000) {
+      timeout++;
+      delay(1);
+      if (timeout >= 5000) {
+        Serial.println(F("Error, max timeout reached"));
+        break;
+      }
+    }
+
+    Serial.println("\nServer's response:");
+    while (_client.available()) {
+      char c = _client.read();
+      Serial.write(c);
+    }
+  }
 }
 
 void Ubidots::setDebug(bool debug){
@@ -505,23 +574,23 @@ bool Ubidots::wifiConnection(char* ssid, char* pass) {
  */
 
 unsigned long Ubidots::ntpUnixTime () {
-  static int udpInited = udp.begin(123); // open socket on arbitrary port
+  static int _udpInited = _udp.begin(123); // open socket on arbitrary port
 
   // Only the first four bytes of an outgoing NTP packet need to be set
   // appropriately, the rest can be whatever.
   const long ntpFirstFourBytes = 0xEC0600E3; // NTP request header
 
-  // Fail if WiFiUdp.begin() could not init a socket
-  if (! udpInited)
+  // Fail if WiFi_udp.begin() could not init a socket
+  if (! _udpInited)
     return 0;
 
   // Clear received data from possible stray received packets
-  udp.flush();
+  _udp.flush();
 
   // Send an NTP request
-  if (! (udp.beginPacket(TIME_SERVER, 123) // 123 is the NTP port
-    && udp.write((byte *)&ntpFirstFourBytes, 48) == 48
-    && udp.endPacket()))
+  if (! (_udp.beginPacket(TIME_SERVER, 123) // 123 is the NTP port
+    && _udp.write((byte *)&ntpFirstFourBytes, 48) == 48
+    && _udp.endPacket()))
       return 0;         // sending request failed
 
   // Wait for response; check every pollIntv ms up to maxPoll times
@@ -529,7 +598,7 @@ unsigned long Ubidots::ntpUnixTime () {
   const byte maxPoll = 15;    // poll up to this many times
   int pktLen;         // received packet length
   for (byte i = 0; i < maxPoll; i++) {
-    if ((pktLen = udp.parsePacket()) == 48)
+    if ((pktLen = _udp.parsePacket()) == 48)
       break;
     delay(pollIntv);
   }
@@ -540,12 +609,12 @@ unsigned long Ubidots::ntpUnixTime () {
   // Set useless to 32 for speed; set to 40 for accuracy.
   const byte useless = 40;
   for (byte i = 0; i < useless; ++i)
-    udp.read();
+    _udp.read();
 
   // Read the integer part of sending time
-  unsigned long time = udp.read();  // NTP time
+  unsigned long time = _udp.read();  // NTP time
   for (byte i = 1; i < 4; i++)
-    time = time << 8 | udp.read();
+    time = time << 8 | _udp.read();
 
   // Round to the nearest second if we want accuracy
   // The fractionary part is the next byte divided by 256: if it is
@@ -553,9 +622,9 @@ unsigned long Ubidots::ntpUnixTime () {
   // for an assumed network delay of 50ms, and (0.5-0.05)*256=115;
   // additionally, we account for how much we delayed reading the packet
   // since its arrival, which we assume on average to be pollIntv/2.
-  time += (udp.read() > 115 - pollIntv/8);
+  time += (_udp.read() > 115 - pollIntv/8);
   // Discard the rest of the packet
-  udp.flush();
+  _udp.flush();
   return time - 2208988800ul;     // convert NTP time to Unix time
 }
 
