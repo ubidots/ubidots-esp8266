@@ -8,16 +8,20 @@
 Ubidots client(TOKEN);
 
 void setup() {
-    Serial.begin(115200);
-    client.wifiConnection(WIFISSID, PASSWORD);
-    //client.setServerEndpoint("translate.ubidots.com");  // Uncomment this line if you are an educational user
-    //client.setDebug(true); // Uncomment this line to set DEBUG on
+  Serial.begin(115200);
+  client.wifiConnection(WIFISSID, PASSWORD);
+  //client.setServerEndpoint("translate.ubidots.com");  // Uncomment this line if you are an educational user
+  //client.setDebug(true); // Uncomment this line to set DEBUG on
 }
 
 void loop() {
-    float value = client.getValue(ID);
+  float value = client.getValue(ID);
+  if (value != ERROR_VALUE){
     Serial.print("Value: ");
     Serial.println(value);
-    delay(10000);
+  } else {
+    Serial.println("There was an error retrieving your data");
+  }
+  delay(10000);
 }
 

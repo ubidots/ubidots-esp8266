@@ -19,7 +19,11 @@ void setup() {
 void loop() {
 
   float value = client.getValueUDP(ID);
-  Serial.print("Value: ");
-  Serial.println(value);
+  if (value != ERROR_VALUE){
+    Serial.print("Value: ");
+    Serial.println(value);
+  } else {
+    Serial.println("There was an error retrieving your data");
+  }
   delay(10000);
 }
