@@ -19,6 +19,8 @@ getVarTimestamp    KEYWORD2
 ntpUnixTime    KEYWORD2
 sendAll    KEYWORD2
 setDebug    KEYWORD2
+setDeviceType    KEYWORD2
+setServerEndpoint    KEYWORD2
 setDataSourceName    KEYWORD2
 setDataSourceLabel    KEYWORD2
 wifiConnection    KEYWORD2
