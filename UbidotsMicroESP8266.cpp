@@ -364,7 +364,7 @@ void Ubidots::add(char *variable_id, float value, char *ctext, unsigned long tim
 
 /**
  * Send all data of all variables that you saved
- * @reutrn true upon success, false upon error.
+ * @return true upon success, false upon error.
  */
 bool Ubidots::sendAll(bool type) {
   if (type) {
@@ -548,6 +548,9 @@ void Ubidots::setDebug(bool debug){
    _debug = debug;
 }
 
+void Ubidots::setServerEndpoint(const char * server) {
+  _server = server;
+}
 
 bool Ubidots::wifiConnection(char* ssid, char* pass) {
   WiFi.begin(ssid, pass);

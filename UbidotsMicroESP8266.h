@@ -66,11 +66,12 @@ class Ubidots {
     void add(char *variable_id, float value, char *ctext);
     void add(char *variable_id, float value, unsigned long timestamp);
     void add(char *variable_id, float value, char *ctext, unsigned long timestamp);
+    unsigned long ntpUnixTime ();
     void setDebug(bool debug);
-    bool wifiConnection(char *ssid, char *pass);
     void setDataSourceName(char* dataSoruceName);
     void setDataSourceLabel(char* dataSoruceLabel);
-    unsigned long ntpUnixTime ();
+    void setServerEndpoint(const char * server);
+    bool wifiConnection(char *ssid, char *pass);
 
  private:
     void idAsMac();
