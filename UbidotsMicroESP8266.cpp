@@ -467,16 +467,17 @@ void Ubidots::createHttpPayload(char* payload) {
     dtostrf((val+i)->value_id, 15, 15, str_val);
     sprintf(payload, "%s\"%s\":{\"value\":%s", payload, (val + i)->id, str_val);
     if ((val + i)->timestamp != NULL) {
-      sprintf(payload, "%s,\"timestamp\":%lu%s,", payload, (val + i)->timestamp, "000");
+      sprintf(payload, "%s,\"timestamp\":%lu%s", payload, (val + i)->timestamp, "000");
     }
     if ((val + i)->context != NULL) {
-      sprintf(payload, "%s\"context\":%s", payload, (val + i)->context);
+      sprintf(payload, "%s,\"context\":%s", payload, (val + i)->context);
     }
 
     sprintf(payload, "%s}", payload);
     i++;
 
     if (i < _currentValue) {
+      Serial.println("entra");
       sprintf(payload, "%s,", payload);
     } else {
       sprintf(payload, "%s}", payload);

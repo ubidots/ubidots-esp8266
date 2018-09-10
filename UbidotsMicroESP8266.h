@@ -33,7 +33,7 @@ Modified by: Maria Carlina Hernandez
 #include "WiFiUdp.h"
 
 namespace {
-  const char * DEFAULT_DEVICE_NAME = "arduino-ethernet";
+  const char * DEFAULT_DEVICE_NAME = "ESP8266";
   const char * UBIDOTS_HTTP_SERVER = "industrial.api.ubidots.com";
   const char * UBIDOTS_TCP_SERVER = "industrial.api.ubidots.com";
   const char * USER_AGENT = "UbidotsESP8266";
