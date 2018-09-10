@@ -498,6 +498,10 @@ bool Ubidots::sendHTTP() {
     int contentLength = strlen(payload);
     _client.print(F("POST /api/v1.6/devices/"));
     _client.print(_espID);
+    if (strlen(_deviceType) > 0){
+      _client.print(F("/?type="));
+      _client.print(_deviceType);
+    }
     _client.print(F(" HTTP/1.1\r\n"));
     _client.print(F("Host: "));
     _client.print(UBIDOTS_HTTP_SERVER);
@@ -522,6 +526,10 @@ bool Ubidots::sendHTTP() {
       Serial.println(F("Making request to Ubidots:\n"));
       Serial.print("POST /api/v1.6/devices/");
       Serial.print(_espID);
+      if (strlen(_deviceType) > 0){
+        Serial.print(F("/?type="));
+        Serial.print(_deviceType);
+      }
       Serial.print(" HTTP/1.1\r\n");
       Serial.print("Host: ");
       Serial.print(UBIDOTS_HTTP_SERVER);
@@ -586,6 +594,10 @@ void Ubidots::setDebug(bool debug){
 
 void Ubidots::setServerEndpoint(const char * server) {
   _server = server;
+}
+
+void Ubidots::setDeviceType(const char * deviceType) {
+  _deviceType = deviceType;
 }
 
 bool Ubidots::wifiConnection(char* ssid, char* pass) {

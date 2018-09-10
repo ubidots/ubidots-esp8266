@@ -68,6 +68,7 @@ class Ubidots {
     void add(char *variable_id, float value, unsigned long timestamp);
     void add(char *variable_id, float value, char *ctext, unsigned long timestamp);
     unsigned long ntpUnixTime ();
+    void setDeviceType(const char * deviceType);
     void setDebug(bool debug);
     void setDataSourceName(char* dataSoruceName);
     void setDataSourceLabel(char* dataSoruceLabel);
@@ -80,6 +81,7 @@ class Ubidots {
     char* _token;
     const char * _server;
     const char * _dsName;
+    const char * _deviceType = "";
     char* _idName;
     char* _espID = (char *) malloc(sizeof(char) * 100);
     char* _context = (char *) malloc(sizeof(char) * 100);
