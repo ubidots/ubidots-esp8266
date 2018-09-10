@@ -32,35 +32,17 @@ Modified by: Maria Carlina Hernandez
 #include <ESP8266WiFi.h>
 #include "WiFiUdp.h"
 
-#ifndef TIME_SERVER
-#define TIME_SERVER "pool.ntp.org"
-#endif
-
-#ifndef SERVER
-#define SERVER "translate.ubidots.com"
-#endif
-#ifndef PORT
-#define PORT 9012
-#endif
-
-#ifndef HTTPSERVER
-#define HTTPSERVER "industrial.api.ubidots.com"
-#endif
-#ifndef HTTPPORT
-#define HTTPPORT 80
-#endif
-
-#ifndef USER_AGENT
-#define USER_AGENT "UbidotsESP8266"
-#endif
-#ifndef VERSION
-#define VERSION "1.3"
-#endif
-#ifndef DEFAULT_DEVICE_NAME
-#define DEFAULT_DEVICE_NAME "ESP8266"
-#endif
-
-const float ERROR_VALUE = -3.4028235E+8;
+namespace {
+  const char * DEFAULT_DEVICE_NAME = "arduino-ethernet";
+  const char * UBIDOTS_HTTP_SERVER = "industrial.api.ubidots.com";
+  const char * UBIDOTS_TCP_SERVER = "industrial.api.ubidots.com";
+  const char * USER_AGENT = "UbidotsESP8266";
+  const char * VERSION = "1.4";
+  const int UBIDOTS_HTTP_PORT = 80;
+  const int UBIDOTS_TCP_PORT = 9012;
+  const char * TIME_SERVER = "pool.ntp.org";
+  const float ERROR_VALUE = -3.4028235E+8;
+}
 
 typedef struct Value {
   char  *id;
@@ -71,7 +53,7 @@ typedef struct Value {
 
 class Ubidots {
  public:
-    Ubidots(char* token, char* server = SERVER);
+    Ubidots(char* token, const char * server = UBIDOTS_TCP_SERVER);
     bool sendAll(bool type = false);
     bool sendHTTP();
     bool sendTLATE();
@@ -94,8 +76,8 @@ class Ubidots {
     void idAsMac();
     bool _debug = false;
     char* _token;
-    char* _server;
-    char* _dsName;
+    const char * _server;
+    const char * _dsName;
     char* _idName;
     char* _espID = (char *) malloc(sizeof(char) * 100);
     char* _context = (char *) malloc(sizeof(char) * 100);

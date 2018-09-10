@@ -33,7 +33,7 @@ Modified by: Maria Carlina Hernandez for Ubidots
 /**
  * Constructor.
  */
-Ubidots::Ubidots(char* token, char* server) {
+Ubidots::Ubidots(char* token, const char * server) {
 
   _token = token;
   _server = server;
@@ -83,7 +83,7 @@ long Ubidots::getVarTimestamp(char* id) {
   sprintf(data, "%sHost: things.ubidots.com\r\nUser-Agent: %s/%s\r\n", data, USER_AGENT, VERSION);
   sprintf(data, "%sX-Auth-Token: %s\r\nConnection: close\r\n\r\n", data, _token);
 
-  if (_client.connect(HTTPSERVER, HTTPPORT)) {
+  if (_client.connect(UBIDOTS_HTTP_SERVER, UBIDOTS_HTTP_PORT)) {
     if (_debug){
       Serial.println(F("Getting your variable timestamp: "));
     }
@@ -158,7 +158,7 @@ char* Ubidots::getVarContext(char* id) {
   sprintf(data, "%sHost: things.ubidots.com\r\nUser-Agent:%s/%s\r\n", data, USER_AGENT, VERSION);
   sprintf(data, "%sX-Auth-Token: %s\r\nConnection: close\r\n\r\n", data, _token);
 
-  if (_client.connect(HTTPSERVER, HTTPPORT)) {
+  if (_client.connect(UBIDOTS_HTTP_SERVER, UBIDOTS_HTTP_PORT)) {
     if (_debug){
       Serial.println(F("Getting your variable context: "));
     }
@@ -229,7 +229,7 @@ float Ubidots::getValue(char* id){
     Serial.println(data);
   }
 
-  if (_client.connect(SERVER, PORT)) {
+  if (_client.connect(UBIDOTS_TCP_SERVER, UBIDOTS_TCP_PORT)) {
     if (_debug){
       Serial.println(F("Getting your variable: "));
     }
@@ -290,7 +290,7 @@ float Ubidots::getValueWithDevice(char* dsLabel, char* varLabel){
     Serial.println(data);
   }
 
-  if (_client.connect(SERVER, PORT)) {
+  if (_client.connect(UBIDOTS_TCP_SERVER, UBIDOTS_TCP_PORT)) {
     if (_debug){
       Serial.println(F("Getting your variable: "));
     }
@@ -408,7 +408,7 @@ bool Ubidots::sendTLATE() {
    Serial.println(data);
   }
 
-  if (_client.connect(SERVER, PORT)) {
+  if (_client.connect(UBIDOTS_TCP_SERVER, UBIDOTS_TCP_PORT)) {
     _client.print(data);
   }
   int timeout = 0;
@@ -458,7 +458,7 @@ bool Ubidots::sendHTTP() {
   */
   char* payload = (char *) malloc(sizeof(char) * 700);
   createHttpPayload(payload);
-  _client.connect(HTTPSERVER, HTTPPORT);
+  _client.connect(UBIDOTS_HTTP_SERVER, UBIDOTS_HTTP_PORT);
 
   if (_client.connected()) {
     int contentLength = strlen(payload);
@@ -466,7 +466,7 @@ bool Ubidots::sendHTTP() {
     _client.print(_espID);
     _client.print(F(" HTTP/1.1\r\n"));
     _client.print(F("Host: "));
-    _client.print(HTTPSERVER);
+    _client.print(UBIDOTS_HTTP_SERVER);
     _client.print(F("\r\n"));
     _client.print(F("User-Agent: "));
     _client.print(USER_AGENT);
@@ -490,7 +490,7 @@ bool Ubidots::sendHTTP() {
       Serial.print(_espID);
       Serial.print(" HTTP/1.1\r\n");
       Serial.print("Host: ");
-      Serial.print(HTTPSERVER);
+      Serial.print(UBIDOTS_HTTP_SERVER);
       Serial.print("\r\n");
       Serial.print("User-Agent: ");
       Serial.print(USER_AGENT);
