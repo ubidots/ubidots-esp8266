@@ -420,12 +420,13 @@ bool Ubidots::sendTCP() {
   response[j] = '\0';
 
   char *pch = strstr(response, "OK");
-
+  bool result = false;
   if (pch != NULL) {
-    return true;
-  } else {
-    return false;
+    result = true;
   }
+
+  free(response);
+  return result;
 
 }
 
