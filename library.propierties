@@ -1,5 +1,5 @@
 name=Ubidots ESP8266
-version=1.4
+version=2.1
 author=José García <jose.garcia@ubidots.com>, María Carlina Hernandez <maria@ubidots.com>
 maintainer=Jose Garcia <jose.reyes@ubidots.com>
 sentence=Ubidots library for ESP8266
