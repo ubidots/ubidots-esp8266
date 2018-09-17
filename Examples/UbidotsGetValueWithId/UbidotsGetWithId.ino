@@ -12,7 +12,7 @@ void setup() {
     client.wifiConnection(WIFISSID, PASSWORD);
     pinMode(LED_BUILTIN, OUTPUT);
     digitalWrite(LED_BUILTIN, 1);
-    //client.setServerEndpoint("translate.ubidots.com");  // Uncomment this line if you are an educational user
+    //client.setServerEndpoint("things.ubidots.com");  // Uncomment this line if you are an educational user
     //client.setDebug(true); // Uncomment this line to set DEBUG on
 }
 

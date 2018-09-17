@@ -9,7 +9,7 @@ Ubidots client(TOKEN);
 void setup(){
   Serial.begin(115200);
   client.wifiConnection(WIFISSID, PASSWORD);
-  //client.setServerEndpoint("translate.ubidots.com");  // Uncomment this line if you are an educational user
+  //client.setServerEndpoint("things.ubidots.com");  // Uncomment this line if you are an educational user
   //client.setDebug(true); // Uncomment this line to see debug messages
 }
 void loop(){

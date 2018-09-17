@@ -9,7 +9,8 @@ Ubidots client(TOKEN);
 void setup(){
   Serial.begin(115200);
   client.wifiConnection(WIFISSID, PASSWORD);
-  client.setDebug(true); // Uncomment this line to see debug messages
+  //client.setDebug(true); // Uncomment this line to see debug messages
+  //client.setServerEndpoint("things.ubidots.com");  // Uncomment this line if you are an educational user
 }
 void loop(){
   float value1 = random(0, 1000)*1.0;
@@ -18,7 +19,6 @@ void loop(){
   send data through HTTP
   **********************************/
   /*
-  client.setServerEndpoint("things.ubidots.com");  // Uncomment this line if you are an educational user
   unsigned long timestamp = 1536610363;  // Timestamp in seconds
 
   client.add("temperature", value1, NULL, timestamp);
@@ -40,7 +40,6 @@ void loop(){
   Uncomment this block if you wish to
   send data through TCP
   **********************************/
-  //client.setServerEndpoint("translate.ubidots.com");  // Uncomment this line if you are an educational user
   unsigned long timestamp = 1536610363;  // Timestamp in seconds
 
   client.add("temperature", value1, NULL, NULL);

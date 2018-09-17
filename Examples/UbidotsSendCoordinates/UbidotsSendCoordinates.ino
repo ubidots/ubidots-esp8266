@@ -10,6 +10,7 @@ void setup(){
   Serial.begin(115200);
   client.wifiConnection(WIFISSID, PASSWORD);
   client.setDebug(true); // Uncomment this line to see debug messages
+  //client.setServerEndpoint("things.ubidots.com");  // Uncomment this line if you are an educational user
 }
 void loop(){
   float value1 = random(0, 1000)*1.0;
@@ -17,7 +18,6 @@ void loop(){
   Uncomment this block if you wish to
   send data through HTTP
   **********************************/
-  client.setServerEndpoint("things.ubidots.com");  // Uncomment this line if you are an educational user
   char str_lat[30];
   char str_lng[30];
   float lat = -6.2056;
@@ -48,7 +48,6 @@ void loop(){
   send data through TCP
   **********************************/
   /*
-  client.setServerEndpoint("translate.ubidots.com");  // Uncomment this line if you are an educational user
   char str_lat[30];
   char str_lng[30];
   float lat = -6.2056;
