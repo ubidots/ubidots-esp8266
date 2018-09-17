@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2013-2016 Ubidots.
+Copyright (c) 2013-2018 Ubidots.
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the
@@ -20,8 +20,8 @@ LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-Made by Mateo Velez - Metavix for Ubidots Inc
-Modified by: Maria Carlina Hernandez
+Mainteined by: Jose Garcia <jose.garcia@ubidots.com>,
+               Maria Carlina Hernandez <maria@ubidots.com>
 
 */
 
@@ -34,10 +34,9 @@ Modified by: Maria Carlina Hernandez
 
 namespace {
   const char * DEFAULT_DEVICE_NAME = "ESP8266";
-  const char * UBIDOTS_HTTP_SERVER = "industrial.api.ubidots.com";
-  const char * UBIDOTS_TCP_SERVER = "industrial.api.ubidots.com";
+  const char * UBIDOTS_SERVER = "industrial.api.ubidots.com";
   const char * USER_AGENT = "UbidotsESP8266";
-  const char * VERSION = "1.4";
+  const char * VERSION = "2.1.0";
   const int UBIDOTS_HTTP_PORT = 80;
   const int UBIDOTS_TCP_PORT = 9012;
   const char * TIME_SERVER = "pool.ntp.org";
@@ -53,7 +52,7 @@ typedef struct Value {
 
 class Ubidots {
  public:
-    Ubidots(char* token, const char * server = UBIDOTS_TCP_SERVER);
+    Ubidots(char* token, const char * server = UBIDOTS_SERVER);
     bool sendAll(bool type = false);
     bool sendHTTP();
     bool sendTLATE();

@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2013-2016 Ubidots.
+Copyright (c) 2013-2018 Ubidots.
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the
@@ -20,8 +20,8 @@ LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-Made by Mateo Velez - Metavix for Ubidots Inc
-Modified by: Maria Carlina Hernandez for Ubidots
+Modified by: Jose Garcia <jose.garcia@ubidots.com>
+             Maria Carlina Hernandez <maria@ubidots.com>
 
 */
 
@@ -76,10 +76,10 @@ long Ubidots::getVarTimestamp(char* id) {
   char* final = (char *) malloc(sizeof(char) * 16);
   sprintf(data, "GET /api/v1.6/variables/%s", id);
   sprintf(data, "%s/values?page_size=1 HTTP/1.1\r\n", data);
-  sprintf(data, "%sHost: things.ubidots.com\r\nUser-Agent: %s/%s\r\n", data, USER_AGENT, VERSION);
+  sprintf(data, "%sHost: %s\r\nUser-Agent: %s/%s\r\n", data, UBIDOTS_SERVER, USER_AGENT, VERSION);
   sprintf(data, "%sX-Auth-Token: %s\r\nConnection: close\r\n\r\n", data, _token);
 
-  if (_client.connect(UBIDOTS_HTTP_SERVER, UBIDOTS_HTTP_PORT)) {
+  if (_client.connect(UBIDOTS_SERVER, UBIDOTS_HTTP_PORT)) {
     if (_debug){
       Serial.println(F("Getting your variable timestamp: "));
     }
@@ -151,10 +151,10 @@ char* Ubidots::getVarContext(char* id) {
 
   sprintf(data, "GET /api/v1.6/variables/%s", id);
   sprintf(data, "%s/values?page_size=1 HTTP/1.1\r\n", data);
-  sprintf(data, "%sHost: things.ubidots.com\r\nUser-Agent:%s/%s\r\n", data, USER_AGENT, VERSION);
+  sprintf(data, "%sHost: %s\r\nUser-Agent:%s/%s\r\n", data, UBIDOTS_SERVER, USER_AGENT, VERSION);
   sprintf(data, "%sX-Auth-Token: %s\r\nConnection: close\r\n\r\n", data, _token);
 
-  if (_client.connect(UBIDOTS_HTTP_SERVER, UBIDOTS_HTTP_PORT)) {
+  if (_client.connect(UBIDOTS_SERVER, UBIDOTS_HTTP_PORT)) {
     if (_debug){
       Serial.println(F("Getting your variable context: "));
     }
@@ -493,7 +493,7 @@ bool Ubidots::sendHTTP() {
   */
   char* payload = (char *) malloc(sizeof(char) * 700);
   createHttpPayload(payload);
-  _client.connect(UBIDOTS_HTTP_SERVER, UBIDOTS_HTTP_PORT);
+  _client.connect(UBIDOTS_SERVER, UBIDOTS_HTTP_PORT);
 
   if (_client.connected()) {
     int contentLength = strlen(payload);
@@ -505,7 +505,7 @@ bool Ubidots::sendHTTP() {
     }
     _client.print(F(" HTTP/1.1\r\n"));
     _client.print(F("Host: "));
-    _client.print(UBIDOTS_HTTP_SERVER);
+    _client.print(UBIDOTS_SERVER);
     _client.print(F("\r\n"));
     _client.print(F("User-Agent: "));
     _client.print(USER_AGENT);
@@ -533,7 +533,7 @@ bool Ubidots::sendHTTP() {
       }
       Serial.print(" HTTP/1.1\r\n");
       Serial.print("Host: ");
-      Serial.print(UBIDOTS_HTTP_SERVER);
+      Serial.print(UBIDOTS_SERVER);
       Serial.print("\r\n");
       Serial.print("User-Agent: ");
       Serial.print(USER_AGENT);
