@@ -55,7 +55,7 @@ TXD | RXD | TX
 Ubidots(char* token)
 Ubidots(char* token, const char * server)
 ```
-> Creates an Ubidots instance, you must setup as input your Ubidots TOKEN, the server is optional and is set by default to "industrial.api.ubidots.com" for sending data using an Industrial account. You can set another endpoint using the `setServerEndpoint()` method.
+> Creates an Ubidots instance, you must setup as input your Ubidots TOKEN, the server is optional and is set by default to "industrial.api.ubidots.com" for sending data using an Industrial account. If you are using an Ubidots for education account, please set the proper endpoint to `things.ubidots.com` using the `setServerEndpoint()` method.
 
 ## Methods
 
