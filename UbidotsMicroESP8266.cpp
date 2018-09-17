@@ -226,7 +226,7 @@ float Ubidots::getValue(char* id){
     Serial.println(data);
   }
 
-  if (_client.connect(UBIDOTS_TCP_SERVER, UBIDOTS_TCP_PORT)) {
+  if (_client.connect(UBIDOTS_SERVER, UBIDOTS_TCP_PORT)) {
     if (_debug){
       Serial.println(F("Getting your variable value:"));
     }
@@ -287,7 +287,7 @@ float Ubidots::getValueWithDevice(char* dsLabel, char* varLabel){
     Serial.println(data);
   }
 
-  if (_client.connect(UBIDOTS_TCP_SERVER, UBIDOTS_TCP_PORT)) {
+  if (_client.connect(UBIDOTS_SERVER, UBIDOTS_TCP_PORT)) {
     if (_debug){
       Serial.println(F("Getting your variable value:"));
     }
@@ -383,7 +383,7 @@ bool Ubidots::sendTCP() {
     Serial.println(payload);
   }
 
-  if (_client.connect(UBIDOTS_TCP_SERVER, UBIDOTS_TCP_PORT)) {
+  if (_client.connect(UBIDOTS_SERVER, UBIDOTS_TCP_PORT)) {
     _client.print(payload);
   }
 
@@ -435,7 +435,7 @@ void Ubidots::createTcpPayload(char* payload) {
   for (uint8_t i = 0; i < _currentValue;) {
     char str_val[20];
     sprintf(str_val, "");
-    dtostrf((val+i)->value_id, 15, 15, str_val);
+    dtostrf((val+i)->value_id, 15, 10, str_val);
 
     sprintf(payload, "%s%s:%s", payload, (val + i)->id, str_val);
 
@@ -464,7 +464,7 @@ void Ubidots::createHttpPayload(char* payload) {
   for (uint8_t i = 0; i < _currentValue;) {
     char str_val[20];
     sprintf(str_val, "");
-    dtostrf((val+i)->value_id, 15, 15, str_val);
+    dtostrf((val+i)->value_id, 15, 10, str_val);
     sprintf(payload, "%s\"%s\":{\"value\":%s", payload, (val + i)->id, str_val);
     if ((val + i)->timestamp != NULL) {
       sprintf(payload, "%s,\"timestamp\":%lu%s", payload, (val + i)->timestamp, "000");
