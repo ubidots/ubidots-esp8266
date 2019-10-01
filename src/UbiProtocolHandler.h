@@ -24,10 +24,12 @@ Developed and maintained by Jose Garcia for IoT Services Inc
 #ifndef _UbiProtocolHandler_H_
 #define _UbiProtocolHandler_H_
 
+#include <ESP8266WiFi.h>
 #include "UbiBuilder.h"
 #include "UbiConstants.h"
 #include "UbiProtocol.h"
 #include "UbiTypes.h"
+#include "stdint.h"
 
 class UbiProtocolHandler {
  public:
@@ -40,6 +42,9 @@ class UbiProtocolHandler {
   bool send(const char* device_label, const char* device_name);
   float get(const char* device_label, const char* variable_label);
   void setDebug(bool debug);
+  bool wifiConnect(const char* ssid, const char* password);
+  bool wifiConnected();
+  bool serverConnected();
   ~UbiProtocolHandler();
 
  private:
@@ -55,6 +60,8 @@ class UbiProtocolHandler {
   void buildTcpPayload(char* payload, const char* device_label, const char* device_name);
   void builder(char* token, UbiServer server, IotProtocol iot_protocol);
   void _floatToChar(char* value_str, float value);
+  int _connectionTimeout = 5000;
+  uint8_t _maxConnectionAttempts = 20;
 };
 
 #endif

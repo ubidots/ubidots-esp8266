@@ -320,3 +320,9 @@ bool UbiHTTP::waitServerAnswer() {
  */
 
 void UbiHTTP::setDebug(bool debug) { _debug = debug; }
+
+/*
+ * Checks if the socket is still opened with the Ubidots Server
+ */
+
+bool UbiHTTP::serverConnected() { return _client_http_ubi.connected(); }

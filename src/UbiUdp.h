@@ -24,8 +24,10 @@ Developed and maintained by Jose Garcia for IoT Services Inc
 #ifndef _UbiUdp_H_
 #define _UbiUdp_H_
 
+#include "Arduino.h"
 #include "UbiProtocol.h"
 #include "WiFiUdp.h"
+#include "stdint.h"
 
 class UbiUDP : public UbiProtocol {
  public:
@@ -33,6 +35,7 @@ class UbiUDP : public UbiProtocol {
   bool sendData(const char* device_label, const char* device_name, char* payload);
   float get(const char* device_label, const char* variable_label);
   void setDebug(bool debug);
+  bool serverConnected();
   ~UbiUDP();
 
  private:

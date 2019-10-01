@@ -27,6 +27,7 @@ Developed and maintained by Jose Garcia for IoT Services Inc
 #include <stdio.h>
 #include <map>
 #include "Arduino.h"
+#include "stdint.h"
 
 #include "UbiConstants.h"
 #include "UbiProtocol.h"

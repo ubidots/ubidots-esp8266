@@ -286,3 +286,31 @@ void UbiProtocolHandler::_floatToChar(char* str_value, float value) {
     j++;
   }
 }
+
+bool UbiProtocolHandler::wifiConnect(const char* ssid, const char* password) {
+  WiFi.begin(ssid, password);
+  uint8_t maxConnectionAttempts = 0;
+  while (WiFi.status() != WL_CONNECTED && maxConnectionAttempts < _maxConnectionAttempts) {
+    delay(500);
+    Serial.print(".");
+    maxConnectionAttempts += 1;
+  }
+  if (WiFi.status() == WL_NO_SSID_AVAIL) {
+    Serial.println("Your network SSID cannot be reached");
+    return false;
+  }
+  if (WiFi.status() == WL_CONNECT_FAILED) {
+    Serial.println("Network password incorrect");
+    return false;
+  }
+
+  WiFi.setAutoReconnect(true);
+  Serial.println(F("WiFi connected"));
+  Serial.println(F("IP address: "));
+  Serial.println(WiFi.localIP());
+  return true;
+}
+
+bool UbiProtocolHandler::wifiConnected() { return WiFi.status() != WL_CONNECTED; }
+
+bool UbiProtocolHandler::serverConnected() { return _ubiProtocol->serverConnected(); }

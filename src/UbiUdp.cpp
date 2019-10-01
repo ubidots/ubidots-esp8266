@@ -72,3 +72,12 @@ float UbiUDP::get(const char *device_label, const char *variable_label) { return
  */
 
 void UbiUDP::setDebug(bool debug) { _debug = debug; }
+
+/*
+ * Checks if the socket is still opened with the Ubidots Server
+ */
+
+bool UbiUDP::serverConnected() {
+  Serial.println("This method is not supported using UDP");
+  return false;
+}

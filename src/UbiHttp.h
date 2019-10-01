@@ -25,7 +25,9 @@ Developed and maintained by Jose Garcia for IoT Services Inc
 #define _UbiHttp_H_
 
 #include <ESP8266WiFi.h>
+#include "Arduino.h"
 #include "UbiProtocol.h"
+#include "stdint.h"
 
 class UbiHTTP : public UbiProtocol {
  public:
@@ -33,6 +35,7 @@ class UbiHTTP : public UbiProtocol {
   bool sendData(const char* device_label, const char* device_name, char* payload);
   float get(const char* device_label, const char* variable_label);
   void setDebug(bool debug);
+  bool serverConnected();
   ~UbiHTTP();
 
  private:

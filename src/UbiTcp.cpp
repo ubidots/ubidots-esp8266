@@ -233,3 +233,9 @@ float UbiTCP::parseTCPAnswer(const char* request_type, char* response) {
  */
 
 void UbiTCP::setDebug(bool debug) { _debug = debug; }
+
+/*
+ * Checks if the socket is still opened with the Ubidots Server
+ */
+
+bool UbiTCP::serverConnected() { return _client_tcp_ubi.connected(); }

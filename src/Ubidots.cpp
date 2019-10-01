@@ -150,3 +150,9 @@ void Ubidots::getContext(char* context_result, IotProtocol iotProtocol) {
     }
   }
 }
+
+bool Ubidots::wifiConnect(const char* ssid, const char* password) {
+  return _cloudProtocol->wifiConnect(ssid, password);
+}
+bool Ubidots::wifiConnected() { return _cloudProtocol->wifiConnected(); }
+bool Ubidots::serverConnected() { return _cloudProtocol->serverConnected(); }

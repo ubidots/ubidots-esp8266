@@ -25,6 +25,7 @@ Developed and maintained by Jose Garcia for IoT Services Inc
 #define _UbiConstants_H_
 
 #include "UbiTypes.h"
+#include "stdint.h"
 
 const char* const UBIDOTS_SERVER = "industrial.api.ubidots.com";
 const char UBIDOTS_INDUSTRIAL_IP[] = "169.55.61.243";

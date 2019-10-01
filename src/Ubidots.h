@@ -24,6 +24,7 @@ Developed and maintained by Jose Garcia for IoT Services Inc
 #ifndef _Ubidots_H_
 #define _Ubidots_H_
 
+#include <ESP8266WiFi.h>
 #include "Arduino.h"
 #include "UbiConstants.h"
 #include "UbiProtocol.h"
@@ -33,7 +34,7 @@ Developed and maintained by Jose Garcia for IoT Services Inc
 
 class Ubidots {
  public:
-  explicit Ubidots(char* token, IotProtocol iotProtocol = UBI_TCP);
+  explicit Ubidots(char* token, IotProtocol iotProtocol);
   explicit Ubidots(char* token, UbiServer server = UBI_INDUSTRIAL, IotProtocol iotProtocol = UBI_TCP);
   void add(char* variable_label, float value);
   void add(char* variable_label, float value, char* context);
@@ -48,6 +49,9 @@ class Ubidots {
   bool send(const char* device_label, const char* device_name);
   float get(const char* device_label, const char* variable_label);
   void setDebug(bool debug);
+  bool wifiConnect(const char* ssid, const char* password);
+  bool wifiConnected();
+  bool serverConnected();
   ~Ubidots();
 
  private:
