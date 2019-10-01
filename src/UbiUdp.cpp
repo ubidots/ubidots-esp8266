@@ -49,28 +49,19 @@ UbiUDP::~UbiUDP() {
 }
 
 bool UbiUDP::sendData(const char *device_label, const char *device_name, char *payload) {
-  /* Obtains the remote host's IP */
-  // IPAddress serverIpAddress = getServerIp();
-
-  if (_debug) {
-    Serial.println(
-        "[Warning] Could not solve IP Address of the remote host, with your DNS setup. \
-          \nUsing default Industrial Ubidots IP: 169.55.61.243");
+  /* Sends data to Ubidots */
+  _client_udp_ubi.begin(UBIDOTS_TCP_PORT);
+  if (!(_client_udp_ubi.beginPacket(UBIDOTS_SERVER, UBIDOTS_TCP_PORT) && _client_udp_ubi.write(payload) &&
+        _client_udp_ubi.endPacket())) {
+    if (_debug) {
+      Serial.println("ERROR sending values with UDP");
+    }
+    _client_udp_ubi.stop();
+    return false;
   }
 
-  /* Sends data to Ubidots */
-  // _client_udp_ubi.setBuffer(MAX_BUFFER_SIZE + 1);  // Sets the max buffer size to send data
-  // _client_udp_ubi.begin(UBIDOTS_TCP_PORT);
-  // if (!(_client_udp_ubi.beginPacket(serverIpAddress, UBIDOTS_TCP_PORT) && _client_udp_ubi.write(payload) &&
-  //       _client_udp_ubi.endPacket())) {
-  //   if (_debug) {
-  //     Serial.println("ERROR sending values with UDP");
-  //   }
-  //   _client_udp_ubi.stop();
-  //   return false;
-  // }
+  _client_udp_ubi.stop();
 
-  // _client_udp_ubi.stop();
   return true;
 }
 

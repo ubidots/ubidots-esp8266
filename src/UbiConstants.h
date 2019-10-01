@@ -27,8 +27,8 @@ Developed and maintained by Jose Garcia for IoT Services Inc
 #include "UbiTypes.h"
 
 const char* const UBIDOTS_SERVER = "industrial.api.ubidots.com";
+const char UBIDOTS_INDUSTRIAL_IP[] = "169.55.61.243";
 const char* const USER_AGENT = "UbidotsESP8266/3.0.0";
-const char* const UBIDOTS_MESH_CHANNEL = "ubidots-mesh";
 const int UBIDOTS_HTTP_PORT = 80;
 const int UBIDOTS_TCP_PORT = 9012;
 const uint8_t MAX_VALUES = 10;
