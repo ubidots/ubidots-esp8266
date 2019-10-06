@@ -50,7 +50,12 @@ class UbiHTTP : public UbiProtocol {
   void readServerAnswer(char* response);
   int _timeout = 5000;
   uint8_t _maxReconnectAttempts = 5;
-  WiFiClient _client_http_ubi;
+  bool _certifiedLoaded = false;
+  bool _syncronizeTime();
+  bool _loadCert();
+  unsigned long _timerToSync = millis();
+  bool _preConnectionChecks();
+  WiFiClientSecure _client_https_ubi;
 };
 
 #endif

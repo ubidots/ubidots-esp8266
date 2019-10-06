@@ -33,6 +33,8 @@ UbiHTTP::UbiHTTP(const char* host, const int port, const char* user_agent, const
   _user_agent = user_agent;
   _token = token;
   _port = port;
+  _syncronizeTime();
+  _certifiedLoaded = _loadCert();
 }
 
 /**************************************************************************
@@ -46,33 +48,64 @@ UbiHTTP::~UbiHTTP() {
 }
 
 bool UbiHTTP::sendData(const char* device_label, const char* device_name, char* payload) {
-  reconnect(_host, _port);
+  Serial.println("pre-checks");
+  bool allowed = _preConnectionChecks();
+  if (!allowed) {
+    return false;
+  }
+  Serial.println("finished");
+
+  /* Connecting the client */
+  Serial.println("connection");
+  _client_https_ubi.connect(_host, UBIDOTS_HTTPS_PORT);
+  reconnect(_host, UBIDOTS_HTTPS_PORT);
+  Serial.println("finished");
+
+  if (_client_https_ubi.connected()) {
+    if (_debug) {
+      Serial.println("[ERROR] Could not connect to the server");
+    }
+    return false;
+  }
+
+  Serial.println("cert verification");
+
+  if (!_client_https_ubi.verifyCertChain(_host)) {
+    if (_debug) {
+      Serial.println(
+          "[ERROR] Could not verify the remote secure server certificate, please make sure that you are using a secure "
+          "network");
+    }
+    return false;
+  }
+  Serial.println("finished");
+
   bool result = false;
 
-  if (_client_http_ubi.connected()) {  // Connect to the host
+  if (_client_https_ubi.connected()) {  // Connect to the host
     /* Builds the request POST - Please reference this link to know all the
      * request's structures https://ubidots.com/docs/api/ */
-    _client_http_ubi.print(F("POST /api/v1.6/devices/"));
-    _client_http_ubi.print(device_label);
-    _client_http_ubi.print(F(" HTTP/1.1\r\n"));
-    _client_http_ubi.print(F("Host: "));
-    _client_http_ubi.print(_host);
-    _client_http_ubi.print(F("\r\n"));
-    _client_http_ubi.print(F("User-Agent: "));
-    _client_http_ubi.print(_user_agent);
-    _client_http_ubi.print(F("\r\n"));
-    _client_http_ubi.print(F("X-Auth-Token: "));
-    _client_http_ubi.print(_token);
-    _client_http_ubi.print(F("\r\n"));
-    _client_http_ubi.print(F("Connection: close\r\n"));
-    _client_http_ubi.print(F("Content-Type: application/json\r\n"));
+    _client_https_ubi.print(F("POST /api/v1.6/devices/"));
+    _client_https_ubi.print(device_label);
+    _client_https_ubi.print(F(" HTTP/1.1\r\n"));
+    _client_https_ubi.print(F("Host: "));
+    _client_https_ubi.print(_host);
+    _client_https_ubi.print(F("\r\n"));
+    _client_https_ubi.print(F("User-Agent: "));
+    _client_https_ubi.print(_user_agent);
+    _client_https_ubi.print(F("\r\n"));
+    _client_https_ubi.print(F("X-Auth-Token: "));
+    _client_https_ubi.print(_token);
+    _client_https_ubi.print(F("\r\n"));
+    _client_https_ubi.print(F("Connection: close\r\n"));
+    _client_https_ubi.print(F("Content-Type: application/json\r\n"));
     int content_length = strlen(payload);
-    _client_http_ubi.print(F("Content-Length: "));
-    _client_http_ubi.print(content_length);
-    _client_http_ubi.print(F("\r\n\r\n"));
-    _client_http_ubi.print(payload);
-    _client_http_ubi.print(F("\r\n"));
-    _client_http_ubi.flush();
+    _client_https_ubi.print(F("Content-Length: "));
+    _client_https_ubi.print(content_length);
+    _client_https_ubi.print(F("\r\n\r\n"));
+    _client_https_ubi.print(payload);
+    _client_https_ubi.print(F("\r\n"));
+    _client_https_ubi.flush();
 
     if (_debug) {
       Serial.println(F("Making request to Ubidots:\n"));
@@ -104,8 +137,8 @@ bool UbiHTTP::sendData(const char* device_label, const char* device_name, char* 
 
     if (_debug) {
       Serial.println("\nUbidots' Server response:\n");
-      while (_client_http_ubi.available()) {
-        char c = _client_http_ubi.read();
+      while (_client_https_ubi.available()) {
+        char c = _client_https_ubi.read();
         Serial.print(c);
       }
     }
@@ -118,32 +151,48 @@ bool UbiHTTP::sendData(const char* device_label, const char* device_name, char* 
     }
   }
 
-  _client_http_ubi.stop();
+  _client_https_ubi.stop();
   return result;
 }
 
 float UbiHTTP::get(const char* device_label, const char* variable_label) {
-  _client_http_ubi.connect(_host, UBIDOTS_HTTP_PORT);
-  reconnect(_host, UBIDOTS_HTTP_PORT);
-  if (_client_http_ubi.connected()) {
+  bool allowed = _preConnectionChecks();
+  if (!allowed) {
+    return ERROR_VALUE;
+  }
+
+  /* Connecting the client */
+  _client_https_ubi.connect(_host, UBIDOTS_HTTPS_PORT);
+  reconnect(_host, UBIDOTS_HTTPS_PORT);
+
+  if (!_client_https_ubi.verifyCertChain(_host)) {
+    if (!_debug) {
+      Serial.println(
+          "[ERROR] Could not verify the remote secure server certificate, please make sure that you are using a secure "
+          "network");
+    }
+    return ERROR_VALUE;
+  }
+
+  if (_client_https_ubi.connected()) {
     /* Builds the request GET - Please reference this link to know all the
      * request's structures HTTPS://ubidots.com/docs/api/ */
-    _client_http_ubi.print(F("GET /api/v1.6/devices/"));
-    _client_http_ubi.print(device_label);
-    _client_http_ubi.print("/");
-    _client_http_ubi.print(variable_label);
-    _client_http_ubi.print("/lv");
-    _client_http_ubi.print(" HTTP/1.1\r\n");
-    _client_http_ubi.print("Host: ");
-    _client_http_ubi.print(UBIDOTS_HTTP_PORT);
-    _client_http_ubi.print("\r\n");
-    _client_http_ubi.print("User-Agent: ");
-    _client_http_ubi.print(_user_agent);
-    _client_http_ubi.print("\r\n");
-    _client_http_ubi.print("X-Auth-Token: ");
-    _client_http_ubi.print(_token);
-    _client_http_ubi.print("\r\n");
-    _client_http_ubi.print("Content-Type: application/json\r\n\r\n");
+    _client_https_ubi.print(F("GET /api/v1.6/devices/"));
+    _client_https_ubi.print(device_label);
+    _client_https_ubi.print("/");
+    _client_https_ubi.print(variable_label);
+    _client_https_ubi.print("/lv");
+    _client_https_ubi.print(" HTTP/1.1\r\n");
+    _client_https_ubi.print("Host: ");
+    _client_https_ubi.print(UBIDOTS_HTTP_PORT);
+    _client_https_ubi.print("\r\n");
+    _client_https_ubi.print("User-Agent: ");
+    _client_https_ubi.print(_user_agent);
+    _client_https_ubi.print("\r\n");
+    _client_https_ubi.print("X-Auth-Token: ");
+    _client_https_ubi.print(_token);
+    _client_https_ubi.print("\r\n");
+    _client_https_ubi.print("Content-Type: application/json\r\n\r\n");
 
     if (_debug) {
       Serial.print("GET /api/v1.6/devices/");
@@ -166,7 +215,7 @@ float UbiHTTP::get(const char* device_label, const char* variable_label) {
 
     /* Waits for the host's answer */
     if (!waitServerAnswer()) {
-      _client_http_ubi.stop();
+      _client_https_ubi.stop();
       return ERROR_VALUE;
     }
 
@@ -176,7 +225,7 @@ float UbiHTTP::get(const char* device_label, const char* variable_label) {
 
     /* Parses the answer */
     float value = parseHttpAnswer("LV", response);
-    _client_http_ubi.stop();
+    _client_https_ubi.stop();
     free(response);
     return value;
   }
@@ -185,7 +234,7 @@ float UbiHTTP::get(const char* device_label, const char* variable_label) {
     Serial.println("Connection Failed ubidots - Try Again");
   }
 
-  _client_http_ubi.stop();
+  _client_https_ubi.stop();
   return ERROR_VALUE;
 }
 
@@ -197,14 +246,14 @@ float UbiHTTP::get(const char* device_label, const char* variable_label) {
 
 void UbiHTTP::reconnect(const char* host, const int port) {
   uint8_t attempts = 0;
-  while (!_client_http_ubi.connected() && attempts < _maxReconnectAttempts) {
+  while (!_client_https_ubi.connected() && attempts < _maxReconnectAttempts) {
     if (_debug) {
       Serial.print("Trying to connect to ");
       Serial.print(host);
       Serial.print(" , attempt number: ");
       Serial.println(attempts);
     }
-    _client_http_ubi.connect(host, port);
+    _client_https_ubi.connect(host, port);
     if (_debug) {
       Serial.println("Attempt finished");
     }
@@ -278,8 +327,8 @@ void UbiHTTP::readServerAnswer(char* response) {
 
   int j = 0;
 
-  while (_client_http_ubi.available()) {
-    response[j] = (char)_client_http_ubi.read();
+  while (_client_https_ubi.available()) {
+    response[j] = (char)_client_https_ubi.read();
     if (_debug) {
       Serial.write(response[j]);
     }
@@ -302,7 +351,7 @@ void UbiHTTP::readServerAnswer(char* response) {
 
 bool UbiHTTP::waitServerAnswer() {
   int timeout = 0;
-  while (!_client_http_ubi.available() && timeout < _timeout) {
+  while (!_client_https_ubi.available() && timeout < _timeout) {
     timeout++;
     delay(1);
     if (timeout > _timeout - 1) {
@@ -325,4 +374,77 @@ void UbiHTTP::setDebug(bool debug) { _debug = debug; }
  * Checks if the socket is still opened with the Ubidots Server
  */
 
-bool UbiHTTP::serverConnected() { return _client_http_ubi.connected(); }
+bool UbiHTTP::serverConnected() { return _client_https_ubi.connected(); }
+
+/*
+ * Syncronizes the internal timer to verify if the cert has expired
+ */
+
+bool UbiHTTP::_syncronizeTime() {
+  // Synchronizes time using SNTP. This is necessary to verify that
+  // the TLS certificates offered by the server are currently valid.
+  if (_debug) {
+    Serial.print("Setting time using SNTP");
+  }
+  configTime(8 * 3600, 0, "pool.ntp.org", "time.nist.gov");
+  time_t now = time(nullptr);
+  uint8_t attempts = 0;
+  while (now < 8 * 3600 * 2 && attempts <= 5) {
+    if (_debug) {
+      Serial.print(".");
+    }
+    now = time(nullptr);
+    attempts += 1;
+    delay(500);
+  }
+
+  if (attempts > 5) {
+    if (_debug) {
+      Serial.println("[ERROR] Could not set time using remote SNTP to verify Cert");
+    }
+    return false;
+  }
+
+  struct tm timeinfo;
+  gmtime_r(&now, &timeinfo);
+  if (_debug) {
+    Serial.print("Current time: ");
+    Serial.print(asctime(&timeinfo));
+  }
+  return true;
+}
+
+/*
+ * Loads the certified from the constants file
+ */
+
+bool UbiHTTP::_loadCert() {
+  // Loads root certificate in DER format into WiFiClientSecure object
+  bool res = _client_https_ubi.setCACert_P(UBI_CA_CERT, UBI_CA_CERT_LEN);
+  if (!res && _debug) {
+    Serial.println("Failed to load root CA certificate!");
+  }
+  return res;
+}
+
+bool UbiHTTP::_preConnectionChecks() {
+  /* Synchronizes time every 60 minutes */
+  bool syncronized = true;
+  if (millis() - _timerToSync > 3600000) {
+    syncronized = _syncronizeTime();
+    _timerToSync = millis();
+  }
+
+  if (!syncronized) {
+    return false;
+  }
+
+  if (!_certifiedLoaded) {
+    if (_debug) {
+      Serial.println("Please load a valid certificate");
+    }
+    return false;
+  }
+
+  return true;
+}
