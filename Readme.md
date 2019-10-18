@@ -3,7 +3,7 @@
 
 The ESP8266 is a low-cost WiFi module built by Espressif Systems. Its popularity has been growing among the hardware community thanks to it’s nice features and stability, to the point that it can be easily programmed using your Arduino IDE.
 
-## Requiremets
+## Requirements
 
 * [An ESP8266 module](https://www.sparkfun.com/products/13678).
 * [An Arduino UNO](https://www.arduino.cc/en/Main/ArduinoBoardUno), [UartSBee](http://www.seeedstudio.com/wiki/UartSBee_V4) or any Uart to USB device.
