@@ -25,7 +25,7 @@ Developed and maintained by Jose Garcia for IoT Services Inc
 #define _UbiTypes_H_
 
 typedef struct Value {
-  char *variable_label;
+  const char *variable_label;
   char *dot_context;
   float dot_value;
   unsigned long dot_timestamp_seconds;

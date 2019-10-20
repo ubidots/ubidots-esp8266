@@ -33,9 +33,9 @@ Developed and maintained by Jose Garcia for IoT Services Inc
 
 class UbiProtocolHandler {
  public:
-  explicit UbiProtocolHandler(char* token, IotProtocol iot_protocol);
-  explicit UbiProtocolHandler(char* token, UbiServer server = UBI_INDUSTRIAL, IotProtocol iot_protocol = UBI_TCP);
-  void add(char* variable_label, float value, char* context, unsigned long dot_timestamp_seconds,
+  explicit UbiProtocolHandler(const char* token, IotProtocol iot_protocol);
+  explicit UbiProtocolHandler(const char* token, UbiServer server = UBI_INDUSTRIAL, IotProtocol iot_protocol = UBI_TCP);
+  void add(const char* variable_label, float value, char* context, unsigned long dot_timestamp_seconds,
            unsigned int dot_timestamp_millis);
   bool send();
   bool send(const char* device_label);
@@ -58,7 +58,7 @@ class UbiProtocolHandler {
   IotProtocol _iot_protocol;
   void buildHttpPayload(char* payload);
   void buildTcpPayload(char* payload, const char* device_label, const char* device_name);
-  void builder(char* token, UbiServer server, IotProtocol iot_protocol);
+  void _builder(const char* token, UbiServer server, IotProtocol iot_protocol);
   void _floatToChar(char* value_str, float value);
   int _connectionTimeout = 5000;
   uint8_t _maxConnectionAttempts = 20;

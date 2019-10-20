@@ -34,12 +34,12 @@ Developed and maintained by Jose Garcia for IoT Services Inc
 
 class Ubidots {
  public:
-  explicit Ubidots(char* token, IotProtocol iotProtocol);
-  explicit Ubidots(char* token, UbiServer server = UBI_INDUSTRIAL, IotProtocol iotProtocol = UBI_TCP);
-  void add(char* variable_label, float value);
-  void add(char* variable_label, float value, char* context);
-  void add(char* variable_label, float value, char* context, unsigned long dot_timestamp_seconds);
-  void add(char* variable_label, float value, char* context, unsigned long dot_timestamp_seconds,
+  explicit Ubidots(const char* token, IotProtocol iotProtocol);
+  explicit Ubidots(const char* token, UbiServer server = UBI_INDUSTRIAL, IotProtocol iotProtocol = UBI_TCP);
+  void add(const char* variable_label, float value);
+  void add(const char* variable_label, float value, char* context);
+  void add(const char* variable_label, float value, char* context, unsigned long dot_timestamp_seconds);
+  void add(const char* variable_label, float value, char* context, unsigned long dot_timestamp_seconds,
            unsigned int dot_timestamp_millis);
   void addContext(char* key_label, char* key_value);
   void getContext(char* context_result);
@@ -62,7 +62,7 @@ class Ubidots {
   IotProtocol _iotProtocol;
   int8_t _current_context = 0;
   bool _debug = false;
-  void _builder(char* token, UbiServer server, IotProtocol iot_protocol);
+  void _builder(const char* token, UbiServer server, IotProtocol iot_protocol);
 };
 
 #endif

@@ -27,15 +27,15 @@ Developed and maintained by Jose Garcia for IoT Services Inc
  * Overloaded constructors
  ***************************************************************************/
 
-UbiProtocolHandler::UbiProtocolHandler(char* token, IotProtocol iot_protocol) {
-  builder(token, UBI_INDUSTRIAL, iot_protocol);
+UbiProtocolHandler::UbiProtocolHandler(const char* token, IotProtocol iot_protocol) {
+  _builder(token, UBI_INDUSTRIAL, iot_protocol);
 }
 
-UbiProtocolHandler::UbiProtocolHandler(char* token, UbiServer server, IotProtocol iot_protocol) {
-  builder(token, server, iot_protocol);
+UbiProtocolHandler::UbiProtocolHandler(const char* token, UbiServer server, IotProtocol iot_protocol) {
+  _builder(token, server, iot_protocol);
 }
 
-void UbiProtocolHandler::builder(char* token, UbiServer server, IotProtocol iot_protocol) {
+void UbiProtocolHandler::_builder(const char* token, UbiServer server, IotProtocol iot_protocol) {
   _default_device_label = "ESP8266";
   _iot_protocol = iot_protocol;
   UbiBuilder builder(server, token, _iot_protocol);
@@ -71,8 +71,8 @@ FUNCTIONS TO SEND DATA
  * dot_timestamp_seconds, usefull for datalogger.
  */
 
-void UbiProtocolHandler::add(char* variable_label, float value, char* context, unsigned long dot_timestamp_seconds,
-                             unsigned int dot_timestamp_millis) {
+void UbiProtocolHandler::add(const char* variable_label, float value, char* context,
+                             unsigned long dot_timestamp_seconds, unsigned int dot_timestamp_millis) {
   _dirty = true;
   (_dots + _current_value)->variable_label = variable_label;
   (_dots + _current_value)->dot_value = value;

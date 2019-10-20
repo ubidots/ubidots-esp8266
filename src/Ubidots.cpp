@@ -27,11 +27,11 @@ Developed and maintained by Jose Garcia for IoT Services Inc
  * Overloaded constructors
  ***************************************************************************/
 
-Ubidots::Ubidots(char* token, IotProtocol iotProtocol) { _builder(token, UBI_INDUSTRIAL, iotProtocol); }
+Ubidots::Ubidots(const char* token, IotProtocol iotProtocol) { _builder(token, UBI_INDUSTRIAL, iotProtocol); }
 
-Ubidots::Ubidots(char* token, UbiServer server, IotProtocol iotProtocol) { _builder(token, server, iotProtocol); }
+Ubidots::Ubidots(const char* token, UbiServer server, IotProtocol iotProtocol) { _builder(token, server, iotProtocol); }
 
-void Ubidots::_builder(char* token, UbiServer server, IotProtocol iotProtocol) {
+void Ubidots::_builder(const char* token, UbiServer server, IotProtocol iotProtocol) {
   _iotProtocol = iotProtocol;
   _context = (ContextUbi*)malloc(MAX_VALUES * sizeof(ContextUbi));
   _cloudProtocol = new UbiProtocolHandler(token, server, iotProtocol);
@@ -61,15 +61,17 @@ FUNCTIONS TO SEND DATA
  * dot_timestamp_seconds, usefull for datalogger.
  */
 
-void Ubidots::add(char* variable_label, float value) { add(variable_label, value, NULL, NULL, NULL); }
+void Ubidots::add(const char* variable_label, float value) { add(variable_label, value, NULL, NULL, NULL); }
 
-void Ubidots::add(char* variable_label, float value, char* context) { add(variable_label, value, context, NULL, NULL); }
+void Ubidots::add(const char* variable_label, float value, char* context) {
+  add(variable_label, value, context, NULL, NULL);
+}
 
-void Ubidots::add(char* variable_label, float value, char* context, long unsigned dot_timestamp_seconds) {
+void Ubidots::add(const char* variable_label, float value, char* context, long unsigned dot_timestamp_seconds) {
   add(variable_label, value, context, dot_timestamp_seconds, NULL);
 }
 
-void Ubidots::add(char* variable_label, float value, char* context, long unsigned dot_timestamp_seconds,
+void Ubidots::add(const char* variable_label, float value, char* context, long unsigned dot_timestamp_seconds,
                   unsigned int dot_timestamp_millis) {
   _cloudProtocol->add(variable_label, value, context, dot_timestamp_seconds, dot_timestamp_millis);
 }
