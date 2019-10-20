@@ -51,45 +51,40 @@ UbiTCP::~UbiTCP() {
  ***************************************************************************/
 
 bool UbiTCP::sendData(const char* device_label, const char* device_name, char* payload) {
-  Serial.println('pre-checks');
   bool allowed = _preConnectionChecks();
-  Serial.println('finished');
   if (!allowed) {
     return false;
   }
 
   /* Connecting the client */
-  Serial.println('connecting');
-  _client_tcp_ubi.connect(_host, UBIDOTS_TCP_PORT);
-  reconnect(_host, UBIDOTS_TCP_PORT);
-  Serial.println('finished');
-
-  Serial.println("verifying cert");
-
-  if (!_client_tcp_ubi.verifyCertChain(_host)) {
-    if (!_debug) {
+  _client_tcps_ubi.connect(_host, UBIDOTS_TCPS_PORT);
+  reconnect(_host, UBIDOTS_TCPS_PORT);
+  if (!_client_tcps_ubi.verifyCertChain(_host)) {
+    if (_debug) {
       Serial.println(
           "[ERROR] Could not verify the remote secure server certificate, please make sure that you are using a secure "
           "network");
     }
     return false;
   }
-  Serial.println('finished');
 
   /* Sends data to Ubidots */
-  if (_client_tcp_ubi.connected()) {
-    _client_tcp_ubi.print(payload);
+  if (_client_tcps_ubi.connected()) {
+    _client_tcps_ubi.print(payload);
   } else {
     if (_debug) {
-      Serial.println("Could not connect to the host");
+      Serial.println("[ERROR] Could not connect to the host");
     }
-    _client_tcp_ubi.stop();
+    _client_tcps_ubi.stop();
     return false;
   }
 
   /* Waits for the host's answer */
   if (!waitServerAnswer()) {
-    _client_tcp_ubi.stop();
+    if (_debug) {
+      Serial.println("[ERROR] Could not read server's response");
+    }
+    _client_tcps_ubi.stop();
     return false;
   }
 
@@ -99,11 +94,11 @@ bool UbiTCP::sendData(const char* device_label, const char* device_name, char* p
   float value = parseTCPAnswer("POST", response);
   free(response);
   if (value != ERROR_VALUE) {
-    _client_tcp_ubi.stop();
+    _client_tcps_ubi.stop();
     return true;
   }
 
-  _client_tcp_ubi.stop();
+  _client_tcps_ubi.stop();
   return false;
 }
 
@@ -114,11 +109,11 @@ float UbiTCP::get(const char* device_label, const char* variable_label) {
   }
 
   /* Connecting the client */
-  _client_tcp_ubi.connect(_host, UBIDOTS_TCP_PORT);
-  reconnect(_host, UBIDOTS_TCP_PORT);
+  _client_tcps_ubi.connect(_host, UBIDOTS_TCPS_PORT);
+  reconnect(_host, UBIDOTS_TCPS_PORT);
 
-  if (!_client_tcp_ubi.verifyCertChain(_host)) {
-    if (!_debug) {
+  if (!_client_tcps_ubi.verifyCertChain(_host)) {
+    if (_debug) {
       Serial.println(
           "[ERROR] Could not verify the remote secure server certificate, please make sure that you are using a secure "
           "network");
@@ -126,17 +121,17 @@ float UbiTCP::get(const char* device_label, const char* variable_label) {
     return ERROR_VALUE;
   }
 
-  if (_client_tcp_ubi.connected()) {
+  if (_client_tcps_ubi.connected()) {
     /* Builds the request POST - Please reference this link to know all the
      * request's structures https://ubidots.com/docs/api/ */
-    _client_tcp_ubi.print(_user_agent);
-    _client_tcp_ubi.print("|LV|");
-    _client_tcp_ubi.print(_token);
-    _client_tcp_ubi.print("|");
-    _client_tcp_ubi.print(device_label);
-    _client_tcp_ubi.print(":");
-    _client_tcp_ubi.print(variable_label);
-    _client_tcp_ubi.print("|end");
+    _client_tcps_ubi.print(_user_agent);
+    _client_tcps_ubi.print("|LV|");
+    _client_tcps_ubi.print(_token);
+    _client_tcps_ubi.print("|");
+    _client_tcps_ubi.print(device_label);
+    _client_tcps_ubi.print(":");
+    _client_tcps_ubi.print(variable_label);
+    _client_tcps_ubi.print("|end");
 
     if (_debug) {
       Serial.println("----");
@@ -154,14 +149,14 @@ float UbiTCP::get(const char* device_label, const char* variable_label) {
 
     /* Waits for the host's answer */
     if (!waitServerAnswer()) {
-      _client_tcp_ubi.stop();
+      _client_tcps_ubi.stop();
       return ERROR_VALUE;
     }
 
     /* Reads the response from the server */
     char* response = (char*)malloc(sizeof(char) * MAX_BUFFER_SIZE);
     float value = parseTCPAnswer("LV", response);
-    _client_tcp_ubi.stop();
+    _client_tcps_ubi.stop();
     free(response);
     return value;
   }
@@ -170,7 +165,7 @@ float UbiTCP::get(const char* device_label, const char* variable_label) {
     Serial.println("ERROR could not connect to the server");
   }
 
-  _client_tcp_ubi.stop();
+  _client_tcps_ubi.stop();
   return ERROR_VALUE;
 }
 
@@ -186,16 +181,15 @@ float UbiTCP::get(const char* device_label, const char* variable_label) {
 
 void UbiTCP::reconnect(const char* host, const int port) {
   uint8_t attempts = 0;
-  Serial.println("Attempting to reconnect");
-  while (!_client_tcp_ubi.status() && attempts < 5) {
+  while (!_client_tcps_ubi.status() && attempts < 5) {
     if (_debug) {
       Serial.print("Trying to connect to ");
       Serial.print(host);
       Serial.print(" , attempt number: ");
       Serial.println(attempts);
     }
-    _client_tcp_ubi.stop();
-    _client_tcp_ubi.connect(host, port);
+    _client_tcps_ubi.stop();
+    _client_tcps_ubi.connect(host, port);
     attempts += 1;
     delay(1000);
   }
@@ -209,7 +203,7 @@ void UbiTCP::reconnect(const char* host, const int port) {
 
 bool UbiTCP::waitServerAnswer() {
   int timeout = 0;
-  while (!_client_tcp_ubi.available() && timeout < _timeout) {
+  while (!_client_tcps_ubi.available() && timeout < _timeout) {
     timeout++;
     delay(1);
     if (timeout > _timeout - 1) {
@@ -236,8 +230,8 @@ float UbiTCP::parseTCPAnswer(const char* request_type, char* response) {
     Serial.println("Server's response:");
   }
 
-  while (_client_tcp_ubi.available()) {
-    char c = _client_tcp_ubi.read();
+  while (_client_tcps_ubi.available()) {
+    char c = _client_tcps_ubi.read();
     if (_debug) {
       Serial.write(c);
     }
@@ -283,7 +277,7 @@ void UbiTCP::setDebug(bool debug) { _debug = debug; }
  * Checks if the socket is still opened with the Ubidots Server
  */
 
-bool UbiTCP::serverConnected() { return _client_tcp_ubi.connected(); }
+bool UbiTCP::serverConnected() { return _client_tcps_ubi.connected(); }
 
 /*
  * Syncronizes the internal timer to verify if the cert has expired
@@ -329,7 +323,7 @@ bool UbiTCP::_syncronizeTime() {
 
 bool UbiTCP::_loadCert() {
   // Loads root certificate in DER format into WiFiClientSecure object
-  bool res = _client_tcp_ubi.setCACert_P(UBI_CA_CERT, UBI_CA_CERT_LEN);
+  bool res = _client_tcps_ubi.setCACert_P(UBI_CA_CERT, UBI_CA_CERT_LEN);
   if (!res && _debug) {
     Serial.println("Failed to load root CA certificate!");
   }

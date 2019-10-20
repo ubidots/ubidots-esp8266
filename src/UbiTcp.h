@@ -54,7 +54,7 @@ class UbiTCP : public UbiProtocol {
   void reconnect(const char* host, const int port);
   bool _syncronizeTime();
   bool _loadCert();
-  WiFiClientSecure _client_tcp_ubi;
+  WiFiClientSecure _client_tcps_ubi;
   unsigned long _timerToSync = millis();
   bool _preConnectionChecks();
 };
