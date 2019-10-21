@@ -52,7 +52,7 @@ TXD | RXD | TX
 ### Ubidots
 
 ```
-Ubidots(char* token, UbiServer server, IotProtocol iot_protocol)
+Ubidots(const char* token, UbiServer server, IotProtocol iot_protocol)
 ```
 
 > @token, [Required]. Your Ubidots unique account [TOKEN](http://help.ubidots.com/user-guides/find-your-token-from-your-ubidots-account).  
