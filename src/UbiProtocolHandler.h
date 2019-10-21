@@ -48,7 +48,7 @@ class UbiProtocolHandler {
   ~UbiProtocolHandler();
 
  private:
-  char* _default_device_label;
+  char _defaultDeviceLabel[18];
   UbiProtocol* _ubiProtocol;
   const char* _token;
   Value* _dots;
@@ -62,6 +62,7 @@ class UbiProtocolHandler {
   void _floatToChar(char* value_str, float value);
   int _connectionTimeout = 5000;
   uint8_t _maxConnectionAttempts = 20;
+  void _getDeviceMac(char macAdrr[]);
 };
 
 #endif

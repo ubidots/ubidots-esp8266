@@ -36,7 +36,7 @@ UbiProtocolHandler::UbiProtocolHandler(const char* token, UbiServer server, IotP
 }
 
 void UbiProtocolHandler::_builder(const char* token, UbiServer server, IotProtocol iot_protocol) {
-  _default_device_label = "ESP8266";
+  _getDeviceMac(_defaultDeviceLabel);
   _iot_protocol = iot_protocol;
   UbiBuilder builder(server, token, _iot_protocol);
   _dots = (Value*)malloc(MAX_VALUES * sizeof(Value));
@@ -50,7 +50,7 @@ void UbiProtocolHandler::_builder(const char* token, UbiServer server, IotProtoc
  ***************************************************************************/
 
 UbiProtocolHandler::~UbiProtocolHandler() {
-  delete[] _default_device_label;
+  delete[] _defaultDeviceLabel;
 
   free(_dots);
   delete _ubiProtocol;
@@ -95,7 +95,8 @@ void UbiProtocolHandler::add(const char* variable_label, float value, char* cont
  * for TCP/UDP)
  */
 
-bool UbiProtocolHandler::send() { return send(_default_device_label, _default_device_label); }
+bool UbiProtocolHandler::send() {
+  return send(_defaultDeviceLabel, _defaultDeviceLabel); }
 
 bool UbiProtocolHandler::send(const char* device_label) { return send(device_label, device_label); }
 
@@ -314,3 +315,10 @@ bool UbiProtocolHandler::wifiConnect(const char* ssid, const char* password) {
 bool UbiProtocolHandler::wifiConnected() { return WiFi.status() != WL_CONNECTED; }
 
 bool UbiProtocolHandler::serverConnected() { return _ubiProtocol->serverConnected(); }
+
+/* Obtains the device's MAC */
+void UbiProtocolHandler::_getDeviceMac(char macAddr[]) {
+  byte mac[6];
+  WiFi.macAddress(mac);
+  sprintf(macAddr, "%.2X%.2X%.2X%.2X%.2X%.2X", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+}
