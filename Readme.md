@@ -64,7 +64,7 @@ Creates an Ubidots instance.
 ## Methods
 
 ```
-void add(char *variable_label, float value, char *context, unsigned long dot_timestamp_seconds, unsigned int dot_timestamp_millis)
+void add(const char *variable_label, float value, char *context, unsigned long dot_timestamp_seconds, unsigned int dot_timestamp_millis)
 ```
 
 > @variable_label, [Required]. The label of the variable where the dot will be stored.
