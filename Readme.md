@@ -121,6 +121,12 @@ bool send(const char* device_label, const char* device_name);
 
 Sends all the data added using the add() method. Returns true if the data was sent.
 
+```
+void setDeviceType(const char* deviceType);
+```
+
+> @deviceType, [Mandatory]. If you use HTTP, this method will set the device type to be used to store dots.
+
 
 ```
 bool wifiConnect(const char* ssid, const char* password)
