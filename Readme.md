@@ -61,7 +61,9 @@ Ubidots(const char* token, UbiServer server, IotProtocol iot_protocol)
 
 Creates an Ubidots instance.
 
-**NOTE:** If you use HTTP or TCP to send data, the client will implement TLS 2.0 to secure your data. Keep in mind that due to the security checks needed, the packet may take a little more time to be sent than without TLS. If you wish to send data insecurely, use UDP or any of the available examples at our ![docs](https://ubidots.com/docs/hw/)
+**NOTE:** If you use HTTP or TCP to send data, the client will implement TLS 2.0 using the ![native ESP8266 secure client](https://github.com/esp8266/Arduino/blob/master/doc/esp8266wifi/client-secure-examples.rst) to secure your data. Keep in mind that due to the security checks needed, the packet may take a little more time to be sent than without TLS. If you wish to send data insecurely, use UDP or any of the available examples at our ![docs](https://ubidots.com/docs/hw/).
+
+As Ubidots makes its best to secure your data, we do not guarantee any issue, data miss or external sniff coming from the native secure client or bugs in the library.
 
 ## Methods
 
