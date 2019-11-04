@@ -158,7 +158,6 @@ float UbiHTTP::get(const char* device_label, const char* variable_label) {
   if (!allowed) {
     return ERROR_VALUE;
   }
-
   /* Connecting the client */
   _client_https_ubi.connect(_host, UBIDOTS_HTTPS_PORT);
   reconnect(_host, UBIDOTS_HTTPS_PORT);
@@ -169,6 +168,7 @@ float UbiHTTP::get(const char* device_label, const char* variable_label) {
           "[ERROR] Could not verify the remote secure server certificate, please make sure that you are using a secure "
           "network");
     }
+    _client_https_ubi.stop();
     return ERROR_VALUE;
   }
 
@@ -224,8 +224,8 @@ float UbiHTTP::get(const char* device_label, const char* variable_label) {
     readServerAnswer(response);
 
     /* Parses the answer */
-    float value = parseHttpAnswer("LV", response);
     _client_https_ubi.stop();
+    float value = parseHttpAnswer("LV", response);
     free(response);
     return value;
   }
@@ -267,8 +267,8 @@ float UbiHTTP::parseHttpAnswer(const char* request_type, char* data) {
 
   // LV
   if (request_type == "LV") {
-    char* parsed = (char*)malloc(sizeof(char) * 20);
-    char* dst = (char*)malloc(sizeof(char) * 20);
+    char parsed[20];
+    char dst[20];
     int len = strlen(data);  // Length of the answer char array from the server
 
     for (int i = 0; i < len - 2; i++) {
@@ -301,9 +301,6 @@ float UbiHTTP::parseHttpAnswer(const char* request_type, char* data) {
     dst[strlen(dst) - 1] = '\0';
 
     float result = atof(dst);
-
-    free(dst);
-    free(parsed);
     return result;
   }
 
