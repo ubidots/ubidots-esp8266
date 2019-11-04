@@ -11,9 +11,11 @@
  * Define Constants
  ****************************************/
 
-const char* UBIDOTS_TOKEN = "...";  // Put here your Ubidots TOKEN
-const char* WIFI_SSID = "...";      // Put here your Wi-Fi SSID
-const char* WIFI_PASS = "...";      // Put here your Wi-Fi password
+const char* UBIDOTS_TOKEN = "...";                                     // Put here your Ubidots TOKEN
+const char* WIFI_SSID = "...";                                         // Put here your Wi-Fi SSID
+const char* WIFI_PASS = "...";                                         // Put here your Wi-Fi password
+const char* DEVICE_LABEL_TO_RETRIEVE_VALUES_FROM = "weather-station";  // Replace by your device label
+const char* VARIABLE_LABEL_TO_RETRIEVE_VALUES_FROM = "humidity";       // Replace by your variable label
 
 Ubidots ubidots(UBIDOTS_TOKEN, UBI_TCP);
 
@@ -34,7 +36,7 @@ void setup() {
 }
 void loop() {
   /* Obtain last value from a variable as float using TCP */
-  float value = ubidots.get("weather-station", "temperature");
+  float value = ubidots.get(DEVICE_LABEL_TO_RETRIEVE_VALUES_FROM, VARIABLE_LABEL_TO_RETRIEVE_VALUES_FROM);
 
   // Evaluates the results obtained
   if (value != ERROR_VALUE) {
