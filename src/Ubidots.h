@@ -52,17 +52,19 @@ class Ubidots {
   bool wifiConnect(const char* ssid, const char* password);
   bool wifiConnected();
   bool serverConnected();
+  void setDeviceType(const char* deviceType);
   ~Ubidots();
 
  private:
-  // Only non-Xenon devices support cloud communication
+  char _deviceType[25];
   UbiProtocolHandler* _cloudProtocol;
-
+  char _defaultDeviceLabel[18];
   ContextUbi* _context;
   IotProtocol _iotProtocol;
   int8_t _current_context = 0;
   bool _debug = false;
   void _builder(const char* token, UbiServer server, IotProtocol iot_protocol);
+  void _getDeviceMac(char macAddr[]);
 };
 
 #endif

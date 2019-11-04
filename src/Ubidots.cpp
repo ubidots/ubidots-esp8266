@@ -32,6 +32,7 @@ Ubidots::Ubidots(const char* token, IotProtocol iotProtocol) { _builder(token, U
 Ubidots::Ubidots(const char* token, UbiServer server, IotProtocol iotProtocol) { _builder(token, server, iotProtocol); }
 
 void Ubidots::_builder(const char* token, UbiServer server, IotProtocol iotProtocol) {
+  _getDeviceMac(_defaultDeviceLabel);
   _iotProtocol = iotProtocol;
   _context = (ContextUbi*)malloc(MAX_VALUES * sizeof(ContextUbi));
   _cloudProtocol = new UbiProtocolHandler(token, server, iotProtocol);
@@ -84,13 +85,22 @@ void Ubidots::add(const char* variable_label, float value, char* context, long u
  * @arg flags [Optional] Particle publish flags for webhooks
  */
 
-bool Ubidots::send() { return _cloudProtocol->send(); }
+bool Ubidots::send() { return send(_defaultDeviceLabel, _defaultDeviceLabel); }
 
-bool Ubidots::send(const char* device_label) { return _cloudProtocol->send(device_label); }
+bool Ubidots::send(const char* device_label) { return send(device_label, device_label); }
 
 bool Ubidots::send(const char* device_label, const char* device_name) {
+  if (strlen(_deviceType) > 0 && _iotProtocol == UBI_HTTP) {
+    char builtDeviceLabel[50];
+    sprintf(builtDeviceLabel, "%s/?type=%s", device_label, _deviceType);
+    return _cloudProtocol->send(builtDeviceLabel, device_name);
+  }
   return _cloudProtocol->send(device_label, device_name);
 }
+
+/***************************************************************************
+AUXILIAR FUNCTIONS
+***************************************************************************/
 
 float Ubidots::get(const char* device_label, const char* variable_label) {
   _cloudProtocol->get(device_label, variable_label);
@@ -158,3 +168,21 @@ bool Ubidots::wifiConnect(const char* ssid, const char* password) {
 }
 bool Ubidots::wifiConnected() { return _cloudProtocol->wifiConnected(); }
 bool Ubidots::serverConnected() { return _cloudProtocol->serverConnected(); }
+
+/* Obtains the device's MAC */
+void Ubidots::_getDeviceMac(char macAddr[]) {
+  byte mac[6];
+  WiFi.macAddress(mac);
+  sprintf(macAddr, "%.2X%.2X%.2X%.2X%.2X%.2X", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+}
+
+/*
+ * Makes available device types using HTTP
+ */
+void Ubidots::setDeviceType(const char* deviceType) {
+  if (strlen(deviceType) > 0 && _iotProtocol == UBI_HTTP) {
+    sprintf(_deviceType, "%s", deviceType);
+  } else {
+    Serial.println("Device Type is only available using HTTP");
+  }
+}

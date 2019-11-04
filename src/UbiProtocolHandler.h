@@ -37,8 +37,6 @@ class UbiProtocolHandler {
   explicit UbiProtocolHandler(const char* token, UbiServer server = UBI_INDUSTRIAL, IotProtocol iot_protocol = UBI_TCP);
   void add(const char* variable_label, float value, char* context, unsigned long dot_timestamp_seconds,
            unsigned int dot_timestamp_millis);
-  bool send();
-  bool send(const char* device_label);
   bool send(const char* device_label, const char* device_name);
   float get(const char* device_label, const char* variable_label);
   void setDebug(bool debug);
@@ -48,7 +46,6 @@ class UbiProtocolHandler {
   ~UbiProtocolHandler();
 
  private:
-  char _defaultDeviceLabel[18];
   UbiProtocol* _ubiProtocol;
   const char* _token;
   Value* _dots;
