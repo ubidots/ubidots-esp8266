@@ -13,12 +13,9 @@
  * Define Instances and Constants
  ****************************************/
 
-const char* device_label = "my-device";  // Edit here your device label
-const char* device_type = "my-type";     // Edit here your device type label
+const char* DEVICE_TYPE = "my-type";     // Edit here your device type label
 const char* WIFI_SSID = "...";           // Put here your Wi-Fi SSID
 const char* WIFI_PASS = "...";           // Put here your Wi-Fi password
-char* device = (char*)malloc(sizeof(char) * 30);
-;
 
 const char* UBIDOTS_TOKEN = "...";  // Put here your Ubidots TOKEN
 Ubidots ubidots(UBIDOTS_TOKEN, UBI_HTTP);
@@ -36,7 +33,7 @@ Ubidots ubidots(UBIDOTS_TOKEN, UBI_HTTP);
 void setup() {
   Serial.begin(115200);
   ubidots.wifiConnect(WIFI_SSID, WIFI_PASS);
-  sprintf(device, "%s/?type=%s", device_label, device_type);
+  ubidots.setDeviceType(DEVICE_TYPE);
   // ubidots.setDebug(true);  // Uncomment this line for printing debug messages
 }
 
@@ -49,7 +46,7 @@ void loop() {
   ubidots.add("Variable_Name_Three", value3);
 
   bool bufferSent = false;
-  bufferSent = ubidots.send(device);  // Will send data to a device label that matches the device Id
+  bufferSent = ubidots.send();  // Will send data to a device label that matches the device Id
 
   if (bufferSent) {
     // Do something if values were sent properly
