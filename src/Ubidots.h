@@ -57,6 +57,7 @@ class Ubidots {
 
  private:
   char _deviceType[25];
+  uint8_t _maxConnectionAttempts = 20;
   UbiProtocolHandler* _cloudProtocol;
   char _defaultDeviceLabel[18];
   ContextUbi* _context;

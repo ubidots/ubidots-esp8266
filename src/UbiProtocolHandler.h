@@ -40,8 +40,6 @@ class UbiProtocolHandler {
   bool send(const char* device_label, const char* device_name);
   float get(const char* device_label, const char* variable_label);
   void setDebug(bool debug);
-  bool wifiConnect(const char* ssid, const char* password);
-  bool wifiConnected();
   bool serverConnected();
   ~UbiProtocolHandler();
 
@@ -58,7 +56,6 @@ class UbiProtocolHandler {
   void _builder(const char* token, UbiServer server, IotProtocol iot_protocol);
   void _floatToChar(char* value_str, float value);
   int _connectionTimeout = 5000;
-  uint8_t _maxConnectionAttempts = 20;
   void _getDeviceMac(char macAdrr[]);
 };
 
