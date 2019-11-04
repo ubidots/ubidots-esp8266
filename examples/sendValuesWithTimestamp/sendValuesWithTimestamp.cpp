@@ -1,7 +1,5 @@
-// This example sends data to multiple variables to
-// Ubidots through HTTP protocol, and uses Device Types feature
-
-// IMPORTANT: Device type are only supported through HTTP
+// This example sends data along with timestamp in POSIX ms standard
+// to a variable to Ubidots API through HTTP, TCP or UDP protocol.
 
 /****************************************
  * Include Libraries
@@ -13,13 +11,10 @@
  * Define Instances and Constants
  ****************************************/
 
-const char* device_label = "my-device";  // Edit here your device label
-const char* device_type = "my-type";     // Edit here your device type label
-char* device = (char*)malloc(sizeof(char) * 30);
-;
-
 const char* UBIDOTS_TOKEN = "...";  // Put here your Ubidots TOKEN
-Ubidots ubidots(UBIDOTS_TOKEN, UBI_HTTP);
+const char* WIFI_SSID = "...";      // Put here your Wi-Fi SSID
+const char* WIFI_PASS = "...";      // Put here your Wi-Fi password
+Ubidots ubidots(UBIDOTS_TOKEN);
 
 /****************************************
  * Auxiliar Functions
@@ -33,20 +28,19 @@ Ubidots ubidots(UBIDOTS_TOKEN, UBI_HTTP);
 
 void setup() {
   Serial.begin(115200);
-  sprintf(device, "%s/?type=%s", device_label, device_type);
+  client.wifiConnect(WIFI_SSID, WIFI_PASS);
   // ubidots.setDebug(true);  // Uncomment this line for printing debug messages
 }
 
 void loop() {
-  float value1 = random(0, 9) * 10;
-  float value2 = random(0, 9) * 100;
-  float value3 = random(0, 9) * 1000;
-  ubidots.add("Variable_Name_One", value1);  // Change for your variable name
-  ubidots.add("Variable_Name_Two", value2);
-  ubidots.add("Variable_Name_Three", value3);
+  float value1 = analogRead(A0);
+  unsigned long timestamp_seconds = 1571615253L;  // Put here your timestamp in seconds
+  unsigned int timestamp_milliseconds = 0;        // Put here the number of milliseconds to shift your timestamp
+
+  ubidots.add("temperature", value1, NULL, timestamp_seconds, timestamp_milliseconds);  // Change for your variable name
 
   bool bufferSent = false;
-  bufferSent = ubidots.send(device);  // Will send data to a device label that matches the device Id
+  bufferSent = ubidots.send();  // Will send data to a device label that matches the device Id
 
   if (bufferSent) {
     // Do something if values were sent properly

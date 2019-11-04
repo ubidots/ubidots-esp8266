@@ -1,5 +1,5 @@
 // This example sends data to multiple variables to
-// Ubidots through HTTP protocol.
+// Ubidots through TCP protocol.
 
 /****************************************
  * Include Libraries
@@ -12,7 +12,9 @@
  ****************************************/
 
 const char* UBIDOTS_TOKEN = "...";  // Put here your Ubidots TOKEN
-Ubidots ubidots(UBIDOTS_TOKEN, UBI_HTTP);
+const char* WIFI_SSID = "...";      // Put here your Wi-Fi SSID
+const char* WIFI_PASS = "...";      // Put here your Wi-Fi password
+Ubidots ubidots(UBIDOTS_TOKEN, UBI_TCP);
 
 /****************************************
  * Auxiliar Functions
@@ -26,6 +28,7 @@ Ubidots ubidots(UBIDOTS_TOKEN, UBI_HTTP);
 
 void setup() {
   Serial.begin(115200);
+  client.wifiConnect(WIFI_SSID, WIFI_PASS);
   // ubidots.setDebug(true);  // Uncomment this line for printing debug messages
 }
 

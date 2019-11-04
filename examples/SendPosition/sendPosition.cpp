@@ -12,6 +12,9 @@
  ****************************************/
 
 const char* UBIDOTS_TOKEN = "...";  // Put here your Ubidots TOKEN
+const char* WIFI_SSID = "...";      // Put here your Wi-Fi SSID
+const char* WIFI_PASS = "...";      // Put here your Wi-Fi password
+
 Ubidots ubidots(UBIDOTS_TOKEN, UBI_TCP);
 
 /****************************************
@@ -26,6 +29,7 @@ Ubidots ubidots(UBIDOTS_TOKEN, UBI_TCP);
 
 void setup() {
   Serial.begin(115200);
+  client.wifiConnect(WIFI_SSID, WIFI_PASS);
   // ubidots.setDebug(true); //Uncomment this line for printing debug messages
 }
 
