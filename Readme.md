@@ -113,12 +113,11 @@ void setDebug(bool debug)
 Makes available debug messages through the serial port.
 
 ```
-bool send(const char* device_label, const char* device_name, PublishFlags flags);
+bool send(const char* device_label, const char* device_name);
 ```
 
 > @device_label, [Optional], [Default] = PARTICLE DEVICE ID. The device label to send data. If not set, the PARTICLE DEVICE ID will be used.  
 > @device_name, [Optional], [Default] = @device_label. The device name otherwise assigned if the device doesn't already exist in your Ubidots account. If not set, the device label parameter will be used. **NOTE**: Device name is only supported through TCP/UDP, if you use another protocol, the device name will be the same as device label.  
-> @flags, [Optional], [Options] = [`PUBLIC`, `PRIVATE`, `WITH_ACK`, `NO_ACK`]. Particle webhook flags.
 
 Sends all the data added using the add() method. Returns true if the data was sent.
 
