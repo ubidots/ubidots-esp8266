@@ -29,7 +29,7 @@ Ubidots ubidots(UBIDOTS_TOKEN, UBI_TCP);
 
 void setup() {
   Serial.begin(115200);
-  client.wifiConnect(WIFI_SSID, WIFI_PASS);
+  ubidots.wifiConnect(WIFI_SSID, WIFI_PASS);
   // ubidots.setDebug(true); //Uncomment this line for printing debug messages
 }
 void loop() {
