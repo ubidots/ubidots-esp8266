@@ -61,6 +61,8 @@ Ubidots(const char* token, UbiServer server, IotProtocol iot_protocol)
 
 Creates an Ubidots instance.
 
+**NOTE:** If you use HTTP or TCP to send data, the client will implement TLS 2.0 to secure your data. Keep in mind that due to the security checks needed, the packet may take a little more time to be sent than without TLS. If you wish to send data insecurely, use UDP or any of the available examples at our ![docs](https://ubidots.com/docs/hw/)
+
 ## Methods
 
 ```
