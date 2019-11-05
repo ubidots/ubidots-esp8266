@@ -1,8 +1,4 @@
 #######################################
-# Syntax Coloring Map For ExampleLibrary
-#######################################
-
-#######################################
 # Datatypes (KEYWORD1)
 #######################################
 
@@ -10,22 +6,22 @@
 # Methods and Functions (KEYWORD2)
 #######################################
 
-add    KEYWORD2
-getValueUDP    KEYWORD2
-getValueWithDevice    KEYWORD2
-getValue    KEYWORD2
-getVarContext    KEYWORD2
-getVarTimestamp    KEYWORD2
-ntpUnixTime    KEYWORD2
-sendAll    KEYWORD2
-setDebug    KEYWORD2
-setDataSourceName    KEYWORD2
-setDataSourceLabel    KEYWORD2
-wifiConnection    KEYWORD2
+add	KEYWORD2
+get	KEYWORD2
+send	KEYWORD2
+addContext	KEYWORD2
+getContext	KEYWORD2
+wifiConnect	KEYWORD2
+wifiConnected	KEYWORD2
+serverConnected	KEYWORD2
+setDebug	KEYWORD2
+setDeviceType	KEYWORD2
 
 #######################################
-# Instances (KEYWORD2)
+# Instances (KEYWORD1)
 #######################################
+
+Ubidots	KEYWORD1
 
 #######################################
 # Constants (LITERAL1)
