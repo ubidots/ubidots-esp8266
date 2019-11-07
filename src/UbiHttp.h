@@ -26,6 +26,7 @@ Developed and maintained by Jose Garcia for IoT Services Inc
 
 #include <ESP8266WiFi.h>
 #include "Arduino.h"
+#include <time.h>
 #include "UbiProtocol.h"
 #include "stdint.h"
 
