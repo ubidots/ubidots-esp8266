@@ -323,7 +323,8 @@ bool UbiTCP::_syncronizeTime() {
 
 bool UbiTCP::_loadCert() {
   // Loads root certificate in DER format into WiFiClientSecure object
-  bool res = _client_tcps_ubi.setCACert_P(UBI_CA_CERT, UBI_CA_CERT_LEN);
+  bool res = _client_tcps_ubi.setCACert_P(UBI_CA_CERT_1, UBI_CA_CERT_LEN_1);
+  res = res && _client_tcps_ubi.setCACert_P(UBI_CA_CERT_2, UBI_CA_CERT_LEN_2);
   if (!res && _debug) {
     Serial.println("Failed to load root CA certificate!");
   }
