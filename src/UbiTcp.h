@@ -24,13 +24,23 @@ Developed and maintained by Jose Garcia for IoT Services Inc
 #ifndef _UbiTcp_H_
 #define _UbiTcp_H_
 
+#ifndef USING_AXTLS
+#define USING_AXTLS
+#endif
+
 #include <ESP8266WiFi.h>
-#include <WiFiClientSecure.h>
+#include <WiFiClientSecureAxTLS.h>
 #include <time.h>
 #include "Arduino.h"
 #include "UbiConstants.h"
 #include "UbiProtocol.h"
 #include "stdint.h"
+
+using namespace axTLS;
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#pragma GCC diagnostic pop
 
 class UbiTCP : public UbiProtocol {
  public:
