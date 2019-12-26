@@ -145,6 +145,12 @@ bool serverConnected();
 ```
 Returns true if the device has a socket opened with Ubidots.
 
+```
+void setDeviceType(const char* deviceType)
+```
+
+Sets a ![device type](https://help.ubidots.com/en/articles/2129204-device-types) to be added in your request. This method works only if you set HTTP as iot protocol in your instance constructor.
+
 # Examples
 
 Refer to the ![examples](https://github.com/ubidots/ubidots-esp8266/tree/master/examples) folder
