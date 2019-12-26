@@ -14,8 +14,8 @@
 const char* UBIDOTS_TOKEN = "...";                                     // Put here your Ubidots TOKEN
 const char* WIFI_SSID = "...";                                         // Put here your Wi-Fi SSID
 const char* WIFI_PASS = "...";                                         // Put here your Wi-Fi password
-const char* DEVICE_LABEL_TO_RETRIEVE_VALUES_FROM = "weather-station";  // Replace by your device label
-const char* VARIABLE_LABEL_TO_RETRIEVE_VALUES_FROM = "humidity";       // Replace by your variable label
+const char* DEVICE_LABEL_TO_RETRIEVE_VALUES_FROM = "weather-station";  // Replace with your device label
+const char* VARIABLE_LABEL_TO_RETRIEVE_VALUES_FROM = "humidity";       // Replace with your variable label
 
 Ubidots ubidots(UBIDOTS_TOKEN, UBI_TCP);
 
