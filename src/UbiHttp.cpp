@@ -16,9 +16,10 @@ NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
 LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-Developed and maintained by Jose Garcia for IoT Services Inc
+Developed and maintained by Jose Garcia and Cristian Arrieta for IoT Services
+Inc
 @jotathebest at github: https://github.com/jotathebest
+@crisap94 at github: https://github.com/crisap94
 */
 
 #include "UbiHttp.h"
@@ -28,7 +29,8 @@ Developed and maintained by Jose Garcia for IoT Services Inc
  * Overloaded constructors
  ***************************************************************************/
 
-UbiHTTP::UbiHTTP(const char* host, const int port, const char* user_agent, const char* token) {
+UbiHTTP::UbiHTTP(const char *host, const int port, const char *user_agent,
+                 const char *token) {
   _host = host;
   _user_agent = user_agent;
   _token = token;
@@ -47,7 +49,8 @@ UbiHTTP::~UbiHTTP() {
   delete[] _token;
 }
 
-bool UbiHTTP::sendData(const char* device_label, const char* device_name, char* payload) {
+bool UbiHTTP::sendData(const char *device_label, const char *device_name,
+                       char *payload) {
   bool allowed = _preConnectionChecks();
   if (!allowed) {
     return false;
@@ -68,7 +71,8 @@ bool UbiHTTP::sendData(const char* device_label, const char* device_name, char* 
   if (!_client_https_ubi.verifyCertChain(_host)) {
     if (_debug) {
       Serial.println(
-          "[ERROR] Could not verify the remote secure server certificate, please make sure that you are using a secure "
+          "[ERROR] Could not verify the remote secure server certificate, "
+          "please make sure that you are using a secure "
           "network");
     }
     return false;
@@ -76,7 +80,7 @@ bool UbiHTTP::sendData(const char* device_label, const char* device_name, char* 
 
   bool result = false;
 
-  if (_client_https_ubi.connected()) {  // Connect to the host
+  if (_client_https_ubi.connected()) { // Connect to the host
     /* Builds the request POST - Please reference this link to know all the
      * request's structures https://ubidots.com/docs/api/ */
 
@@ -143,7 +147,7 @@ bool UbiHTTP::sendData(const char* device_label, const char* device_name, char* 
         Serial.println("Could not read server's response");
       }
     }
-  } else {  // Could not connect to the server
+  } else { // Could not connect to the server
     if (_debug) {
       Serial.println("Could not send data to ubidots using HTTP");
     }
@@ -153,7 +157,7 @@ bool UbiHTTP::sendData(const char* device_label, const char* device_name, char* 
   return result;
 }
 
-float UbiHTTP::get(const char* device_label, const char* variable_label) {
+float UbiHTTP::get(const char *device_label, const char *variable_label) {
   bool allowed = _preConnectionChecks();
   if (!allowed) {
     return ERROR_VALUE;
@@ -165,7 +169,8 @@ float UbiHTTP::get(const char* device_label, const char* variable_label) {
   if (!_client_https_ubi.verifyCertChain(_host)) {
     if (!_debug) {
       Serial.println(
-          "[ERROR] Could not verify the remote secure server certificate, please make sure that you are using a secure "
+          "[ERROR] Could not verify the remote secure server certificate, "
+          "please make sure that you are using a secure "
           "network");
     }
     _client_https_ubi.stop();
@@ -220,7 +225,7 @@ float UbiHTTP::get(const char* device_label, const char* variable_label) {
     }
 
     /* Reads the response from the server */
-    char* response = (char*)malloc(sizeof(char) * MAX_BUFFER_SIZE);
+    char *response = (char *)malloc(sizeof(char) * MAX_BUFFER_SIZE);
     readServerAnswer(response);
 
     /* Parses the answer */
@@ -244,7 +249,7 @@ float UbiHTTP::get(const char* device_label, const char* variable_label) {
  *         false if timeout is reached.
  */
 
-void UbiHTTP::reconnect(const char* host, const int port) {
+void UbiHTTP::reconnect(const char *host, const int port) {
   uint8_t attempts = 0;
   while (!_client_https_ubi.connected() && attempts < _maxReconnectAttempts) {
     if (_debug) {
@@ -262,18 +267,19 @@ void UbiHTTP::reconnect(const char* host, const int port) {
   }
 }
 
-float UbiHTTP::parseHttpAnswer(const char* request_type, char* data) {
+float UbiHTTP::parseHttpAnswer(const char *request_type, char *data) {
   float result = ERROR_VALUE;
 
   // LV
   if (request_type == "LV") {
     char parsed[20];
     char dst[20];
-    int len = strlen(data);  // Length of the answer char array from the server
+    int len = strlen(data); // Length of the answer char array from the server
 
     for (int i = 0; i < len - 2; i++) {
-      if ((data[i] == '\r') && (data[i + 1] == '\n') && (data[i + 2] == '\r') && (data[i + 3] == '\n')) {
-        strncpy(parsed, data + i + 4, 20);  // Copies the result to the parsed
+      if ((data[i] == '\r') && (data[i + 1] == '\n') && (data[i + 2] == '\r') &&
+          (data[i + 3] == '\n')) {
+        strncpy(parsed, data + i + 4, 20); // Copies the result to the parsed
         parsed[20] = '\0';
         break;
       }
@@ -284,12 +290,12 @@ float UbiHTTP::parseHttpAnswer(const char* request_type, char* data) {
     uint8_t index = 0;
 
     // Creates pointers to split the value
-    char* pch = strchr(parsed, '\n');
+    char *pch = strchr(parsed, '\n');
     if (pch == NULL) {
       return result;
     }
 
-    char* pch2 = strchr(pch + 1, '\n');
+    char *pch2 = strchr(pch + 1, '\n');
 
     if (pch2 == NULL) {
       return result;
@@ -311,7 +317,7 @@ float UbiHTTP::parseHttpAnswer(const char* request_type, char* data) {
  * @arg response [Mandatory] Pointer to store the server's answer
  */
 
-void UbiHTTP::readServerAnswer(char* response) {
+void UbiHTTP::readServerAnswer(char *response) {
   // Fills with zeros
   for (int i = 0; i <= MAX_BUFFER_SIZE; i++) {
     response[i] = '\0';
@@ -397,7 +403,8 @@ bool UbiHTTP::_syncronizeTime() {
 
   if (attempts > 5) {
     if (_debug) {
-      Serial.println("[ERROR] Could not set time using remote SNTP to verify Cert");
+      Serial.println(
+          "[ERROR] Could not set time using remote SNTP to verify Cert");
     }
     return false;
   }
@@ -435,9 +442,9 @@ bool UbiHTTP::_preConnectionChecks() {
 
   if (!syncronized) {
     if (_debug) {
-      Serial.println(
-          "[ERROR] Could not syncronize device time with external source, make sure that you are not behind a "
-          "firewall");
+      Serial.println("[ERROR] Could not syncronize device time with external "
+                     "source, make sure that you are not behind a "
+                     "firewall");
     }
     return false;
   }

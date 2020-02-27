@@ -16,19 +16,31 @@ NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
 LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-Developed and maintained by Jose Garcia for IoT Services Inc
+Developed and maintained by Jose Garcia and Cristian Arrieta for IoT Services
+Inc
 @jotathebest at github: https://github.com/jotathebest
+@crisap94 at github: https://github.com/crisap94
 */
 
 #ifndef _UbiProtocol_H_
 #define _UbiProtocol_H_
 
-#include "UbiTypes.h"
+#ifndef USING_AXTLS
+#define USING_AXTLS
+#endif
+
+#include "ESP8266WiFi.h"
+
+#include <WiFiClientSecureAxTLS.h>
+using namespace axTLS;
+
+#include "UbiConstants.h"
+
 class UbiProtocol {
- public:
-  virtual bool sendData(const char* device_label, const char* device_name, char* payload) = 0;
-  virtual float get(const char* device_label, const char* variable_label) = 0;
+public:
+  virtual bool sendData(const char *device_label, const char *device_name,
+                        char *payload) = 0;
+  virtual float get(const char *device_label, const char *variable_label) = 0;
   virtual void setDebug(bool debug) = 0;
   virtual bool serverConnected();
 };

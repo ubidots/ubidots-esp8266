@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2013-2018 Ubidots.
+Copyright (c) 2013-2019 Ubidots.
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the
 "Software"), to deal in the Software without restriction, including
@@ -16,41 +16,38 @@ NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
 LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-Developed and maintained by Jose Garcia for IoT Services Inc
+Developed and maintained by Jose Garcia and Cristian Arrieta for IoT Services
+Inc
 @jotathebest at github: https://github.com/jotathebest
+@crisap94 at github: https://github.com/crisap94
 */
 
 #ifndef _UbiBuilder_H_
 #define _UbiBuilder_H_
 
-#include <stdio.h>
-#include <map>
-#include "Arduino.h"
-#include "stdint.h"
-
-#include "UbiConstants.h"
 #include "UbiProtocol.h"
-#include "UbiTypes.h"
 
-UbiProtocol* builderTcp();
-UbiProtocol* builderHttp();
-UbiProtocol* builderUdp();
+#include <map>
 
-typedef std::function<UbiProtocol*()> FunctionType;
+UbiProtocol *builderTcp();
+UbiProtocol *builderHttp();
+UbiProtocol *builderUdp();
+
+typedef std::function<UbiProtocol *()> FunctionType;
 typedef std::map<IotProtocol, FunctionType> mapProtocol;
 
 namespace {
-const char* _host;
-const char* _token;
-}  // namespace
+const char *_host;
+const char *_token;
+} // namespace
 
 class UbiBuilder {
- public:
-  explicit UbiBuilder(const char* host, const char* token, IotProtocol iotProtocol);
-  UbiProtocol* builder();
+public:
+  explicit UbiBuilder(const char *host, const char *token,
+                      IotProtocol iotProtocol);
+  UbiProtocol *builder();
 
- private:
+private:
   IotProtocol _iot_protocol;
   mapProtocol command_list;
 };

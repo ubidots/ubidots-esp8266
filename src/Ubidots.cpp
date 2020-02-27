@@ -1,3 +1,4 @@
+
 /*
 Copyright (c) 2013-2018 Ubidots.
 Permission is hereby granted, free of charge, to any person obtaining
@@ -16,9 +17,10 @@ NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
 LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-Developed and maintained by Jose Garcia for IoT Services Inc
+Developed and maintained by Jose Garcia and Cristian Arrieta for IoT Services
+Inc
 @jotathebest at github: https://github.com/jotathebest
+@crisap94 at github: https://github.com/crisap94
 */
 
 #include "Ubidots.h"
@@ -27,14 +29,19 @@ Developed and maintained by Jose Garcia for IoT Services Inc
  * Overloaded constructors
  ***************************************************************************/
 
-Ubidots::Ubidots(const char* token, IotProtocol iotProtocol) { _builder(token, UBI_INDUSTRIAL, iotProtocol); }
+Ubidots::Ubidots(const char *token, IotProtocol iotProtocol) {
+  _builder(token, UBI_INDUSTRIAL, iotProtocol);
+}
 
-Ubidots::Ubidots(const char* token, UbiServer server, IotProtocol iotProtocol) { _builder(token, server, iotProtocol); }
+Ubidots::Ubidots(const char *token, UbiServer server, IotProtocol iotProtocol) {
+  _builder(token, server, iotProtocol);
+}
 
-void Ubidots::_builder(const char* token, UbiServer server, IotProtocol iotProtocol) {
+void Ubidots::_builder(const char *token, UbiServer server,
+                       IotProtocol iotProtocol) {
   _getDeviceMac(_defaultDeviceLabel);
   _iotProtocol = iotProtocol;
-  _context = (ContextUbi*)malloc(MAX_VALUES * sizeof(ContextUbi));
+  _context = (ContextUbi *)malloc(MAX_VALUES * sizeof(ContextUbi));
   _cloudProtocol = new UbiProtocolHandler(token, server, iotProtocol);
 }
 
@@ -62,19 +69,24 @@ FUNCTIONS TO SEND DATA
  * dot_timestamp_seconds, usefull for datalogger.
  */
 
-void Ubidots::add(const char* variable_label, float value) { add(variable_label, value, NULL, NULL, NULL); }
+void Ubidots::add(const char *variable_label, float value) {
+  add(variable_label, value, NULL, NULL, NULL);
+}
 
-void Ubidots::add(const char* variable_label, float value, char* context) {
+void Ubidots::add(const char *variable_label, float value, char *context) {
   add(variable_label, value, context, NULL, NULL);
 }
 
-void Ubidots::add(const char* variable_label, float value, char* context, long unsigned dot_timestamp_seconds) {
+void Ubidots::add(const char *variable_label, float value, char *context,
+                  long unsigned dot_timestamp_seconds) {
   add(variable_label, value, context, dot_timestamp_seconds, NULL);
 }
 
-void Ubidots::add(const char* variable_label, float value, char* context, long unsigned dot_timestamp_seconds,
+void Ubidots::add(const char *variable_label, float value, char *context,
+                  long unsigned dot_timestamp_seconds,
                   unsigned int dot_timestamp_millis) {
-  _cloudProtocol->add(variable_label, value, context, dot_timestamp_seconds, dot_timestamp_millis);
+  _cloudProtocol->add(variable_label, value, context, dot_timestamp_seconds,
+                      dot_timestamp_millis);
 }
 
 /**
@@ -87,9 +99,11 @@ void Ubidots::add(const char* variable_label, float value, char* context, long u
 
 bool Ubidots::send() { return send(_defaultDeviceLabel, _defaultDeviceLabel); }
 
-bool Ubidots::send(const char* device_label) { return send(device_label, device_label); }
+bool Ubidots::send(const char *device_label) {
+  return send(device_label, device_label);
+}
 
-bool Ubidots::send(const char* device_label, const char* device_name) {
+bool Ubidots::send(const char *device_label, const char *device_name) {
   if (strlen(_deviceType) > 0 && _iotProtocol == UBI_HTTP) {
     char builtDeviceLabel[50];
     sprintf(builtDeviceLabel, "%s/?type=%s", device_label, _deviceType);
@@ -102,7 +116,7 @@ bool Ubidots::send(const char* device_label, const char* device_name) {
 AUXILIAR FUNCTIONS
 ***************************************************************************/
 
-float Ubidots::get(const char* device_label, const char* variable_label) {
+float Ubidots::get(const char *device_label, const char *variable_label) {
   _cloudProtocol->get(device_label, variable_label);
 }
 
@@ -115,12 +129,13 @@ void Ubidots::setDebug(bool debug) {
  * Adds to the context structure values to retrieve later it easily by the user
  */
 
-void Ubidots::addContext(char* key_label, char* key_value) {
+void Ubidots::addContext(char *key_label, char *key_value) {
   (_context + _current_context)->key_label = key_label;
   (_context + _current_context)->key_value = key_value;
   _current_context++;
   if (_current_context >= MAX_VALUES) {
-    Serial.println(F("You are adding more than the maximum of consecutive key-values pairs"));
+    Serial.println(F("You are adding more than the maximum of consecutive "
+                     "key-values pairs"));
     _current_context = MAX_VALUES;
   }
 }
@@ -129,14 +144,17 @@ void Ubidots::addContext(char* key_label, char* key_value) {
  * Retrieves the actual stored context properly formatted
  */
 
-void Ubidots::getContext(char* context_result) { getContext(context_result, _iotProtocol); }
+void Ubidots::getContext(char *context_result) {
+  getContext(context_result, _iotProtocol);
+}
 
-void Ubidots::getContext(char* context_result, IotProtocol iotProtocol) {
+void Ubidots::getContext(char *context_result, IotProtocol iotProtocol) {
   // TCP context type
   if (iotProtocol == UBI_TCP || iotProtocol == UBI_UDP) {
     sprintf(context_result, "");
     for (uint8_t i = 0; i < _current_context;) {
-      sprintf(context_result, "%s%s=%s", context_result, (_context + i)->key_label, (_context + i)->key_value);
+      sprintf(context_result, "%s%s=%s", context_result,
+              (_context + i)->key_label, (_context + i)->key_value);
       i++;
       if (i < _current_context) {
         sprintf(context_result, "%s$", context_result);
@@ -151,7 +169,8 @@ void Ubidots::getContext(char* context_result, IotProtocol iotProtocol) {
   if (iotProtocol == UBI_HTTP) {
     sprintf(context_result, "");
     for (uint8_t i = 0; i < _current_context;) {
-      sprintf(context_result, "%s\"%s\":\"%s\"", context_result, (_context + i)->key_label, (_context + i)->key_value);
+      sprintf(context_result, "%s\"%s\":\"%s\"", context_result,
+              (_context + i)->key_label, (_context + i)->key_value);
       i++;
       if (i < _current_context) {
         sprintf(context_result, "%s,", context_result);
@@ -163,10 +182,11 @@ void Ubidots::getContext(char* context_result, IotProtocol iotProtocol) {
   }
 }
 
-bool Ubidots::wifiConnect(const char* ssid, const char* password) {
+bool Ubidots::wifiConnect(const char *ssid, const char *password) {
   WiFi.begin(ssid, password);
   uint8_t maxConnectionAttempts = 0;
-  while (WiFi.status() != WL_CONNECTED && maxConnectionAttempts < _maxConnectionAttempts) {
+  while (WiFi.status() != WL_CONNECTED &&
+         maxConnectionAttempts < _maxConnectionAttempts) {
     delay(500);
     Serial.print(".");
     maxConnectionAttempts += 1;
@@ -193,13 +213,14 @@ bool Ubidots::serverConnected() { return _cloudProtocol->serverConnected(); }
 void Ubidots::_getDeviceMac(char macAddr[]) {
   byte mac[6];
   WiFi.macAddress(mac);
-  sprintf(macAddr, "%.2X%.2X%.2X%.2X%.2X%.2X", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+  sprintf(macAddr, "%.2X%.2X%.2X%.2X%.2X%.2X", mac[0], mac[1], mac[2], mac[3],
+          mac[4], mac[5]);
 }
 
 /*
  * Makes available device types using HTTP
  */
-void Ubidots::setDeviceType(const char* deviceType) {
+void Ubidots::setDeviceType(const char *deviceType) {
   if (strlen(deviceType) > 0 && _iotProtocol == UBI_HTTP) {
     sprintf(_deviceType, "%s", deviceType);
   } else {
