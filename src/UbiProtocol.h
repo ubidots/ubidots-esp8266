@@ -34,6 +34,10 @@ Inc
 #include <WiFiClientSecureAxTLS.h>
 using namespace axTLS;
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#pragma GCC diagnostic pop
+
 #include "UbiConstants.h"
 
 class UbiProtocol {

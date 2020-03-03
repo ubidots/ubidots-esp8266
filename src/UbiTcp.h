@@ -28,10 +28,6 @@ Inc
 
 #include "UbiProtocol.h"
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-#pragma GCC diagnostic pop
-
 class UbiTCP : public UbiProtocol {
 public:
   UbiTCP(const char *host, const int port, const char *user_agent,

@@ -23,8 +23,6 @@ Inc
 */
 
 #include "UbiUdp.h"
-#include "UbiConstants.h"
-#include <ESP8266WiFi.h>
 
 /**************************************************************************
  * Overloaded constructors
