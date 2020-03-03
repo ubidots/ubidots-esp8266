@@ -23,7 +23,6 @@ Inc
 */
 
 #include "UbiHttp.h"
-#include "UbiConstants.h"
 
 /**************************************************************************
  * Overloaded constructors
