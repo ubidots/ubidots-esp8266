@@ -254,7 +254,7 @@ double UbiHTTP::_parseServerAnswer() {
     Serial.printf_P("Length: %i\n", length);
   }
 
-  char *_charValue = (char *)malloc(sizeof(char) * length);
+  char *_charValue = (char *)malloc(sizeof(char) * length + 1);
 
   readServerAnswer(_charValue);
 
