@@ -59,8 +59,8 @@ bool UbiHTTP::sendData(const char *device_label, const char *device_name,
 
   /* Connecting the client */
 
-  _client_https_ubi.connect(_host, UBIDOTS_HTTPS_PORT);
-  reconnect(_host, UBIDOTS_HTTPS_PORT);
+  _client_https_ubi.connect(_host, _port);
+  reconnect(_host, _port);
 
   if (!_client_https_ubi.connected()) {
     if (_debug) {
@@ -169,7 +169,7 @@ double UbiHTTP::get(const char *device_label, const char *variable_label) {
     Serial.println(_host);
   }
 
-  if (!_client_https_ubi.connect(_host, UBIDOTS_HTTPS_PORT)) {
+  if (!_client_https_ubi.connect(_host, _port)) {
     if (_debug) {
       Serial.println(F("Connection Failed to Ubidots - Try Again"));
     }

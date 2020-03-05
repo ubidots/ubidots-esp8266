@@ -52,7 +52,7 @@ UbiProtocol *builderTcp() {
 
 UbiProtocol *builderHttp() {
   UbiProtocol *httpInstance =
-      new UbiHTTP(_host, UBIDOTS_HTTP_PORT, USER_AGENT, _token);
+      new UbiHTTP(_host, UBIDOTS_HTTPS_PORT, USER_AGENT, _token);
   return httpInstance;
 }
 
