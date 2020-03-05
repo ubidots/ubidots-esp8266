@@ -436,7 +436,7 @@ bool UbiHTTP::_loadCert() {
   bool res = _client_https_ubi.setCACert_P(UBI_CA_CERT_1, UBI_CA_CERT_LEN_1);
   res = res && _client_https_ubi.setCACert_P(UBI_CA_CERT_2, UBI_CA_CERT_LEN_2);
   if (!res && _debug) {
-    Serial.println(f("Failed to load root CA certificate!"));
+    Serial.println(F("Failed to load root CA certificate!"));
   }
   return res;
 }
