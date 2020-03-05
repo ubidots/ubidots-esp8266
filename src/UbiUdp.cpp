@@ -52,7 +52,7 @@ bool UbiUDP::sendData(const char *device_label, const char *device_name,
                       char *payload) {
   /* Sends data to Ubidots */
   _client_udp_ubi.begin(UBIDOTS_TCP_PORT);
-  if (!(_client_udp_ubi.beginPacket(UBIDOTS_SERVER, UBIDOTS_TCP_PORT) &&
+  if (!(_client_udp_ubi.beginPacket(UBI_INDUSTRIAL, UBIDOTS_TCP_PORT) &&
         _client_udp_ubi.write(payload) && _client_udp_ubi.endPacket())) {
     if (_debug) {
       Serial.println("ERROR sending values with UDP");
