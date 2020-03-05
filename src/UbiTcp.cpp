@@ -106,7 +106,7 @@ bool UbiTCP::sendData(const char *device_label, const char *device_name,
   return false;
 }
 
-float UbiTCP::get(const char *device_label, const char *variable_label) {
+double UbiTCP::get(const char *device_label, const char *variable_label) {
   bool allowed = _preConnectionChecks();
   if (!allowed) {
     return ERROR_VALUE;

@@ -116,8 +116,8 @@ bool Ubidots::send(const char *device_label, const char *device_name) {
 AUXILIAR FUNCTIONS
 ***************************************************************************/
 
-float Ubidots::get(const char *device_label, const char *variable_label) {
-  _cloudProtocol->get(device_label, variable_label);
+double Ubidots::get(const char *device_label, const char *variable_label) {
+  return _cloudProtocol->get(device_label, variable_label);
 }
 
 void Ubidots::setDebug(bool debug) {

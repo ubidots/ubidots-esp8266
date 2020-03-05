@@ -34,7 +34,7 @@ public:
          const char *token);
   bool sendData(const char *device_label, const char *device_name,
                 char *payload);
-  float get(const char *device_label, const char *variable_label);
+  double get(const char *device_label, const char *variable_label);
   void setDebug(bool debug);
   bool serverConnected();
   ~UbiTCP();

@@ -66,7 +66,7 @@ bool UbiUDP::sendData(const char *device_label, const char *device_name,
   return true;
 }
 
-float UbiUDP::get(const char *device_label, const char *variable_label) {
+double UbiUDP::get(const char *device_label, const char *variable_label) {
   return ERROR_VALUE;
 }
 

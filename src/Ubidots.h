@@ -46,7 +46,7 @@ public:
   bool send();
   bool send(const char *device_label);
   bool send(const char *device_label, const char *device_name);
-  float get(const char *device_label, const char *variable_label);
+  double get(const char *device_label, const char *variable_label);
   void setDebug(bool debug);
   bool wifiConnect(const char *ssid, const char *password);
   bool wifiConnected();

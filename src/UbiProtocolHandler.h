@@ -37,7 +37,7 @@ public:
            unsigned long dot_timestamp_seconds,
            unsigned int dot_timestamp_millis);
   bool send(const char *device_label, const char *device_name);
-  float get(const char *device_label, const char *variable_label);
+  double get(const char *device_label, const char *variable_label);
   void setDebug(bool debug);
   bool serverConnected();
   ~UbiProtocolHandler();
