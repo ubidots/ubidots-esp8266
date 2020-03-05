@@ -46,7 +46,6 @@ private:
   bool _debug = false;
   bool waitServerAnswer();
   void reconnect(const char *host, int port);
-  float parseHttpAnswer(const char *request_type, char *data);
   void readServerAnswer(char *response);
   int _timeout = 5000;
   uint8_t _maxReconnectAttempts = 5;
@@ -56,6 +55,10 @@ private:
   unsigned long _timerToSync = millis();
   bool _preConnectionChecks();
   WiFiClientSecure _client_https_ubi;
+
+  uint16_t _requestLineLength(char *path);
+  uint16_t _pathLength(const char *device_label, const char *variable_label);
+  double _parseServerAnswer();
 };
 
 #endif
