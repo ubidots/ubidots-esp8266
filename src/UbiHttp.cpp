@@ -173,6 +173,7 @@ double UbiHTTP::get(const char *device_label, const char *variable_label) {
     if (_debug) {
       Serial.println(F("Connection Failed to Ubidots - Try Again"));
     }
+    reconnect(_host, _port);
     _client_https_ubi.stop();
     return ERROR_VALUE;
   }
