@@ -231,7 +231,11 @@ double UbiHTTP::get(const char *device_label, const char *variable_label) {
   free(message);
   free(path);
 
-  return _parseServerAnswer();
+  double value = _parseServerAnswer();
+
+  _client_https_ubi.flush();
+  _client_https_ubi.stop();
+  return value;
 }
 
 double UbiHTTP::_parseServerAnswer() {
