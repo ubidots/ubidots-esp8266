@@ -38,6 +38,7 @@ const uint8_t MAX_VALUES = 10;
 const float ERROR_VALUE = -3.4028235E+8;
 const int MAX_BUFFER_SIZE = 700;
 static UbiServer UBI_INDUSTRIAL = "industrial.api.ubidots.com";
+static UbiServer UBI_EDUCATIONAL = "things.ubidots.com";
 
 /* Creates the Ubidots cert (available at
 https://z.cdn.ubidots.com/ustatic/certs/roots.der) using the command below xxd
