@@ -215,8 +215,8 @@ double UbiHTTP::get(const char *device_label, const char *variable_label) {
   _client_https_ubi.print(message);
 
   while (_client_https_ubi.connected()) {
-    String line = _client_https_ubi.readStringUntil('\n');
-    if (line == "\r") {
+    const char *line = _client_https_ubi.readStringUntil('\n').c_str();
+    if (strcmp(line, "\r") == 0) {
       if (_debug) {
         Serial.println(F("Headers received"));
       }
