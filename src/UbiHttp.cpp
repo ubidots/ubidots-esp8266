@@ -327,14 +327,37 @@ void UbiHTTP::reconnect(const char *host, const int port) {
 
 void UbiHTTP::readServerAnswer(char *_serverResponse) {
 
+  /**
+   * Server Response Ascii code -> Character from the server
+  First extract the following value
+  52 -> 4     ->Length of the value in HEX
+  13 -> \r
+  10 -> \n
+
+  At the next time it will read the whole value with the allocated memory set by the previus value extracted
+  51 -> 3     ->Value in char
+  57 -> 9     ->Value in char
+  46 -> .     ->Decimal point
+  48 -> 0     ->Value in char
+  13 -> \r
+  10 -> \n
+
+  48 -> 0     ->Value in char
+  13 -> \r
+  10 -> \n
+
+  13 -> \r
+  10 -> \n
+  */
+
   sprintf(_serverResponse, "%c", _client_https_ubi.read());
 
   while (_client_https_ubi.available()) {
-    char *c = (char *)malloc(sizeof(char) * 3);
+    char *c = (char *)malloc(sizeof(char));
     sprintf(c, "%c", _client_https_ubi.read());
-    if (*c == '\r') {
+    if (*c == '\r') { // If the character is \r means we have ended the line then we request
       // Get the last character \n to enable the function to run again
-      _client_https_ubi.read();
+      _client_https_ubi.read(); // clean the buffer asking for the next character
       free(c);
       break;
     } else if (*c == 'e') {
@@ -347,7 +370,7 @@ void UbiHTTP::readServerAnswer(char *_serverResponse) {
         Serial.println(F("[ERROR]The value from the server exceeded memory capacity"));
       }
     } else {
-      strcat(_serverResponse, c);
+      strcat(_serverResponse, c); // Add the value to the expected response.
     }
   }
 }
