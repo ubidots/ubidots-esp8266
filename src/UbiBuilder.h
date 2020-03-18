@@ -43,8 +43,7 @@ const char *_token;
 
 class UbiBuilder {
 public:
-  explicit UbiBuilder(const char *host, const char *token,
-                      IotProtocol iotProtocol);
+  explicit UbiBuilder(const char *host, const char *token, IotProtocol iotProtocol);
   UbiProtocol *builder();
 
 private:

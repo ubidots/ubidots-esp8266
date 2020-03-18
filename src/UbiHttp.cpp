@@ -30,8 +30,7 @@ Inc
  * Overloaded constructors
  ***************************************************************************/
 
-UbiHTTP::UbiHTTP(const char *host, const int port, const char *user_agent,
-                 const char *token) {
+UbiHTTP::UbiHTTP(const char *host, const int port, const char *user_agent, const char *token) {
   _host = host;
   _user_agent = user_agent;
   _token = token;
@@ -50,8 +49,7 @@ UbiHTTP::~UbiHTTP() {
   delete[] _token;
 }
 
-bool UbiHTTP::sendData(const char *device_label, const char *device_name,
-                       char *payload) {
+bool UbiHTTP::sendData(const char *device_label, const char *device_name, char *payload) {
   bool allowed = _preConnectionChecks();
   if (!allowed) {
     return false;
@@ -71,10 +69,9 @@ bool UbiHTTP::sendData(const char *device_label, const char *device_name,
 
   if (!_client_https_ubi.verifyCertChain(_host)) {
     if (_debug) {
-      Serial.println(
-          F("[ERROR] Could not verify the remote secure server certificate, "
-            "please make sure that you are using a secure "
-            "network"));
+      Serial.println(F("[ERROR] Could not verify the remote secure server certificate, "
+                       "please make sure that you are using a secure "
+                       "network"));
     }
     return false;
   }
@@ -185,10 +182,9 @@ double UbiHTTP::get(const char *device_label, const char *variable_label) {
     }
   } else {
     if (_debug) {
-      Serial.println(
-          F("[ERROR] Could not verify the remote secure server certificate, "
-            "please make sure that you are using a secure "
-            "network"));
+      Serial.println(F("[ERROR] Could not verify the remote secure server certificate, "
+                       "please make sure that you are using a secure "
+                       "network"));
     }
     _client_https_ubi.stop();
     return ERROR_VALUE;
@@ -282,11 +278,10 @@ double UbiHTTP::_parseServerAnswer() {
  * @return uint16_t  Lenght of the request line
  */
 uint16_t UbiHTTP::_requestLineLength(char *path) {
-  uint16_t endpointLength =
-      strlen("GET  HTTP/1.1\r\nHost: \r\nX-Auth-Token: "
-             "\r\nUser-Agent: \r\nContent-Type: "
-             "application/json\r\nConnection: close\r\n\r\n") +
-      strlen(path) + strlen(_host) + strlen(_token) + strlen(_user_agent);
+  uint16_t endpointLength = strlen("GET  HTTP/1.1\r\nHost: \r\nX-Auth-Token: "
+                                   "\r\nUser-Agent: \r\nContent-Type: "
+                                   "application/json\r\nConnection: close\r\n\r\n") +
+                            strlen(path) + strlen(_host) + strlen(_token) + strlen(_user_agent);
   return endpointLength;
 }
 
@@ -297,10 +292,8 @@ uint16_t UbiHTTP::_requestLineLength(char *path) {
  * @param variable_label variable label to be updated or fetched
  * @return uint16_t  Lenght of the endpoint path
  */
-uint16_t UbiHTTP::_pathLength(const char *device_label,
-                              const char *variable_label) {
-  uint16_t endpointLength = strlen("/api/v1.6/devices///lv") +
-                            strlen(device_label) + strlen(variable_label);
+uint16_t UbiHTTP::_pathLength(const char *device_label, const char *variable_label) {
+  uint16_t endpointLength = strlen("/api/v1.6/devices///lv") + strlen(device_label) + strlen(variable_label);
   return endpointLength;
 }
 
@@ -351,8 +344,7 @@ void UbiHTTP::readServerAnswer(char *_serverResponse) {
        * */
       sprintf(_serverResponse, "%f", ERROR_VALUE);
       if (_debug) {
-        Serial.println(
-            F("[ERROR]The value from the server exceeded memory capacity"));
+        Serial.println(F("[ERROR]The value from the server exceeded memory capacity"));
       }
     } else {
       strcat(_serverResponse, c);
@@ -417,8 +409,7 @@ bool UbiHTTP::_syncronizeTime() {
 
   if (attempts > 5) {
     if (_debug) {
-      Serial.println(
-          F("[ERROR] Could not set time using remote SNTP to verify Cert"));
+      Serial.println(F("[ERROR] Could not set time using remote SNTP to verify Cert"));
     }
     return false;
   }

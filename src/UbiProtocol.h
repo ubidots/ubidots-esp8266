@@ -42,8 +42,7 @@ using namespace axTLS;
 
 class UbiProtocol {
 public:
-  virtual bool sendData(const char *device_label, const char *device_name,
-                        char *payload) = 0;
+  virtual bool sendData(const char *device_label, const char *device_name, char *payload) = 0;
   virtual double get(const char *device_label, const char *variable_label) = 0;
   virtual void setDebug(bool debug) = 0;
   virtual bool serverConnected();

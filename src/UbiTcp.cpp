@@ -28,8 +28,7 @@ Inc
  * Overloaded constructors
  ***************************************************************************/
 
-UbiTCP::UbiTCP(const char *host, const int port, const char *user_agent,
-               const char *token) {
+UbiTCP::UbiTCP(const char *host, const int port, const char *user_agent, const char *token) {
   _host = host;
   _user_agent = user_agent;
   _token = token;
@@ -52,8 +51,7 @@ UbiTCP::~UbiTCP() {
  * Cloud Functions
  ***************************************************************************/
 
-bool UbiTCP::sendData(const char *device_label, const char *device_name,
-                      char *payload) {
+bool UbiTCP::sendData(const char *device_label, const char *device_name, char *payload) {
   bool allowed = _preConnectionChecks();
   if (!allowed) {
     return false;
@@ -64,10 +62,9 @@ bool UbiTCP::sendData(const char *device_label, const char *device_name,
   reconnect(_host, UBIDOTS_TCPS_PORT);
   if (!_client_tcps_ubi.verifyCertChain(_host)) {
     if (_debug) {
-      Serial.println(
-          "[ERROR] Could not verify the remote secure server certificate, "
-          "please make sure that you are using a secure "
-          "network");
+      Serial.println("[ERROR] Could not verify the remote secure server certificate, "
+                     "please make sure that you are using a secure "
+                     "network");
     }
     return false;
   }
@@ -118,10 +115,9 @@ double UbiTCP::get(const char *device_label, const char *variable_label) {
 
   if (!_client_tcps_ubi.verifyCertChain(_host)) {
     if (_debug) {
-      Serial.println(
-          "[ERROR] Could not verify the remote secure server certificate, "
-          "please make sure that you are using a secure "
-          "network");
+      Serial.println("[ERROR] Could not verify the remote secure server certificate, "
+                     "please make sure that you are using a secure "
+                     "network");
     }
     return ERROR_VALUE;
   }
@@ -308,8 +304,7 @@ bool UbiTCP::_syncronizeTime() {
 
   if (attempts > 5) {
     if (_debug) {
-      Serial.println(
-          "[ERROR] Could not set time using remote SNTP to verify Cert");
+      Serial.println("[ERROR] Could not set time using remote SNTP to verify Cert");
     }
     return false;
   }
