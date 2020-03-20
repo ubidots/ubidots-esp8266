@@ -242,7 +242,7 @@ double UbiHTTP::_parseServerAnswer() {
    */
   char *_charLength = (char *)malloc(sizeof(char) * 3);
 
-  readServerAnswer(_charLength);
+  _parsePartialServerAnswer(_charLength);
 
   /**
    * The server respond the length of the value in HEX so it has to be converted
@@ -256,7 +256,7 @@ double UbiHTTP::_parseServerAnswer() {
 
   char *_charValue = (char *)malloc(sizeof(char) * length + 1);
 
-  readServerAnswer(_charValue);
+  _parsePartialServerAnswer(_charValue);
 
   double value = strtof(_charValue, NULL);
 
@@ -325,7 +325,7 @@ void UbiHTTP::reconnect(const char *host, const int port) {
  * @arg response [Mandatory] Pointer to store the server's answer
  */
 
-void UbiHTTP::readServerAnswer(char *_serverResponse) {
+void UbiHTTP::_parsePartialServerAnswer(char *_serverResponse) {
 
   /**
    * Server Response Ascii code -> Character from the server
