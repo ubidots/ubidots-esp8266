@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2013-2018 Ubidots.
+Copyright (c) 2013-2020 Ubidots.
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the
 "Software"), to deal in the Software without restriction, including
@@ -16,9 +16,10 @@ NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
 LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-Developed and maintained by Jose Garcia for IoT Services Inc
+Developed and maintained by Jose Garcia and Cristian Arrieta for IoT Services
+Inc
 @jotathebest at github: https://github.com/jotathebest
+@crisap94 at github: https://github.com/crisap94
 */
 
 #include "UbiTcp.h"
@@ -27,7 +28,7 @@ Developed and maintained by Jose Garcia for IoT Services Inc
  * Overloaded constructors
  ***************************************************************************/
 
-UbiTCP::UbiTCP(const char* host, const int port, const char* user_agent, const char* token) {
+UbiTCP::UbiTCP(const char *host, const int port, const char *user_agent, const char *token) {
   _host = host;
   _user_agent = user_agent;
   _token = token;
@@ -50,7 +51,7 @@ UbiTCP::~UbiTCP() {
  * Cloud Functions
  ***************************************************************************/
 
-bool UbiTCP::sendData(const char* device_label, const char* device_name, char* payload) {
+bool UbiTCP::sendData(const char *device_label, const char *device_name, char *payload) {
   bool allowed = _preConnectionChecks();
   if (!allowed) {
     return false;
@@ -61,9 +62,9 @@ bool UbiTCP::sendData(const char* device_label, const char* device_name, char* p
   reconnect(_host, UBIDOTS_TCPS_PORT);
   if (!_client_tcps_ubi.verifyCertChain(_host)) {
     if (_debug) {
-      Serial.println(
-          "[ERROR] Could not verify the remote secure server certificate, please make sure that you are using a secure "
-          "network");
+      Serial.println("[ERROR] Could not verify the remote secure server certificate, "
+                     "please make sure that you are using a secure "
+                     "network");
     }
     return false;
   }
@@ -89,7 +90,7 @@ bool UbiTCP::sendData(const char* device_label, const char* device_name, char* p
   }
 
   /* Parses the host answer, returns true if it is 'Ok' */
-  char* response = (char*)malloc(sizeof(char) * 100);
+  char *response = (char *)malloc(sizeof(char) * 100);
 
   float value = parseTCPAnswer("POST", response);
   free(response);
@@ -102,7 +103,7 @@ bool UbiTCP::sendData(const char* device_label, const char* device_name, char* p
   return false;
 }
 
-float UbiTCP::get(const char* device_label, const char* variable_label) {
+double UbiTCP::get(const char *device_label, const char *variable_label) {
   bool allowed = _preConnectionChecks();
   if (!allowed) {
     return ERROR_VALUE;
@@ -114,9 +115,9 @@ float UbiTCP::get(const char* device_label, const char* variable_label) {
 
   if (!_client_tcps_ubi.verifyCertChain(_host)) {
     if (_debug) {
-      Serial.println(
-          "[ERROR] Could not verify the remote secure server certificate, please make sure that you are using a secure "
-          "network");
+      Serial.println("[ERROR] Could not verify the remote secure server certificate, "
+                     "please make sure that you are using a secure "
+                     "network");
     }
     return ERROR_VALUE;
   }
@@ -154,7 +155,7 @@ float UbiTCP::get(const char* device_label, const char* variable_label) {
     }
 
     /* Reads the response from the server */
-    char* response = (char*)malloc(sizeof(char) * MAX_BUFFER_SIZE);
+    char *response = (char *)malloc(sizeof(char) * MAX_BUFFER_SIZE);
     float value = parseTCPAnswer("LV", response);
     _client_tcps_ubi.stop();
     free(response);
@@ -179,7 +180,7 @@ float UbiTCP::get(const char* device_label, const char* variable_label) {
  *         false if timeout is reached.
  */
 
-void UbiTCP::reconnect(const char* host, const int port) {
+void UbiTCP::reconnect(const char *host, const int port) {
   uint8_t attempts = 0;
   while (!_client_tcps_ubi.status() && attempts < 5) {
     if (_debug) {
@@ -222,7 +223,7 @@ bool UbiTCP::waitServerAnswer() {
  * @return true if there is an 'Ok' in the answer, false if not.
  */
 
-float UbiTCP::parseTCPAnswer(const char* request_type, char* response) {
+float UbiTCP::parseTCPAnswer(const char *request_type, char *response) {
   int j = 0;
 
   if (_debug) {
@@ -251,7 +252,7 @@ float UbiTCP::parseTCPAnswer(const char* request_type, char* response) {
 
   // POST
   if (request_type == "POST") {
-    char* pch = strstr(response, "OK");
+    char *pch = strstr(response, "OK");
     if (pch != NULL) {
       result = 1;
     }
@@ -259,7 +260,7 @@ float UbiTCP::parseTCPAnswer(const char* request_type, char* response) {
   }
 
   // LV
-  char* pch = strchr(response, '|');
+  char *pch = strchr(response, '|');
   if (pch != NULL) {
     result = atof(pch + 1);
   }

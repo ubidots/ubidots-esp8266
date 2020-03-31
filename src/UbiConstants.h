@@ -1,3 +1,4 @@
+
 /*
 Copyright (c) 2013-2018 Ubidots.
 Permission is hereby granted, free of charge, to any person obtaining
@@ -16,9 +17,10 @@ NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
 LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-Developed and maintained by Jose Garcia for IoT Services Inc
+Developed and maintained by Jose Garcia and Cristian Arrieta for IoT Services
+Inc
 @jotathebest at github: https://github.com/jotathebest
+@crisap94 at github: https://github.com/crisap94
 */
 
 #ifndef _UbiConstants_H_
@@ -27,10 +29,8 @@ Developed and maintained by Jose Garcia for IoT Services Inc
 #include "UbiTypes.h"
 #include "stdint.h"
 
-const char* const UBIDOTS_SERVER = "industrial.api.ubidots.com";
 const char UBIDOTS_INDUSTRIAL_IP[] = "169.55.61.243";
-const char* const USER_AGENT = "UbidotsESP8266/3.0.0";
-const int UBIDOTS_HTTP_PORT = 80;
+const char *const USER_AGENT = "UbidotsESP8266/3.0.0";
 const int UBIDOTS_HTTPS_PORT = 443;
 const int UBIDOTS_TCP_PORT = 9012;
 const int UBIDOTS_TCPS_PORT = 9812;
@@ -40,8 +40,9 @@ const int MAX_BUFFER_SIZE = 700;
 static UbiServer UBI_INDUSTRIAL = "industrial.api.ubidots.com";
 static UbiServer UBI_EDUCATIONAL = "things.ubidots.com";
 
-/* Creates the Ubidots cert (available at https://z.cdn.ubidots.com/ustatic/certs/roots.der) using the command below
-xxd -i DigiCertHighAssuranceEVRootCA.crt.der >cacert.h
+/* Creates the Ubidots cert (available at
+https://z.cdn.ubidots.com/ustatic/certs/roots.der) using the command below xxd
+-i DigiCertHighAssuranceEVRootCA.crt.der >cacert.h
 */
 const unsigned char UBI_CA_CERT_1[] PROGMEM = {
     0x30, 0x82, 0x05, 0x6b, 0x30, 0x82, 0x03, 0x53, 0xa0, 0x03, 0x02, 0x01, 0x02, 0x02, 0x11, 0x00, 0x82, 0x10, 0xcf,

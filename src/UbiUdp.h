@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2013-2018 Ubidots.
+Copyright (c) 2013-2020 Ubidots.
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the
 "Software"), to deal in the Software without restriction, including
@@ -16,9 +16,10 @@ NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
 LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-Developed and maintained by Jose Garcia for IoT Services Inc
+Developed and maintained by Jose Garcia and Cristian Arrieta for IoT Services
+Inc
 @jotathebest at github: https://github.com/jotathebest
+@crisap94 at github: https://github.com/crisap94
 */
 
 #ifndef _UbiUdp_H_
@@ -30,24 +31,24 @@ Developed and maintained by Jose Garcia for IoT Services Inc
 #include "stdint.h"
 
 class UbiUDP : public UbiProtocol {
- public:
-  UbiUDP(const char* host, const int port, const char* user_agent, const char* token);
-  bool sendData(const char* device_label, const char* device_name, char* payload);
-  float get(const char* device_label, const char* variable_label);
+public:
+  UbiUDP(const char *host, const int port, const char *user_agent, const char *token);
+  bool sendData(const char *device_label, const char *device_name, char *payload);
+  double get(const char *device_label, const char *variable_label);
   void setDebug(bool debug);
   bool serverConnected();
   ~UbiUDP();
 
- private:
-  const char* _host;
-  const char* _user_agent;
-  const char* _token;
+private:
+  const char *_host;
+  const char *_user_agent;
+  const char *_token;
   int _port;
   bool _debug = false;
   int _timeout = 5000;
   bool waitServerAnswer();
-  bool parseTCPAnswer(char* response);
-  void reconnect(const char* host, const int port);
+  bool parseTCPAnswer(char *response);
+  void reconnect(const char *host, const int port);
   WiFiUDP _client_udp_ubi;
 };
 

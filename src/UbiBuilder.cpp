@@ -1,5 +1,6 @@
+
 /*
-Copyright (c) 2013-2019 Ubidots.
+Copyright (c) 2013-2020 Ubidots.
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the
 "Software"), to deal in the Software without restriction, including
@@ -16,20 +17,18 @@ NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
 LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-Developed and maintained by Jose Garcia for Ubidots Inc
+Developed and maintained by Jose Garcia and Cristian Arrieta for IoT Services
+Inc
 @jotathebest at github: https://github.com/jotathebest
+@crisap94 at github: https://github.com/crisap94
 */
 
 #include "UbiBuilder.h"
-#include "UbiConstants.h"
 #include "UbiHttp.h"
-#include "UbiProtocol.h"
 #include "UbiTcp.h"
-#include "UbiTypes.h"
 #include "UbiUdp.h"
 
-UbiBuilder::UbiBuilder(const char* host, const char* token, IotProtocol iot_protocol) {
+UbiBuilder::UbiBuilder(const char *host, const char *token, IotProtocol iot_protocol) {
   _iot_protocol = iot_protocol;
   command_list[UBI_TCP] = &builderTcp;
   command_list[UBI_HTTP] = &builderHttp;
@@ -38,23 +37,23 @@ UbiBuilder::UbiBuilder(const char* host, const char* token, IotProtocol iot_prot
   _token = token;
 }
 
-UbiProtocol* UbiBuilder::builder() {
+UbiProtocol *UbiBuilder::builder() {
   mapProtocol::iterator i = command_list.find(_iot_protocol);
-  UbiProtocol* ubiBuilder = (i->second)();
+  UbiProtocol *ubiBuilder = (i->second)();
   return ubiBuilder;
 }
 
-UbiProtocol* builderTcp() {
-  UbiProtocol* tcpInstance = new UbiTCP(_host, UBIDOTS_TCP_PORT, USER_AGENT, _token);
+UbiProtocol *builderTcp() {
+  UbiProtocol *tcpInstance = new UbiTCP(_host, UBIDOTS_TCP_PORT, USER_AGENT, _token);
   return tcpInstance;
 }
 
-UbiProtocol* builderHttp() {
-  UbiProtocol* httpInstance = new UbiHTTP(_host, UBIDOTS_HTTP_PORT, USER_AGENT, _token);
+UbiProtocol *builderHttp() {
+  UbiProtocol *httpInstance = new UbiHTTP(_host, UBIDOTS_HTTPS_PORT, USER_AGENT, _token);
   return httpInstance;
 }
 
-UbiProtocol* builderUdp() {
-  UbiProtocol* udpInstance = new UbiUDP(_host, UBIDOTS_TCP_PORT, USER_AGENT, _token);
+UbiProtocol *builderUdp() {
+  UbiProtocol *udpInstance = new UbiUDP(_host, UBIDOTS_TCP_PORT, USER_AGENT, _token);
   return udpInstance;
 }
