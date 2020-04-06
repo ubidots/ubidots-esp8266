@@ -51,7 +51,7 @@ TXD | RXD | TX
 
 ### Ubidots
 
-```
+```c++
 Ubidots(const char* token, UbiServer server, IotProtocol iot_protocol)
 ```
 
@@ -67,7 +67,7 @@ As Ubidots makes its best to secure your data, we do not guarantee any issue, da
 
 ## Methods
 
-```
+```c++
 void add(const char *variable_label, float value, char *context, unsigned long dot_timestamp_seconds, unsigned int dot_timestamp_millis)
 ```
 
@@ -81,7 +81,7 @@ Adds a dot with its related value, context and timestamp to be sent to a certain
 
 **Important:** The max payload lenght is 700 bytes, if your payload is greater it won't be properly sent. You can see on your serial console the payload to send if you call the `setDebug(bool debug)` method and pass a true value to it.
 
-```
+```c++
 float get(const char* device_label, const char* variable_label)
 ```
 
@@ -91,7 +91,7 @@ float get(const char* device_label, const char* variable_label)
 Returns as float the last value of the dot from the variable.
 IotProtocol getCloudProtocol()
 
-```
+```c++
 void addContext(char *key_label, char *key_value)
 ```
 
@@ -100,7 +100,7 @@ void addContext(char *key_label, char *key_value)
 
 Adds to local memory a new key-value context key. The method inputs must be char pointers. The method allows to store up to 10 key-value pairs.
 
-```
+```c++
 void getContext(char *context)
 ```
 
@@ -108,7 +108,7 @@ void getContext(char *context)
 
 Builds the context according to the chosen protocol and stores it in the context char pointer.
 
-```
+```c++
 void setDebug(bool debug)
 ```
 
@@ -116,7 +116,7 @@ void setDebug(bool debug)
 
 Makes available debug messages through the serial port.
 
-```
+```c++
 bool send(const char* device_label, const char* device_name);
 ```
 
@@ -126,7 +126,7 @@ bool send(const char* device_label, const char* device_name);
 Sends all the data added using the add() method. Returns true if the data was sent.
 
 
-```
+```c++
 bool wifiConnect(const char* ssid, const char* password)
 ```
 
@@ -135,17 +135,17 @@ bool wifiConnect(const char* ssid, const char* password)
 
 Attempts to connect to the cloud using WiFi with the specified credentials.
 
-```
+```c++
 bool wifiConnected()
 ```
 Returns true if the device is connected to the cloud using WiFi.
 
-```
+```c++
 bool serverConnected();
 ```
 Returns true if the device has a socket opened with Ubidots.
 
-```
+```c++
 void setDeviceType(const char* deviceType)
 ```
 
