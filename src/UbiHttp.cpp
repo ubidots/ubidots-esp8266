@@ -69,16 +69,17 @@ bool UbiHTTP::sendData(const char *device_label, const char *device_name, char *
 
   if (!_client_https_ubi.verifyCertChain(_host)) {
     if (_debug) {
-      Serial.println(F("[ERROR] Could not verify the remote secure server certificate, "
-                       "please make sure that you are using a secure "
-                       "network"));
+      Serial.println(
+          F("[ERROR] Could not verify the remote secure server certificate, "
+            "please make sure that you are using a secure "
+            "network"));
     }
     return false;
   }
 
   bool result = false;
 
-  if (_client_https_ubi.connected()) { // Connect to the host
+  if (_client_https_ubi.connected()) {  // Connect to the host
     /* Builds the request POST - Please reference this link to know all the
      * request's structures https://ubidots.com/docs/api/ */
 
@@ -145,7 +146,7 @@ bool UbiHTTP::sendData(const char *device_label, const char *device_name, char *
         Serial.println(F("Could not read server's response"));
       }
     }
-  } else { // Could not connect to the server
+  } else {  // Could not connect to the server
     if (_debug) {
       Serial.println(F("Could not send data to ubidots using HTTP"));
     }
@@ -182,9 +183,10 @@ double UbiHTTP::get(const char *device_label, const char *variable_label) {
     }
   } else {
     if (_debug) {
-      Serial.println(F("[ERROR] Could not verify the remote secure server certificate, "
-                       "please make sure that you are using a secure "
-                       "network"));
+      Serial.println(
+          F("[ERROR] Could not verify the remote secure server certificate, "
+            "please make sure that you are using a secure "
+            "network"));
     }
     _client_https_ubi.stop();
     return ERROR_VALUE;
@@ -215,12 +217,11 @@ double UbiHTTP::get(const char *device_label, const char *variable_label) {
   _client_https_ubi.print(message);
 
   while (_client_https_ubi.connected()) {
-    const char *line = _client_https_ubi.readStringUntil('\n').c_str();
-    if (strcmp(line, "\r") == 0) {
-      if (_debug) {
-        Serial.println(F("Headers received"));
+    if (_client_https_ubi.available()) {
+      String line = _client_https_ubi.readStringUntil('\n');
+      if (line == "\r") {
+        break;
       }
-      break;
     }
   }
 
@@ -235,7 +236,6 @@ double UbiHTTP::get(const char *device_label, const char *variable_label) {
 }
 
 double UbiHTTP::_parseServerAnswer() {
-
   /**
    * @param _charResponseLength 3 is the maximun amount of digits for the length
    * to have
@@ -250,19 +250,11 @@ double UbiHTTP::_parseServerAnswer() {
    * */
   uint8_t length = UbiUtils::hexadecimalToDecimal(_charLength);
 
-  if (_debug) {
-    Serial.printf_P("Length: %i\n", length);
-  }
-
   char *_charValue = (char *)malloc(sizeof(char) * length + 1);
 
   _parsePartialServerAnswer(_charValue);
 
   double value = strtof(_charValue, NULL);
-
-  if (_debug) {
-    Serial.printf_P("Value: %f\n", value);
-  }
 
   free(_charLength);
   free(_charValue);
@@ -278,9 +270,10 @@ double UbiHTTP::_parseServerAnswer() {
  * @return uint16_t  Lenght of the request line
  */
 uint16_t UbiHTTP::_requestLineLength(char *path) {
-  uint16_t endpointLength = strlen("GET  HTTP/1.1\r\nHost: \r\nX-Auth-Token: "
-                                   "\r\nUser-Agent: \r\nContent-Type: "
-                                   "application/json\r\nConnection: close\r\n\r\n") +
+  uint16_t endpointLength = strlen(
+                                "GET  HTTP/1.1\r\nHost: \r\nX-Auth-Token: "
+                                "\r\nUser-Agent: \r\nContent-Type: "
+                                "application/json\r\nConnection: close\r\n\r\n") +
                             strlen(path) + strlen(_host) + strlen(_token) + strlen(_user_agent);
   return endpointLength;
 }
@@ -326,7 +319,6 @@ void UbiHTTP::reconnect(const char *host, const int port) {
  */
 
 void UbiHTTP::_parsePartialServerAnswer(char *_serverResponse) {
-
   /**
    * Server Response Ascii code -> Character from the server
   First extract the following value
@@ -355,9 +347,9 @@ void UbiHTTP::_parsePartialServerAnswer(char *_serverResponse) {
   while (_client_https_ubi.available()) {
     char *c = (char *)malloc(sizeof(char));
     sprintf(c, "%c", _client_https_ubi.read());
-    if (*c == '\r') { // If the character is \r means we have ended the line then we request
+    if (*c == '\r') {  // If the character is \r means we have ended the line then we request
       // Get the last character \n to enable the function to run again
-      _client_https_ubi.read(); // clean the buffer asking for the next character
+      _client_https_ubi.read();  // clean the buffer asking for the next character
       free(c);
       break;
     } else if (*c == 'e') {
@@ -370,7 +362,7 @@ void UbiHTTP::_parsePartialServerAnswer(char *_serverResponse) {
         Serial.println(F("[ERROR]The value from the server exceeded memory capacity"));
       }
     } else {
-      strcat(_serverResponse, c); // Add the value to the expected response.
+      strcat(_serverResponse, c);  // Add the value to the expected response.
     }
   }
 }
@@ -470,9 +462,10 @@ bool UbiHTTP::_preConnectionChecks() {
 
   if (!syncronized) {
     if (_debug) {
-      Serial.println(F("[ERROR] Could not syncronize device time with external "
-                       "source, make sure that you are not behind a "
-                       "firewall"));
+      Serial.println(
+          F("[ERROR] Could not syncronize device time with external "
+            "source, make sure that you are not behind a "
+            "firewall"));
     }
     return false;
   }
