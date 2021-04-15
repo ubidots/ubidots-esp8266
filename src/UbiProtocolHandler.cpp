@@ -265,7 +265,7 @@ void UbiProtocolHandler::setDebug(bool debug) {
 
 void UbiProtocolHandler::_floatToChar(char *str_value, float value) {
   char temp_arr[20];
-  sprintf(temp_arr, "%17g", value);
+  sprintf(temp_arr, "%.17g", value);
   uint8_t j = 0;
   uint8_t k = 0;
   while (j < 20) {
