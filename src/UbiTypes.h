@@ -29,7 +29,7 @@ Inc
 typedef struct Value {
   const char *variable_label;
   char *dot_context;
-  float dot_value;
+  double dot_value;
   unsigned long dot_timestamp_seconds;
   unsigned int dot_timestamp_millis;
 } Value;

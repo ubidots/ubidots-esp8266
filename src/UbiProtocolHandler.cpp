@@ -69,7 +69,7 @@ FUNCTIONS TO SEND DATA
  * dot_timestamp_seconds, usefull for datalogger.
  */
 
-void UbiProtocolHandler::add(const char *variable_label, float value, char *context,
+void UbiProtocolHandler::add(const char *variable_label, double value, char *context,
                              unsigned long dot_timestamp_seconds, unsigned int dot_timestamp_millis) {
   _dirty = true;
   (_dots + _current_value)->variable_label = variable_label;
@@ -263,7 +263,7 @@ void UbiProtocolHandler::setDebug(bool debug) {
  * @value [Mandatory] Float value to convert
  */
 
-void UbiProtocolHandler::_floatToChar(char *str_value, float value) {
+void UbiProtocolHandler::_floatToChar(char *str_value, double value) {
   char temp_arr[20];
   sprintf(temp_arr, "%.17g", value);
   uint8_t j = 0;
