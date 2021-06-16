@@ -38,9 +38,9 @@ void setup() {
 }
 
 void loop() {
-  float value1 = random(0, 9) * 10;
-  float value2 = random(0, 9) * 100;
-  float value3 = random(0, 9) * 1000;
+  double value1 = random(0, 9) * 10;
+  double value2 = random(0, 9) * 100;
+  double value3 = random(0, 9) * 1000;
   ubidots.add("Variable_Name_One", value1);  // Change for your variable name
   ubidots.add("Variable_Name_Two", value2);
   ubidots.add("Variable_Name_Three", value3);
