@@ -33,7 +33,7 @@ void setup() {
 }
 
 void loop() {
-  float value1 = analogRead(A0);
+  double value1 = analogRead(A0);
   unsigned long timestamp_seconds = 1571615253L;  // Put here your timestamp in seconds
   unsigned int timestamp_milliseconds = 0;        // Put here the number of milliseconds to shift your timestamp
 

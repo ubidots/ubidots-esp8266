@@ -63,7 +63,7 @@ As Ubidots makes its best to secure your data, we do not guarantee any issue, da
 
 ## Methods
 
-`void add(const char *variable_label, float value, char *context, unsigned long dot_timestamp_seconds, unsigned int dot_timestamp_millis)`
+`void add(const char *variable_label, double value, char *context, unsigned long dot_timestamp_seconds, unsigned int dot_timestamp_millis)`
 
 Adds a dot with its related value, context and timestamp to be sent to a certain data source.
 

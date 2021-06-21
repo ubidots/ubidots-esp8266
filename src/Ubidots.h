@@ -32,10 +32,10 @@ class Ubidots {
 public:
   explicit Ubidots(const char *token, IotProtocol iotProtocol);
   explicit Ubidots(const char *token, UbiServer server = UBI_INDUSTRIAL, IotProtocol iotProtocol = UBI_TCP);
-  void add(const char *variable_label, float value);
-  void add(const char *variable_label, float value, char *context);
-  void add(const char *variable_label, float value, char *context, unsigned long dot_timestamp_seconds);
-  void add(const char *variable_label, float value, char *context, unsigned long dot_timestamp_seconds,
+  void add(const char *variable_label, double value);
+  void add(const char *variable_label, double value, char *context);
+  void add(const char *variable_label, double value, char *context, unsigned long dot_timestamp_seconds);
+  void add(const char *variable_label, double value, char *context, unsigned long dot_timestamp_seconds,
            unsigned int dot_timestamp_millis);
   void addContext(char *key_label, char *key_value);
   void getContext(char *context_result);

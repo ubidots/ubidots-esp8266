@@ -64,17 +64,17 @@ FUNCTIONS TO SEND DATA
  * dot_timestamp_seconds, usefull for datalogger.
  */
 
-void Ubidots::add(const char *variable_label, float value) { add(variable_label, value, NULL, NULL, NULL); }
+void Ubidots::add(const char *variable_label, double value) { add(variable_label, value, NULL, NULL, NULL); }
 
-void Ubidots::add(const char *variable_label, float value, char *context) {
+void Ubidots::add(const char *variable_label, double value, char *context) {
   add(variable_label, value, context, NULL, NULL);
 }
 
-void Ubidots::add(const char *variable_label, float value, char *context, long unsigned dot_timestamp_seconds) {
+void Ubidots::add(const char *variable_label, double value, char *context, long unsigned dot_timestamp_seconds) {
   add(variable_label, value, context, dot_timestamp_seconds, NULL);
 }
 
-void Ubidots::add(const char *variable_label, float value, char *context, long unsigned dot_timestamp_seconds,
+void Ubidots::add(const char *variable_label, double value, char *context, long unsigned dot_timestamp_seconds,
                   unsigned int dot_timestamp_millis) {
   _cloudProtocol->add(variable_label, value, context, dot_timestamp_seconds, dot_timestamp_millis);
 }
