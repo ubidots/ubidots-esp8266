@@ -34,7 +34,9 @@ UbiTCP::UbiTCP(const char *host, const int port, const char *user_agent, const c
   _token = token;
   _port = port;
   _syncronizeTime();
-  _certifiedLoaded = _loadCert();
+  _client_tcps_ubi.setSession(&_session);
+  _loadCerts();
+  _client_tcps_ubi.setTrustAnchors(&_certs);
 }
 
 /**************************************************************************
@@ -60,14 +62,8 @@ bool UbiTCP::sendData(const char *device_label, const char *device_name, char *p
   /* Connecting the client */
   _client_tcps_ubi.connect(_host, UBIDOTS_TCPS_PORT);
   reconnect(_host, UBIDOTS_TCPS_PORT);
-  if (!_client_tcps_ubi.verifyCertChain(_host)) {
-    if (_debug) {
-      Serial.println("[ERROR] Could not verify the remote secure server certificate, "
-                     "please make sure that you are using a secure "
-                     "network");
-    }
-    return false;
-  }
+
+  /* Server certificate validation is performed by the BearSSL::WiFiClientSecure instance */
 
   /* Sends data to Ubidots */
   if (_client_tcps_ubi.connected()) {
@@ -113,14 +109,7 @@ double UbiTCP::get(const char *device_label, const char *variable_label) {
   _client_tcps_ubi.connect(_host, UBIDOTS_TCPS_PORT);
   reconnect(_host, UBIDOTS_TCPS_PORT);
 
-  if (!_client_tcps_ubi.verifyCertChain(_host)) {
-    if (_debug) {
-      Serial.println("[ERROR] Could not verify the remote secure server certificate, "
-                     "please make sure that you are using a secure "
-                     "network");
-    }
-    return ERROR_VALUE;
-  }
+  /* Server certificate validation is performed by the BearSSL::WiFiClientSecure instance */
 
   if (_client_tcps_ubi.connected()) {
     /* Builds the request POST - Please reference this link to know all the
@@ -322,14 +311,13 @@ bool UbiTCP::_syncronizeTime() {
  * Loads the certified from the constants file
  */
 
-bool UbiTCP::_loadCert() {
+void UbiTCP::_loadCerts() {
   // Loads root certificate in DER format into WiFiClientSecure object
-  bool res = _client_tcps_ubi.setCACert_P(UBI_CA_CERT_1, UBI_CA_CERT_LEN_1);
-  res = res && _client_tcps_ubi.setCACert_P(UBI_CA_CERT_2, UBI_CA_CERT_LEN_2);
-  if (!res && _debug) {
-    Serial.println("Failed to load root CA certificate!");
+  _certs.append(UBI_CA_CERT_1, sizeof(UBI_CA_CERT_1));
+  _certs.append(UBI_CA_CERT_2, sizeof(UBI_CA_CERT_2));
+  if (!_certs.getCount() && _debug) {
+    Serial.println(F("Failed to load root CA certificate!"));
   }
-  return res;
 }
 
 bool UbiTCP::_preConnectionChecks() {
@@ -344,7 +332,7 @@ bool UbiTCP::_preConnectionChecks() {
     return false;
   }
 
-  if (!_certifiedLoaded) {
+  if (!_certs.getCount()) {
     if (_debug) {
       Serial.println("Please load a valid certificate");
     }

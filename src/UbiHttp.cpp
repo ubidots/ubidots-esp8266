@@ -36,7 +36,9 @@ UbiHTTP::UbiHTTP(const char *host, const int port, const char *user_agent, const
   _token = token;
   _port = port;
   _syncronizeTime();
-  _certifiedLoaded = _loadCert();
+  _client_https_ubi.setSession(&_session);
+  _loadCerts();
+  _client_https_ubi.setTrustAnchors(&_certs);
 }
 
 /**************************************************************************
@@ -67,15 +69,7 @@ bool UbiHTTP::sendData(const char *device_label, const char *device_name, char *
     return false;
   }
 
-  if (!_client_https_ubi.verifyCertChain(_host)) {
-    if (_debug) {
-      Serial.println(
-          F("[ERROR] Could not verify the remote secure server certificate, "
-            "please make sure that you are using a secure "
-            "network"));
-    }
-    return false;
-  }
+  /* Server certificate validation is performed by the BearSSL::WiFiClientSecure instance */
 
   bool result = false;
 
@@ -176,21 +170,7 @@ double UbiHTTP::get(const char *device_label, const char *variable_label) {
     return ERROR_VALUE;
   }
 
-  // Verify validity of server's certificate
-  if (_client_https_ubi.verifyCertChain(_host)) {
-    if (_debug) {
-      Serial.println(F("Ubidots server certificate verified"));
-    }
-  } else {
-    if (_debug) {
-      Serial.println(
-          F("[ERROR] Could not verify the remote secure server certificate, "
-            "please make sure that you are using a secure "
-            "network"));
-    }
-    _client_https_ubi.stop();
-    return ERROR_VALUE;
-  }
+  /* Server certificate validation is performed by the BearSSL::WiFiClientSecure instance */
 
   uint16_t pathLength = _pathLength(device_label, variable_label);
   char *path = (char *)malloc(sizeof(char) * pathLength + 1);
@@ -442,14 +422,13 @@ bool UbiHTTP::_syncronizeTime() {
  * Loads the certified from the constants file
  */
 
-bool UbiHTTP::_loadCert() {
+void UbiHTTP::_loadCerts() {
   // Loads root certificate in DER format into WiFiClientSecure object
-  bool res = _client_https_ubi.setCACert_P(UBI_CA_CERT_1, UBI_CA_CERT_LEN_1);
-  res = res && _client_https_ubi.setCACert_P(UBI_CA_CERT_2, UBI_CA_CERT_LEN_2);
-  if (!res && _debug) {
-    Serial.println(F("Failed to load root CA certificate!"));
+  _certs.append(UBI_CA_CERT_1, sizeof(UBI_CA_CERT_1));
+  _certs.append(UBI_CA_CERT_2, sizeof(UBI_CA_CERT_2));
+  if (!_certs.getCount() && _debug) {
+    Serial.println(F("Failed to load root CA certificates!"));
   }
-  return res;
 }
 
 bool UbiHTTP::_preConnectionChecks() {
@@ -470,7 +449,7 @@ bool UbiHTTP::_preConnectionChecks() {
     return false;
   }
 
-  if (!_certifiedLoaded) {
+  if (!_certs.getCount()) {
     if (_debug) {
       Serial.println(F("[ERROR] Please load a valid certificate"));
     }

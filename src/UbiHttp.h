@@ -52,9 +52,10 @@ private:
   void reconnect(const char *host, int port);
 
   bool _preConnectionChecks();
-  bool _certifiedLoaded = false;
+  Session _session;
+  X509List _certs;
   bool _syncronizeTime();
-  bool _loadCert();
+  void _loadCerts();
   uint16_t _requestLineLength(char *path);
   uint16_t _pathLength(const char *device_label, const char *variable_label);
   double _parseServerAnswer();
