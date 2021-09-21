@@ -25,14 +25,7 @@ Inc
 #ifndef _UbiProtocol_H_
 #define _UbiProtocol_H_
 
-#ifndef USING_AXTLS
-#define USING_AXTLS
-#endif
-
 #include "ESP8266WiFi.h"
-
-#include <WiFiClientSecureAxTLS.h>
-using namespace axTLS;
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"

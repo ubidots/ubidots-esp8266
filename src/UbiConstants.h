@@ -30,7 +30,7 @@ Inc
 #include "stdint.h"
 
 const char UBIDOTS_INDUSTRIAL_IP[] = "169.55.61.243";
-const char *const USER_AGENT = "UbidotsESP8266/3.0.1";
+const char *const USER_AGENT = "UbidotsESP8266/3.1.0";
 const int UBIDOTS_HTTPS_PORT = 443;
 const int UBIDOTS_TCP_PORT = 9012;
 const int UBIDOTS_TCPS_PORT = 9812;

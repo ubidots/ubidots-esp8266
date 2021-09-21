@@ -44,12 +44,13 @@ private:
   int _port;
   bool _debug = false;
   int _timeout = 5000;
-  bool _certifiedLoaded = false;
+  Session _session;
+  X509List _certs;
   bool waitServerAnswer();
   float parseTCPAnswer(const char *request_type, char *response);
   void reconnect(const char *host, const int port);
   bool _syncronizeTime();
-  bool _loadCert();
+  void _loadCerts();
   WiFiClientSecure _client_tcps_ubi;
   unsigned long _timerToSync = millis();
   bool _preConnectionChecks();
