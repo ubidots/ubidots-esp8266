@@ -36,7 +36,7 @@ void setup() {
   Ubidots::wifiConnect(WIFI_SSID, WIFI_PASS);
   ubidots = new Ubidots(UBIDOTS_TOKEN, UBI_HTTP);
   ubidots->setDeviceType(DEVICE_TYPE);
-  //ubidots->setDebug(true); //Uncomment this line for printing debug messages
+  //ubidots->setDebug(true); // Uncomment this line for printing debug messages
 }
 
 void loop() {

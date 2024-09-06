@@ -31,7 +31,7 @@ void setup() {
   Serial.begin(115200);
   Ubidots::wifiConnect(WIFI_SSID, WIFI_PASS);
   ubidots = new Ubidots(UBIDOTS_TOKEN, UBI_HTTP);
-  //ubidots->setDebug(true); //Uncomment this line for printing debug messages
+  //ubidots->setDebug(true); // Uncomment this line for printing debug messages
 }
 
 
