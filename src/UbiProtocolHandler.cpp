@@ -143,7 +143,7 @@ void UbiProtocolHandler::buildHttpPayload(char *payload) {
   sprintf(payload, "{");
 
   for (uint8_t i = 0; i < _current_value;) {
-    char str_value[20];
+    char str_value[25];
     _floatToChar(str_value, (_dots + i)->dot_value);
     sprintf(payload, "%s\"%s\":{\"value\":%s", payload, (_dots + i)->variable_label, str_value);
 
@@ -264,11 +264,11 @@ void UbiProtocolHandler::setDebug(bool debug) {
  */
 
 void UbiProtocolHandler::_floatToChar(char *str_value, double value) {
-  char temp_arr[20];
+  char temp_arr[25];
   sprintf(temp_arr, "%.17g", value);
   uint8_t j = 0;
   uint8_t k = 0;
-  while (j < 20) {
+  while (j < 25) {
     if (temp_arr[j] != ' ') {
       str_value[k] = temp_arr[j];
       k++;

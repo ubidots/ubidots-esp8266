@@ -45,7 +45,7 @@ public:
   bool send(const char *device_label, const char *device_name);
   double get(const char *device_label, const char *variable_label);
   void setDebug(bool debug);
-  bool wifiConnect(const char *ssid, const char *password);
+  static bool wifiConnect(const char *ssid, const char *password);
   bool wifiConnected();
   bool serverConnected();
   void setDeviceType(const char *deviceType);
@@ -53,7 +53,7 @@ public:
 
 private:
   char _deviceType[25];
-  uint8_t _maxConnectionAttempts = 20;
+  static constexpr uint8_t _maxConnectionAttempts = 20;
   UbiProtocolHandler *_cloudProtocol;
   char _defaultDeviceLabel[18];
   ContextUbi *_context;
